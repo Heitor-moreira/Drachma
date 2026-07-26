@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Transaction, TransactionType, Category } from '../types';
+import { Transaction, TransactionType, Category, CreditCard as CreditCardModel, FinancialGroup, PaymentMethod } from '../types';
 import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark } from 'lucide-react';
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   onClose: () => void;
   initialData?: Transaction | null;
   currencySymbol: string;
+  cards?: CreditCardModel[];
 }
 
 // Helper to format date as YYYY-MM-DD in local time
@@ -18,12 +19,16 @@ const formatLocalYYYYMMDD = (date: Date) => {
   return `${y}-${m}-${d}`;
 };
 
-const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol }) => {
+const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [] }) => {
   const [description, setDescription] = useState(initialData?.description || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const [type, setType] = useState<TransactionType>(initialData?.type || TransactionType.EXPENSE);
   const [category, setCategory] = useState<Category>(initialData?.category || Category.FOOD);
   const [date, setDate] = useState(initialData?.date || formatLocalYYYYMMDD(new Date()));
+  const [tagsText, setTagsText] = useState(initialData?.tags?.join(', ') || '');
+  const [financialGroup, setFinancialGroup] = useState<FinancialGroup>(initialData?.financialGroup || (initialData?.type === TransactionType.INCOME ? FinancialGroup.PERSONAL_INCOME : FinancialGroup.PERSONAL_EXPENSE));
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initialData?.paymentMethod || 'PIX');
+  const [cardId, setCardId] = useState(initialData?.cardId || '');
   
   // Regra específica: Observações nunca devem vir pré-preenchidas
   const [comment, setComment] = useState('');
@@ -58,7 +63,9 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         category, 
         date, 
         comment, // Salva o novo comentário (ou vazio)
-        isFixed: type === TransactionType.EXPENSE ? isRecurring : false 
+        isFixed: type === TransactionType.EXPENSE ? isRecurring : false,
+        tags: tagsText.split(',').map(t => t.trim()).filter(Boolean), financialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
+        purchaseDate: paymentMethod === 'CREDIT_CARD' ? date : undefined
       }]);
       onClose();
       return;
@@ -92,6 +99,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         amount: valAmount,
         type,
         category,
+        tags: tagsText.split(',').map(t => t.trim()).filter(Boolean), financialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
+        purchaseDate: paymentMethod === 'CREDIT_CARD' ? formattedDate : undefined,
         date: formattedDate,
         comment: comment.trim(),
         isFixed: type === TransactionType.EXPENSE ? isRecurring : false,
@@ -126,6 +135,29 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         >
           Receita
         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Grupo financeiro</label>
+          <select value={financialGroup} onChange={e => setFinancialGroup(e.target.value as FinancialGroup)} className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white">
+            <option value={FinancialGroup.PERSONAL_INCOME}>Renda pessoal</option><option value={FinancialGroup.REIMBURSEMENT}>Reembolso</option><option value={FinancialGroup.PERSONAL_EXPENSE}>Gasto pessoal</option><option value={FinancialGroup.ADVANCE_TO_OTHERS}>Adiantado a terceiros</option><option value={FinancialGroup.SAVINGS}>Reserva / economia</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Tags (separadas por vírgula)</label>
+          <input value={tagsText} onChange={e => setTagsText(e.target.value)} placeholder="casa, essencial" className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Método de pagamento</label>
+          <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value as PaymentMethod)} className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white">
+            <option value="PIX">Pix</option><option value="CASH">Dinheiro</option><option value="DEBIT_CARD">Cartão de débito</option><option value="CREDIT_CARD">Cartão de crédito</option><option value="BOLETO">Boleto</option><option value="OTHER">Outro</option>
+          </select>
+        </div>
+        {paymentMethod === 'CREDIT_CARD' && <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Cartão</label><select value={cardId} onChange={e => setCardId(e.target.value)} className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white"><option value="">Selecione um cartão</option>{cards.map(card => <option key={card.id} value={card.id}>{card.name} · vence dia {card.dueDay}</option>)}</select></div>}
       </div>
 
       {/* Descrição e Valor */}
