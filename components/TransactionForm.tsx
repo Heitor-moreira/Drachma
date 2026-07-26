@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Transaction, TransactionType, Category, CreditCard as CreditCardModel, FinancialGroup, PaymentMethod } from '../types';
-import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, PiggyBank, RotateCcw, ArrowRightLeft, X, ChevronDown } from 'lucide-react';
+import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, PiggyBank, RotateCcw, ArrowRightLeft, X, ChevronDown, Pencil } from 'lucide-react';
 
 interface Props {
   onAdd: (transactions: Transaction[]) => void;
@@ -18,6 +18,11 @@ const formatLocalYYYYMMDD = (date: Date) => {
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
+};
+
+const formatCurrency = (value: string, currencySymbol: string) => {
+  const number = Number(value || 0);
+  return `${currencySymbol} ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [] }) => {
@@ -127,41 +132,33 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input type="number" min="0" step="0.01" value={amount} onChange={e => setAmount(e.target.value.replace('-', ''))} className="w-3/4 text-3xl font-black bg-transparent outline-none dark:text-white" placeholder="R$ 0,00" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5"><div className="flex items-center gap-3"><div className={`p-2 rounded-full bg-current/10 ${kindMeta.color}`}><KindIcon size={20} /></div><select value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className={`text-lg font-bold bg-transparent outline-none ${kindMeta.color} dark:bg-slate-900`}><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="REIMBURSEMENT">Reembolso</option><option value="ADVANCE">Adiantamento a terceiros</option></select><ChevronDown size={16} className={kindMeta.color} /></div></div>
+    <form onSubmit={handleSubmit} className="space-y-0 divide-y divide-slate-200 dark:divide-slate-800">
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-black bg-transparent outline-none dark:text-white" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
+      <div className="flex items-center justify-between py-5"><div className="flex items-center gap-3"><div className={`p-2 rounded-full bg-slate-100 dark:bg-slate-800 ${kindMeta.color}`}><KindIcon size={20} /></div><div className="relative"><select value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className={`appearance-none pr-7 text-lg font-bold bg-transparent outline-none ${kindMeta.color} dark:bg-slate-900`}><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="REIMBURSEMENT">Reembolso</option><option value="ADVANCE">Adiantamento a terceiros</option></select></div></div><ChevronDown size={18} className={kindMeta.color} /></div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="py-5">
         <div>
-          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Método de pagamento</label>
-          <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value as PaymentMethod)} className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white"><option value="PIX">Pix</option><option value="CASH">Dinheiro</option><option value="DEBIT_CARD">Cartão de débito</option><option value="CREDIT_CARD">Cartão de crédito</option><option value="BOLETO">Boleto</option><option value="OTHER">Outro</option></select>
+          <div className="relative flex items-center gap-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value as PaymentMethod)} className="w-full appearance-none pr-8 py-2 text-lg font-bold text-slate-700 dark:text-slate-200 bg-transparent border-0 outline-none"><option value="PIX">Pix</option><option value="CASH">Dinheiro</option><option value="DEBIT_CARD">Cartão de débito</option><option value="CREDIT_CARD">Cartão de crédito</option><option value="BOLETO">Boleto</option><option value="OTHER">Outro</option></select><ChevronDown size={18} className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-slate-500" /></div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="py-5">
         <div>
-          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Tags</label>
-          <input value={tagsText} onChange={e => setTagsText(e.target.value)} placeholder="casa, essencial" className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl dark:text-white" />
-          {suggestedTags.length > 0 && <div className="mt-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tag} type="button" onClick={() => { const parts = tagsText.split(','); parts[parts.length - 1] = ` ${tag}`; setTagsText(`${parts.join(',').replace(/^\s+/, '')}, `); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-slate-200">{tag}</button>)}</div>}
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Descrição <span className="text-rose-500">*</span></label>
-          <input 
+          <div className="flex items-center gap-3"><Pencil size={20} className="text-slate-500" /><input 
             autoFocus 
             type="text" 
             value={description} 
             onChange={e => setDescription(e.target.value)} 
-            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-theme dark:text-white" 
-            placeholder="Aluguel, Faculdade..." 
+            className="w-full px-0 py-2 bg-transparent border-0 outline-none focus:ring-0 dark:text-white" 
+            placeholder="Descrição" 
             required 
-          />
+          /></div>
         </div>
       </div>
 
-      {/* Valor e data */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Valor ({currencySymbol}) <span className="text-rose-500">*</span></label><input type="number" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none dark:text-white" placeholder="0,00" required /></div>
-        <div><label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{initialData ? 'Data do Lançamento' : 'Data do Primeiro Lançamento'}</label><input type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none dark:text-white" /></div>
+      {/* Data */}
+      <div className="py-5">
+        <div className="relative flex items-center justify-between"><div className="flex items-center gap-3"><Calendar size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-slate-200">Data</label></div><input type="date" value={date} onChange={e => setDate(e.target.value)} className="mr-7 text-lg font-bold text-slate-700 dark:text-slate-200 bg-transparent border-0 outline-none dark:[color-scheme:dark]" /><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
       </div>
 
       {/* Opções Avançadas (Apenas para Despesas) */}
@@ -238,8 +235,14 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         </div>
       )}
 
-      {/* Observações */}
-      <div>
+      {/* Tags */}
+      <div className="py-5">
+        <div className="flex items-center gap-3"><Tag size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-slate-200">Tags</label></div>
+        <div className="mt-2 flex flex-wrap gap-2">{tagsText.split(',').map(t => t.trim()).filter(Boolean).map(tag => <span key={tag} className={`px-3 py-1 rounded-full text-sm font-bold ${kindMeta.color} bg-slate-100 dark:bg-slate-800`}>{tag}</span>)}<input value={tagsText} onChange={e => setTagsText(e.target.value)} placeholder="Adicionar tags" className="min-w-[140px] flex-1 px-0 py-2 text-lg font-bold bg-transparent border-0 outline-none dark:text-white" /></div>
+        {suggestedTags.length > 0 && <div className="mt-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tag} type="button" onClick={() => { const parts = tagsText.split(','); parts[parts.length - 1] = ` ${tag}`; setTagsText(`${parts.join(',').replace(/^\s+/, '')}, `); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-slate-200">{tag}</button>)}</div>}
+      </div>
+      {/* Observações mantidas apenas no modelo, fora do modal básico */}
+      <div className="hidden">
         <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 flex items-center gap-1">Observações</label>
         <textarea 
           rows={2} 

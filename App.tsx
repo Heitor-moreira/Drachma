@@ -514,11 +514,7 @@ const App: React.FC = () => {
 
         {(isFormOpen || editingTransaction) && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-theme/10 dark:bg-theme/5">
-                <h3 className="font-bold text-slate-800 dark:text-slate-100">{editingTransaction ? 'Editar Lançamento' : 'Novo Lançamento'}</h3>
-                <button onClick={() => {setIsFormOpen(false); setEditingTransaction(null)}} className="dark:text-slate-400"><X size={20} /></button>
-              </div>
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
               <div className="p-6 overflow-y-auto max-h-[80vh]">
                 <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null)}} initialData={editingTransaction} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
               </div>
