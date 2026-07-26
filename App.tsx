@@ -28,7 +28,7 @@ import {
   ChevronRight,
   Menu
 } from 'lucide-react';
-import { Transaction, TransactionType, Category, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard } from './types';
+import { Transaction, TransactionType, Category, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel } from './types';
 import Dashboard from './components/Dashboard';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
@@ -75,7 +75,7 @@ const App: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [baseSalary, setBaseSalary] = useState<number>(0);
   const [salaryInfo, setSalaryInfo] = useState<SalaryInfo>({ gross: 0, discounts: [] });
-  const [cards, setCards] = useState<CreditCard[]>(() => {
+  const [cards, setCards] = useState<CreditCardModel[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_CARDS);
     return saved ? JSON.parse(saved) : [];
   });
@@ -156,6 +156,8 @@ const App: React.FC = () => {
   }, [subscriptions, initialBalance, salaryInfo, dateRange, settings, cards]);
 
   const currencySymbol = CURRENCIES[settings.currency].symbol;
+
+  const availableTags = useMemo(() => Array.from(new Set(transactions.flatMap(t => t.tags || []))).sort((a, b) => a.localeCompare(b)), [transactions]);
 
   const calculatedNetSalary = useMemo(() => {
     const totalDiscounts = salaryInfo.discounts.reduce((acc, d) => {
@@ -518,7 +520,7 @@ const App: React.FC = () => {
                 <button onClick={() => {setIsFormOpen(false); setEditingTransaction(null)}} className="dark:text-slate-400"><X size={20} /></button>
               </div>
               <div className="p-6 overflow-y-auto max-h-[80vh]">
-                <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null)}} initialData={editingTransaction} currencySymbol={currencySymbol} cards={cards} />
+                <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null)}} initialData={editingTransaction} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
               </div>
             </div>
           </div>
