@@ -4,6 +4,16 @@ export enum TransactionType {
   EXPENSE = 'EXPENSE'
 }
 
+export enum FinancialGroup {
+  PERSONAL_INCOME = 'PERSONAL_INCOME',
+  REIMBURSEMENT = 'REIMBURSEMENT',
+  PERSONAL_EXPENSE = 'PERSONAL_EXPENSE',
+  ADVANCE_TO_OTHERS = 'ADVANCE_TO_OTHERS',
+  SAVINGS = 'SAVINGS'
+}
+
+export type PaymentMethod = 'CASH' | 'PIX' | 'DEBIT_CARD' | 'CREDIT_CARD' | 'BOLETO' | 'OTHER';
+
 export enum Category {
   SALARY = 'Salário',
   RESERVE = 'Reserva',
@@ -24,6 +34,12 @@ export interface Transaction {
   amount: number;
   type: TransactionType;
   category: Category;
+  tags?: string[];
+  financialGroup?: FinancialGroup;
+  paymentMethod?: PaymentMethod;
+  cardId?: string;
+  purchaseDate?: string;
+  dueDate?: string;
   comment: string;
   isFixed?: boolean; // Usado internamente para "Recorrente"
   isInstallment?: boolean;
@@ -35,6 +51,15 @@ export interface Transaction {
   batchId?: string;
   batchName?: string;
   importDate?: string;
+}
+
+export interface CreditCard {
+  id: string;
+  name: string;
+  bank: string;
+  limit: number;
+  dueDay: number;
+  isActive: boolean;
 }
 
 export interface Subscription {

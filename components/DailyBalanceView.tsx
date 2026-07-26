@@ -1,6 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
-import { Transaction, TransactionType, DateRange } from '../types';
+import { Transaction, TransactionType, DateRange, CreditCard } from '../types';
+import { projectTransactions } from '../finance';
 import { 
   ArrowRightLeft,
   ArrowDownNarrowWide,
@@ -14,6 +15,7 @@ interface Props {
   onEdit: (t: Transaction) => void;
   onDelete: (id: string) => void;
   currencySymbol: string;
+  cards?: CreditCard[];
 }
 
 // Helper to handle dates locally without UTC shifts
@@ -29,7 +31,7 @@ const parseLocalDate = (dateStr: string) => {
   return new Date(y, m - 1, d, 12, 0, 0);
 };
 
-const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, currencySymbol }) => {
+const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, currencySymbol, cards = [] }) => {
   // Para a visão de planilha, a ordem padrão é cronológica (mais antigo no topo)
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('ASC');
 
@@ -37,8 +39,8 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     const start = parseLocalDate(dateRange.start);
     const end = parseLocalDate(dateRange.end);
     
-    // Saldo inicial acumulado de todas as transações antes da data de início
-    let runningBalance = transactions
+    const projected = projectTransactions(transactions, '0000-01-01', dateRange.end, cards);
+    let runningBalance = projected
       .filter(t => parseLocalDate(t.date) < start)
       .reduce((acc, t) => t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0);
 
@@ -52,7 +54,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     }
 
     days.forEach(dateStr => {
-      const dayTs = transactions.filter(t => t.date === dateStr);
+      const dayTs = projected.filter(t => t.date === dateStr);
       const inc = dayTs.filter(t => t.type === TransactionType.INCOME).reduce((acc, t) => acc + t.amount, 0);
       const exp = dayTs.filter(t => t.type === TransactionType.EXPENSE).reduce((acc, t) => acc + t.amount, 0);
       runningBalance = runningBalance + inc - exp;
@@ -67,7 +69,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
 
     if (sortOrder === 'DESC') report.reverse();
     return report;
-  }, [transactions, dateRange, sortOrder]);
+  }, [transactions, dateRange, sortOrder, cards]);
 
   return (
     <div className="space-y-6 transition-colors duration-300">
@@ -120,7 +122,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
             </thead>
             <tbody>
               {filteredAndSortedReport.map((day) => (
-                <tr key={day.date} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <tr key={day.date} className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${day.balance < 0 ? 'bg-rose-50/40' : day.balance < 500 ? 'bg-amber-50/40' : ''}`}>
                   <td className="p-2 border border-slate-200 dark:border-slate-700 text-center text-slate-700 dark:text-slate-300 text-xs">
                     {day.day}
                   </td>
