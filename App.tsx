@@ -39,6 +39,7 @@ import SalaryManager from './components/SalaryManager';
 import TemplateImport from './components/TemplateImport';
 import InstallmentManager from './components/InstallmentManager';
 import RecurringExpensesManager from './components/RecurringExpensesManager';
+import CardManager from './components/CardManager';
 
 const STORAGE_KEY_TRANSACTIONS = 'finanflow_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'finanflow_subscriptions';
@@ -64,7 +65,7 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dashboard' | 'dailyBalance' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions';
+  type TabType = 'dashboard' | 'dailyBalance' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards';
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
@@ -214,6 +215,7 @@ const App: React.FC = () => {
     fixed: 'Compras Recorrentes',
     salary: 'Gestão de Salário',
     subscriptions: 'Assinaturas'
+    , cards: 'Cartões'
   };
 
   return (
@@ -265,6 +267,7 @@ const App: React.FC = () => {
               </div>
 
               <button onClick={() => { setActiveTab('subscriptions'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'subscriptions' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CreditCard size={18} /> Assinaturas</button>
+              <button onClick={() => { setActiveTab('cards'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'cards' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CreditCard size={18} /> Cartões</button>
             </>
           )}
         </nav>
@@ -375,6 +378,7 @@ const App: React.FC = () => {
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'salary' && <SalaryManager salaryInfo={salaryInfo} onUpdate={setSalaryInfo} currencySymbol={currencySymbol} />}
           {activeTab === 'subscriptions' && <SubscriptionCalculator subscriptions={subscriptions} setSubscriptions={setSubscriptions} baseSalary={baseSalary} currencySymbol={currencySymbol} />}
+          {activeTab === 'cards' && <CardManager cards={cards} onChange={setCards} currencySymbol={currencySymbol} />}
         </div>
 
         {settings.aiEnabled && (

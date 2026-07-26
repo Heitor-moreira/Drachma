@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { Transaction, TransactionType, Category, DateRange } from '../types';
 import { CATEGORY_COLORS } from '../constants';
+import { isPersonalExpense } from '../finance';
 import { Layers, Calendar } from 'lucide-react';
 
 interface Props {
@@ -19,13 +20,14 @@ const CategorySpending: React.FC<Props> = ({ transactions, dateRange, setDateRan
     const summary: Record<string, number> = {};
     
     transactions
-      .filter(t => t.type === TransactionType.EXPENSE)
+      .filter(t => t.type === TransactionType.EXPENSE && isPersonalExpense(t))
       .filter(t => {
         const d = new Date(t.date);
         return d >= start && d <= end;
       })
       .forEach(t => {
         summary[t.category] = (summary[t.category] || 0) + t.amount;
+        (t.tags || []).forEach(tag => { summary[`#${tag}`] = (summary[`#${tag}`] || 0) + t.amount; });
       });
 
     return Object.entries(summary).sort((a, b) => b[1] - a[1]);
@@ -56,13 +58,13 @@ const CategorySpending: React.FC<Props> = ({ transactions, dateRange, setDateRan
         {categorySummary.map(([cat, amount]) => (
           <div key={cat} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: CATEGORY_COLORS[cat as Category] }}>{cat}</span>
-              <div className="w-8 h-8 rounded-full shrink-0" style={{ backgroundColor: `${CATEGORY_COLORS[cat as Category]}20`, border: `2px solid ${CATEGORY_COLORS[cat as Category]}` }}></div>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: CATEGORY_COLORS[cat as Category] || '#2687c5' }}>{cat}</span>
+              <div className="w-8 h-8 rounded-full shrink-0" style={{ backgroundColor: `${CATEGORY_COLORS[cat as Category] || '#2687c5'}20`, border: `2px solid ${CATEGORY_COLORS[cat as Category] || '#2687c5'}` }}></div>
             </div>
             <div>
               <p className="text-2xl font-black text-slate-800 dark:text-white">{currencySymbol} {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               <div className="mt-2 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-500" style={{ backgroundColor: CATEGORY_COLORS[cat as Category], width: `${(amount / totalPeriod) * 100}%` }}></div>
+                <div className="h-full rounded-full transition-all duration-500" style={{ backgroundColor: CATEGORY_COLORS[cat as Category] || '#2687c5', width: `${(amount / totalPeriod) * 100}%` }}></div>
               </div>
               <p className="mt-1 text-right text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{((amount / totalPeriod) * 100).toFixed(1)}% do total</p>
             </div>
