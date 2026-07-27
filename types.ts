@@ -99,5 +99,6 @@ export interface UserSettings {
   userName: string;
   userPhoto: string;
   theme: 'light' | 'dark';
-  appMode: 'pro' | 'lite';
+  appMode: 'pro' | 'lite' | 'developer';
+  developerViewport?: 'notebook' | 'iphone-16e' | 'galaxy-a73' | 'ipad-11';
 }
