@@ -11,7 +11,6 @@ import {
   Wallet,
   Coins,
   Landmark,
-  FileSpreadsheet,
   CalendarClock,
   Layers,
   BrainCircuit,
@@ -24,11 +23,13 @@ import {
   Moon,
   Zap,
   Monitor,
+  Code2,
   Repeat,
   ChevronRight,
   Menu
 } from 'lucide-react';
-import { Transaction, TransactionType, Category, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel } from './types';
+import { Transaction, TransactionType, Category, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup } from './types';
+import { getFinancialGroup } from './finance';
 import Dashboard from './components/Dashboard';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
@@ -36,7 +37,6 @@ import SubscriptionCalculator from './components/SubscriptionCalculator';
 import AiInsights from './components/AiInsights';
 import DailyBalanceView from './components/DailyBalanceView';
 import SalaryManager from './components/SalaryManager';
-import TemplateImport from './components/TemplateImport';
 import InstallmentManager from './components/InstallmentManager';
 import RecurringExpensesManager from './components/RecurringExpensesManager';
 import CardManager from './components/CardManager';
@@ -66,9 +66,10 @@ const formatLocalYYYYMMDD = (date: Date) => {
 
 const App: React.FC = () => {
   type TabType = 'dashboard' | 'dailyBalance' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards';
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
+  const [isBalanceSummaryOpen, setIsBalanceSummaryOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -102,7 +103,8 @@ const App: React.FC = () => {
   });
 
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [newTransactionDate, setNewTransactionDate] = useState<string | undefined>();
+  const [newTransactionGroup, setNewTransactionGroup] = useState<any>(undefined);
   const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -208,6 +210,13 @@ const App: React.FC = () => {
   };
 
   const isLite = settings.appMode === 'lite';
+  const developerViewport = settings.developerViewport || 'notebook';
+  const developerViewportClass = settings.appMode === 'developer' ? {
+    'notebook': '',
+    'iphone-16e': 'max-w-[390px] mx-auto w-full',
+    'galaxy-a73': 'max-w-[412px] mx-auto w-full',
+    'ipad-11': 'max-w-[834px] mx-auto w-full'
+  }[developerViewport] : '';
 
   const tabLabels: Record<TabType, string> = {
     dashboard: 'Visão Geral',
@@ -225,7 +234,7 @@ const App: React.FC = () => {
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex flex-col w-60 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 shrink-0 h-full transition-colors duration-300">
         <button 
-          onClick={() => { setActiveTab('dashboard'); setIsReportsOpen(false); }}
+          onClick={() => { setActiveTab('dailyBalance'); setIsReportsOpen(false); }}
           className="flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity text-left"
         >
           <div className="bg-theme p-2 rounded-xl text-white shadow-sm"><TrendingUp size={24} /></div>
@@ -233,7 +242,7 @@ const App: React.FC = () => {
         </button>
 
         <div className="mb-6">
-          <button onClick={() => setIsAdjustmentOpen(true)} className="w-full bg-slate-900 dark:bg-slate-800 text-white rounded-3xl p-5 shadow-xl hover:bg-slate-800 dark:hover:bg-slate-700 transition-all group relative overflow-hidden">
+          <button onClick={() => setIsBalanceSummaryOpen(true)} className="w-full bg-slate-900 dark:bg-slate-800 text-white rounded-3xl p-5 shadow-xl hover:bg-slate-800 dark:hover:bg-slate-700 transition-all group relative overflow-hidden">
             <div className="relative z-10 text-left">
               <p className="text-[10px] font-black text-theme uppercase tracking-[0.2em] mb-1">Saldo Total</p>
               <h3 className="text-xl font-black">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
@@ -243,11 +252,10 @@ const App: React.FC = () => {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-1">
+          <button onClick={() => { setActiveTab('dailyBalance'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'dailyBalance' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><History size={18} /> Saldos</button>
           <button onClick={() => { setActiveTab('dashboard'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'dashboard' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><LayoutDashboard size={18} /> Visão geral</button>
           
-          {isLite ? (
-            <button onClick={() => { setActiveTab('dailyBalance'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'dailyBalance' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><History size={18} /> Extrato Diário</button>
-          ) : (
+          {!isLite && (
             <>
               <div className="py-2">
                 <button 
@@ -260,7 +268,7 @@ const App: React.FC = () => {
                 
                 {isReportsOpen && (
                   <div className="ml-4 mt-1 space-y-1 border-l-2 border-slate-100 dark:border-slate-800 pl-2 animate-in slide-in-from-top-2 duration-200">
-                    <button onClick={() => setActiveTab('dailyBalance')} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs transition-all ${activeTab === 'dailyBalance' ? 'bg-theme/10 text-slate-700 dark:text-theme font-bold' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><History size={16} /> Extrato Diário</button>
+                    <button onClick={() => setActiveTab('dailyBalance')} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs transition-all ${activeTab === 'dailyBalance' ? 'bg-theme/10 text-slate-700 dark:text-theme font-bold' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><History size={16} /> Saldos</button>
                     <button onClick={() => setActiveTab('categorySpending')} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs transition-all ${activeTab === 'categorySpending' ? 'bg-theme/10 text-slate-700 dark:text-theme font-bold' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><Layers size={16} /> Gastos por Categoria</button>
                     <button onClick={() => setActiveTab('installments')} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs transition-all ${activeTab === 'installments' ? 'bg-theme/10 text-slate-700 dark:text-theme font-bold' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CalendarClock size={16} /> Compras Parceladas</button>
                     <button onClick={() => setActiveTab('fixed')} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs transition-all ${activeTab === 'fixed' ? 'bg-theme/10 text-slate-700 dark:text-theme font-bold' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><Repeat size={16} /> Compras Recorrentes</button>
@@ -294,7 +302,7 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className={`flex-1 flex flex-col overflow-hidden relative ${developerViewportClass}`}>
         {/* Mobile Navigation Dropdown Overlay */}
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
@@ -304,8 +312,8 @@ const App: React.FC = () => {
                 <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400"><X size={20} /></button>
               </div>
               <div className="grid grid-cols-1 gap-2">
+                <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all ${activeTab === 'dailyBalance' ? 'bg-theme text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}><History size={18} /> Saldos</button>
                 <button onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'bg-theme text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}><LayoutDashboard size={18} /> Dashboard</button>
-                <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all ${activeTab === 'dailyBalance' ? 'bg-theme text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}><History size={18} /> Extrato Diário</button>
                 {!isLite && (
                   <>
                     <button onClick={() => { setActiveTab('categorySpending'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all ${activeTab === 'categorySpending' ? 'bg-theme text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}><Layers size={18} /> Gastos por Categoria</button>
@@ -331,21 +339,10 @@ const App: React.FC = () => {
               <Menu size={20} />
             </button>
             
-            <h2 className="text-sm md:text-lg font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap overflow-hidden text-ellipsis">
-              {tabLabels[activeTab]}
-            </h2>
+            <h2 className="text-sm md:text-lg font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap overflow-hidden text-ellipsis"></h2>
           </div>
           
           <div className="flex items-center gap-2 md:gap-4">
-            <button 
-              onClick={() => setIsImportOpen(true)}
-              className="p-2 md:px-4 md:py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg flex items-center gap-2 text-sm font-bold transition-all whitespace-nowrap"
-              title="Importar Planilha"
-            >
-              <FileSpreadsheet size={18} className="text-emerald-600 shrink-0" /> 
-              <span className="hidden lg:inline">Planilha</span>
-            </button>
-            
             <div className="flex items-center gap-2 md:gap-3">
               <button 
                 onClick={() => setIsFormOpen(true)} 
@@ -374,7 +371,7 @@ const App: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
           {activeTab === 'dashboard' && <Dashboard transactions={transactions} baseSalary={baseSalary} currencySymbol={currencySymbol} />}
-          {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} />}
+          {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} onDayClick={(date, group) => { setNewTransactionDate(date); setNewTransactionGroup(group); setIsFormOpen(true); }} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -418,55 +415,85 @@ const App: React.FC = () => {
                 )}
 
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Personalização</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tema</label>
                   <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl">
                     <button 
                       onClick={() => setSettings({...settings, theme: 'light'})}
                       className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.theme === 'light' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-400'}`}
                     >
-                      <Sun size={16} /> Tema Claro
+                      <Sun size={16} /> Claro
                     </button>
                     <button 
                       onClick={() => setSettings({...settings, theme: 'dark'})}
                       className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.theme === 'dark' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-400'}`}
                     >
-                      <Moon size={16} /> Tema Escuro
+                      <Moon size={16} /> Escuro
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Modo de Visualização</label>
-                  <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Modo</label>
+                  <div className="grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl">
                     <button 
                       onClick={() => setSettings({...settings, appMode: 'lite'})}
-                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'lite' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
+                      className={`flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'lite' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
                     >
-                      <Zap size={16} /> Modo Lite
+                      <Zap size={16} /> Lite
                     </button>
                     <button 
                       onClick={() => setSettings({...settings, appMode: 'pro'})}
-                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'pro' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
+                      className={`flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'pro' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
                     >
-                      <Monitor size={16} /> Modo Pro
+                      <Monitor size={16} /> Pro
+                    </button>
+                    <button
+                      onClick={() => setSettings({...settings, appMode: 'developer'})}
+                      className={`flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'developer' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
+                    >
+                      <Code2 size={16} /> Dev
                     </button>
                   </div>
+                  {settings.appMode === 'developer' && (
+                    <div className="mt-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg animate-in slide-in-from-top-2 duration-200">
+                      <p className="px-2 pb-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Proporção da visualização</p>
+                      {[
+                        ['notebook', 'Notebook'],
+                        ['iphone-16e', 'iPhone 16e'],
+                        ['galaxy-a73', 'Galaxy A73'],
+                        ['ipad-11', 'iPad 11"']
+                      ].map(([value, label]) => (
+                        <button
+                          key={value}
+                          onClick={() => setSettings({...settings, developerViewport: value as UserSettings['developerViewport']})}
+                          className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-bold transition-colors ${developerViewport === value ? 'bg-theme/15 text-theme' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                        >
+                          <span>{label}</span>
+                          {developerViewport === value && <span className="text-xs">✓</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="h-px bg-slate-100 dark:bg-slate-800"></div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Moeda Principal</label>
-                    <select 
-                      value={settings.currency} 
-                      onChange={e => setSettings({...settings, currency: e.target.value as CurrencyCode})}
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none text-sm font-bold dark:text-slate-200"
-                    >
-                      {Object.entries(CURRENCIES).map(([code, info]) => (
-                        <option key={code} value={code}>{info.name} ({info.symbol})</option>
-                      ))}
-                    </select>
+                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Moeda</label>
+                    <div className="relative flex items-center border-b border-slate-200 dark:border-slate-700">
+                      <Coins size={22} className="shrink-0 text-slate-500 dark:text-slate-400" />
+                      <select
+                        value={settings.currency}
+                        onChange={e => setSettings({...settings, currency: e.target.value as CurrencyCode})}
+                        className="w-full appearance-none bg-transparent px-3 py-3 pr-10 outline-none text-base font-bold text-slate-700 dark:text-slate-200"
+                      >
+                        {Object.entries(CURRENCIES).map(([code, info]) => (
+                          <option key={code} value={code}>{info.name} ({info.symbol})</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={20} className="pointer-events-none absolute right-1 text-slate-500 dark:text-slate-400" />
+                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
@@ -488,6 +515,17 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
+
+        {isBalanceSummaryOpen && (() => {
+          const rows = [
+            { group: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', sign: 1 },
+            { group: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', sign: -1 },
+            { group: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', sign: -1 },
+            { group: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', sign: 1 },
+            { group: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', sign: -1 }
+          ];
+          return <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"><div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800"><div><p className="text-xs font-black uppercase tracking-widest text-slate-400">Resumo do saldo</p><h3 className="text-2xl font-black dark:text-white">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3></div><button onClick={() => setIsBalanceSummaryOpen(false)} className="p-2 text-slate-500"><X size={22} /></button></div>{rows.map(row => { const total = transactions.filter(t => getFinancialGroup(t) === row.group).reduce((sum, t) => sum + t.amount, 0); return <div key={row.group} className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800"><span className={`text-lg font-bold ${row.color}`}>{row.label}</span><span className="text-lg font-bold text-slate-700 dark:text-slate-200">{row.sign < 0 ? '-' : '+'} {currencySymbol} {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>; })}<button onClick={() => setIsBalanceSummaryOpen(false)} className="m-5 w-[calc(100%-2.5rem)] bg-theme text-white font-bold py-3 rounded-2xl">Fechar</button></div></div>;
+        })()}
 
         {isProfileOpen && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
@@ -516,13 +554,12 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
               <div className="p-6 overflow-y-auto max-h-[80vh]">
-                <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null)}} initialData={editingTransaction} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
+                <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null); setNewTransactionDate(undefined); setNewTransactionGroup(undefined)}} initialData={editingTransaction} initialDate={newTransactionDate} initialFinancialGroup={newTransactionGroup} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
               </div>
             </div>
           </div>
         )}
 
-        {isImportOpen && <TemplateImport onImport={addTransactions} onClose={() => setIsImportOpen(false)} />}
         
         {isAdjustmentOpen && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
