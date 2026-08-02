@@ -12,6 +12,7 @@ interface Props {
   availableTags?: string[];
   initialDate?: string;
   initialFinancialGroup?: FinancialGroup;
+  liteMode?: boolean;
 }
 
 // Helper to format date as YYYY-MM-DD in local time
@@ -27,7 +28,7 @@ const formatCurrency = (value: string, currencySymbol: string) => {
   return `${currencySymbol} ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup }) => {
+const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup, liteMode = false }) => {
   const [description, setDescription] = useState(initialData?.description || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const [type, setType] = useState<TransactionType>(initialData?.type || TransactionType.EXPENSE);
@@ -42,7 +43,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'REIMBURSEMENT' | 'ADVANCE';
   const startingGroup = initialData?.financialGroup || initialFinancialGroup;
   const initialKind: EntryKind = startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : startingGroup === FinancialGroup.REIMBURSEMENT ? 'REIMBURSEMENT' : startingGroup === FinancialGroup.ADVANCE_TO_OTHERS ? 'ADVANCE' : initialData?.type === TransactionType.INCOME ? 'INCOME' : 'EXPENSE';
-  const [entryKind, setEntryKind] = useState<EntryKind>(initialKind);
+  const [entryKind, setEntryKind] = useState<EntryKind>(liteMode && (initialKind === 'REIMBURSEMENT' || initialKind === 'ADVANCE') ? 'EXPENSE' : initialKind);
   const currentTagQuery = tagsText.trim().toLowerCase();
   const suggestedTags = availableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);
   const allTags = Array.from(new Set([...committedTags, ...(tagsText.trim() ? [tagsText.trim()] : [])]));
@@ -150,7 +151,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   return (
     <form onSubmit={handleSubmit} className="flex flex-col space-y-0 divide-y divide-slate-200 dark:divide-slate-800">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-black bg-transparent outline-none dark:text-white" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
-      <div className="flex items-center justify-between py-3"><div className="flex items-center gap-3"><div className={`p-2 rounded-full bg-slate-100 dark:bg-slate-800 ${kindMeta.color}`}><KindIcon size={20} /></div><div className="relative"><select value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className={`appearance-none pr-7 text-lg font-bold bg-transparent outline-none ${kindMeta.color} dark:bg-slate-900`}><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="REIMBURSEMENT">Reembolso</option><option value="ADVANCE">Adiantamento a terceiros</option></select></div></div><ChevronDown size={18} className={kindMeta.color} /></div>
+      <div className="flex items-center justify-between py-3"><div className="flex items-center gap-3"><div className={`p-2 rounded-full bg-slate-100 dark:bg-slate-800 ${kindMeta.color}`}><KindIcon size={20} /></div><div className="relative"><select value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className={`appearance-none pr-7 text-lg font-bold bg-transparent outline-none ${kindMeta.color} dark:bg-slate-900`}><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option>{!liteMode && <><option value="REIMBURSEMENT">Reembolso</option><option value="ADVANCE">Adiantamento a terceiros</option></>}</select></div></div><ChevronDown size={18} className={kindMeta.color} /></div>
 
       <div className="py-3">
         <div>
@@ -163,7 +164,6 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
       <div className="py-3">
         <div>
           <div className="flex items-center gap-3"><Pencil size={20} className="text-slate-500" /><input 
-            autoFocus 
             type="text" 
             value={description} 
             onChange={e => setDescription(e.target.value)} 
