@@ -111,20 +111,20 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
       {/* Visualização de Planilha */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto max-h-[70vh] custom-scrollbar">
-          <table className="w-full border-collapse" style={{ fontFamily: "'Courier New', Consolas, monospace" }}>
+          <table className="w-full table-fixed border-collapse" style={{ fontFamily: "'Courier New', Consolas, monospace" }}>
             <thead>
               <tr className="bg-slate-100 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
-                <th className="p-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] w-12">Dia</th>
-                <th className="p-2 border border-slate-300 dark:border-slate-700 text-left font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] w-min whitespace-nowrap">Tipo</th>
-                <th className="p-2 border border-slate-300 dark:border-slate-700 text-right font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] w-min whitespace-nowrap">Valor</th>
-                <th className="p-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] w-min whitespace-nowrap">Saldo</th>
+                <th className="w-[12%] p-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px]">Dia</th>
+                <th className="w-[38%] p-2 border border-slate-300 dark:border-slate-700 text-left font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px]">Tipo</th>
+                <th className="w-[25%] p-2 border border-slate-300 dark:border-slate-700 text-right font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] whitespace-nowrap">Valor</th>
+                <th className="w-[25%] p-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] whitespace-nowrap">Saldo</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} onClick={() => onDayClick?.(day.date, item.key)} className={`cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${day.balance < 0 ? 'bg-rose-50/40' : day.balance < 500 ? 'bg-amber-50/40' : ''}`}>
+              {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} onClick={() => onDayClick?.(day.date, item.key)} className={`group cursor-pointer transition-colors ${day.balance < 0 ? 'bg-rose-50/40 dark:bg-rose-950/20' : day.balance < 500 ? 'bg-amber-50/40 dark:bg-amber-950/20' : ''}`}>
                 {index === 0 && <td rowSpan={visibleTypes.length} className="p-2 border border-slate-200 dark:border-slate-700 text-center font-bold text-slate-700 dark:text-slate-300 text-sm">{day.day}</td>}
-                <td className="p-2 border border-slate-200 dark:border-slate-700 text-left text-sm"><span className={`inline-flex items-center justify-center w-6 h-6 rounded-full bg-current/10 ${item.color} font-black mr-2`}>{item.icon}</span><span className={item.color}>{item.label}</span></td>
-                <td className="p-2 border border-slate-200 dark:border-slate-700 text-right text-sm font-bold text-slate-700 dark:text-slate-300">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700 text-left text-sm group-hover:bg-slate-100/80 dark:group-hover:bg-slate-800/80"><div className="flex min-w-0 items-center gap-2 whitespace-nowrap"><span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-current/10 ${item.color} font-black`}>{item.icon}</span><span className={`${item.color} truncate`}>{item.label}</span></div></td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700 text-right text-sm font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap group-hover:bg-slate-100/80 dark:group-hover:bg-slate-800/80">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                 {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border border-slate-200 dark:border-slate-700 text-right text-sm font-black ${day.balance >= 0 ? 'text-slate-800 dark:text-slate-200' : 'text-rose-700 dark:text-rose-400'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
               </tr>); })}
               {filteredAndSortedReport.length === 0 && (
