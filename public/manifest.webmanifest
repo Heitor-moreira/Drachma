@@ -9,9 +9,9 @@
   "lang": "pt-BR",
   "icons": [
     {
-      "src": "/dracma-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/drachma-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
