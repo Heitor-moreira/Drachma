@@ -40,12 +40,12 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
 
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Template_FinanFlow");
+    XLSX.utils.book_append_sheet(wb, ws, "Template_Dracma");
     
     // Ajustar larguras das colunas
     ws['!cols'] = [{ wch: 10 }, { wch: 15 }, { wch: 15 }];
 
-    XLSX.writeFile(wb, `Template_FinanFlow_${targetMonth}.xlsx`);
+    XLSX.writeFile(wb, `Template_Dracma_${targetMonth}.xlsx`);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

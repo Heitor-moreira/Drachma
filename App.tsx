@@ -85,7 +85,7 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : {
       currency: 'BRL',
       aiEnabled: true,
-      userName: 'Usuário FinanFlow',
+      userName: 'Usuário Dracma',
       userPhoto: 'https://ui-avatars.com/api/?name=User&background=2687c5&color=ffffff',
       theme: 'light',
       appMode: 'pro'
@@ -243,7 +243,7 @@ const App: React.FC = () => {
           className="flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity text-left"
         >
           <div className="bg-theme p-2 rounded-xl text-white shadow-sm"><TrendingUp size={24} /></div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">FinanFlow</h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Dracma</h1>
         </button>
 
         <div className="mb-6">
