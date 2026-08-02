@@ -1,0 +1,18 @@
+{
+  "name": "Dracma — Finanças descomplicadas",
+  "short_name": "Dracma",
+  "description": "Gestão financeira pessoal simples e mobile-first.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2687c5",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/dracma-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
