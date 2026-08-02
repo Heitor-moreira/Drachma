@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  LayoutDashboard, 
   CreditCard, 
   TrendingUp, 
   History,
@@ -28,7 +27,6 @@ import {
 } from 'lucide-react';
 import { Transaction, TransactionType, Category, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup } from './types';
 import { getFinancialGroup } from './finance';
-import Dashboard from './components/Dashboard';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';
@@ -63,7 +61,7 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dashboard' | 'dailyBalance' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards';
+  type TabType = 'dailyBalance' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
   const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
@@ -125,8 +123,8 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (settings.appMode === 'lite' && !['dashboard', 'dailyBalance'].includes(activeTab)) {
-      setActiveTab('dashboard');
+    if (settings.appMode === 'lite' && activeTab !== 'dailyBalance' && activeTab !== 'menu') {
+      setActiveTab('dailyBalance');
     }
   }, [settings.appMode, activeTab]);
 
@@ -224,14 +222,14 @@ const App: React.FC = () => {
   }[developerViewport] : '';
 
   const tabLabels: Record<TabType, string> = {
-    dashboard: 'Visão Geral',
     dailyBalance: 'Extrato Diário',
     categorySpending: 'Gastos por Categoria',
     installments: 'Compras Parceladas',
     fixed: 'Compras Recorrentes',
     salary: 'Gestão de Salário',
     subscriptions: 'Assinaturas'
-    , cards: 'Cartões'
+    , cards: 'Cartões',
+    menu: 'Menu'
   };
 
   return (
@@ -258,7 +256,6 @@ const App: React.FC = () => {
 
         <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-1">
           <button onClick={() => { setActiveTab('dailyBalance'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'dailyBalance' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><History size={18} /> Saldos</button>
-          <button onClick={() => { setActiveTab('dashboard'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'dashboard' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><LayoutDashboard size={18} /> Visão geral</button>
           
           {!isLite && (
             <>
@@ -309,7 +306,7 @@ const App: React.FC = () => {
 
       <main className={`flex-1 flex flex-col overflow-hidden relative ${developerViewportClass}`}>
         {/* Mobile Navigation Dropdown Overlay */}
-        {isMobileMenuOpen && (
+        {false && isMobileMenuOpen && (
           <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
             <div className="absolute top-16 left-4 right-4 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-4 duration-300" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6">
@@ -318,7 +315,7 @@ const App: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 gap-2">
                 <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all ${activeTab === 'dailyBalance' ? 'bg-theme text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}><History size={18} /> Saldos</button>
-                <button onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all ${activeTab === 'dashboard' ? 'bg-theme text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}><LayoutDashboard size={18} /> Dashboard</button>
+                <button onClick={() => { setActiveTab('menu'); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all bg-theme text-white">Menu</button>
                 {!isLite && (
                   <>
                     <button onClick={() => { setActiveTab('categorySpending'); setIsMobileMenuOpen(false); }} className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all ${activeTab === 'categorySpending' ? 'bg-theme text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}><Layers size={18} /> Gastos por Categoria</button>
@@ -337,7 +334,29 @@ const App: React.FC = () => {
         )}
 
         <div className="flex-1 overflow-y-auto p-4 pb-28 md:p-8 md:pb-8 space-y-6">
-          {activeTab === 'dashboard' && <Dashboard transactions={transactions} baseSalary={baseSalary} currencySymbol={currencySymbol} />}
+          {activeTab === 'menu' && (
+            <section className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-400">Navegação</p>
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-white">Menu</h2>
+                </div>
+                <button onClick={() => setActiveTab('dailyBalance')} className="rounded-full px-4 py-2 text-xs font-bold text-theme bg-theme/10">Voltar</button>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <button onClick={() => setActiveTab('dailyBalance')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><History size={20} className="text-theme" /> Saldos</button>
+                {!isLite && <>
+                  <button onClick={() => setActiveTab('categorySpending')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Layers size={20} className="text-theme" /> Gastos por Categoria</button>
+                  <button onClick={() => setActiveTab('installments')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CalendarClock size={20} className="text-theme" /> Compras Parceladas</button>
+                  <button onClick={() => setActiveTab('fixed')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Repeat size={20} className="text-theme" /> Compras Recorrentes</button>
+                  <button onClick={() => setActiveTab('subscriptions')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Assinaturas</button>
+                  <button onClick={() => setActiveTab('salary')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Coins size={20} className="text-theme" /> Gestão de Salário</button>
+                  <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Cartões</button>
+                </>}
+                <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Settings size={20} className="text-theme" /> Configurações</button>
+              </div>
+            </section>
+          )}
           {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} liteMode={isLite} compactHeader={settings.appMode === 'developer' && ['iphone-16e', 'galaxy-a73'].includes(developerViewport)} onDayClick={(date, group) => openNewTransaction(group, date)} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -348,7 +367,7 @@ const App: React.FC = () => {
         </div>
 
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none">
-          <div className="mx-auto grid max-w-md grid-cols-4 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-2 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
+          <div className="mx-auto grid max-w-md grid-cols-3 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-2 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <History size={20} />
               <span>Saldos</span>
@@ -357,11 +376,7 @@ const App: React.FC = () => {
               <CreditCard size={20} />
               <span>Assinaturas</span>
             </button>
-            <button onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dashboard' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
-              <LayoutDashboard size={20} />
-              <span>Dashboard</span>
-            </button>
-            <button onClick={() => setIsMobileMenuOpen(true)} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${isMobileMenuOpen ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('menu')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'menu' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <Menu size={22} />
               <span>Menu</span>
             </button>
