@@ -91,7 +91,7 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
             </div>
             <div>
               <h3 className="font-bold">Consultoria de IA</h3>
-              <p className="text-[10px] font-black text-theme uppercase tracking-widest">Dracma Assistant</p>
+              <p className="text-[10px] font-black text-theme uppercase tracking-widest">Drachma Assistant</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
