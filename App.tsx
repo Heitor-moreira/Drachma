@@ -237,7 +237,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row text-slate-900 dark:text-slate-100 overflow-hidden h-screen bg-slate-50 dark:bg-[#14171f] transition-colors duration-300 relative">
+    <div className="phone-shell min-h-screen flex flex-col md:flex-row text-slate-900 dark:text-slate-100 overflow-hidden h-screen bg-slate-50 dark:bg-[#14171f] transition-colors duration-300 relative">
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex flex-col w-60 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 shrink-0 h-full transition-colors duration-300">
         <button 
