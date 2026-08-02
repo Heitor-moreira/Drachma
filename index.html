@@ -30,6 +30,36 @@
       .dark body {
         background-color: #14171f;
       }
+
+      /* Em telas grandes, mantemos a mesma área útil do iPhone 16. */
+      @media (min-width: 768px) {
+        body {
+          background: #e2e8f0;
+        }
+
+        .dark body {
+          background: #0f172a;
+        }
+
+        .phone-shell {
+          width: min(100%, 390px);
+          margin: 0 auto;
+          box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 20px 60px rgba(15, 23, 42, 0.16);
+        }
+
+        .phone-shell > aside {
+          display: none !important;
+        }
+
+        .phone-shell > main {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .phone-shell > main > nav {
+          display: block !important;
+        }
+      }
       .theme-bg { background-color: #2687c5; }
       .theme-text { color: #2687c5; }
       .theme-border { border-color: #2687c5; }
