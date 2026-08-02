@@ -20,6 +20,7 @@ interface Props {
   currencySymbol: string;
   cards?: CreditCard[];
   onDayClick?: (date: string, group: FinancialGroup) => void;
+  liteMode?: boolean;
   compactHeader?: boolean;
 }
 
@@ -38,7 +39,7 @@ const parseLocalDate = (dateStr: string) => {
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, currencySymbol, cards = [], onDayClick, compactHeader = false }) => {
+const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, currencySymbol, cards = [], onDayClick, liteMode = false, compactHeader = false }) => {
   const [isNarrowViewport, setIsNarrowViewport] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 430);
   const useCompactHeader = compactHeader || isNarrowViewport;
 
@@ -51,13 +52,20 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
 
   // Para a visão de planilha, a ordem padrão é cronológica (mais antigo no topo)
   const [typeFilter, setTypeFilter] = useState('ALL');
-  const dailyTypes = [
+  const allDailyTypes = [
     { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', icon: '↙' },
     { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', icon: '↗' },
     { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', icon: 'E' },
     { key: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', icon: '↶' },
     { key: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', icon: '↔' }
   ];
+  const dailyTypes = liteMode ? allDailyTypes.slice(0, 3) : allDailyTypes;
+
+  React.useEffect(() => {
+    if (liteMode && typeFilter !== 'ALL' && !dailyTypes.some(item => item.key === typeFilter)) {
+      setTypeFilter('ALL');
+    }
+  }, [liteMode, dailyTypes, typeFilter]);
 
   const filteredAndSortedReport = useMemo(() => {
     const start = parseLocalDate(dateRange.start);
@@ -110,7 +118,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
 
       {/* Visualização de Planilha */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div className="overflow-x-auto max-h-[70vh] custom-scrollbar">
+        <div className="overflow-x-hidden max-h-[70vh] custom-scrollbar">
           <table className="w-full table-fixed border-collapse" style={{ fontFamily: "'Courier New', Consolas, monospace" }}>
             <thead>
               <tr className="bg-slate-100 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">

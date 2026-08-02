@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  PlusCircle, 
   LayoutDashboard, 
   CreditCard, 
   TrendingUp, 
@@ -13,7 +12,6 @@ import {
   Landmark,
   CalendarClock,
   Layers,
-  BrainCircuit,
   ChevronDown,
   ChevronUp,
   User,
@@ -338,41 +336,9 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-10 h-16 transition-colors duration-300">
-          <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
-            <h2 className="text-sm md:text-lg font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap overflow-hidden text-ellipsis"></h2>
-          </div>
-          
-          <div className="flex items-center gap-2 md:gap-4">
-            <div className="flex items-center gap-2 md:gap-3">
-              <button 
-                onClick={() => openNewTransaction()}
-                className="bg-theme hover:bg-theme-dark text-white p-2 md:px-5 md:py-2 rounded-xl flex items-center gap-2 text-sm font-bold transition-all shadow-md active:scale-95"
-                title="Novo Lançamento"
-              >
-                <PlusCircle size={18} />
-                <span className="hidden sm:inline whitespace-nowrap">Novo Lançamento</span>
-              </button>
-              
-              {settings.aiEnabled && (
-                <button 
-                  onClick={() => setIsAiOpen(!isAiOpen)}
-                  className={`p-2 rounded-xl transition-all flex items-center justify-center relative active:scale-95 ai-hover-blink
-                    ${isAiOpen ? 'ai-active-glow bg-slate-900 dark:bg-slate-800 text-theme' : (isInitialFlashActive ? 'bg-slate-900 dark:bg-slate-800 text-slate-100' : 'bg-theme-dark text-white')}
-                    ${isInitialFlashActive ? 'ai-initial-flash' : ''}
-                  `}
-                  title="Consultoria de IA"
-                >
-                  <BrainCircuit size={20} className={isAiOpen ? 'animate-pulse' : ''} />
-                </button>
-              )}
-            </div>
-          </div>
-        </header>
-
         <div className="flex-1 overflow-y-auto p-4 pb-28 md:p-8 md:pb-8 space-y-6">
           {activeTab === 'dashboard' && <Dashboard transactions={transactions} baseSalary={baseSalary} currencySymbol={currencySymbol} />}
-          {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} compactHeader={settings.appMode === 'developer' && ['iphone-16e', 'galaxy-a73'].includes(developerViewport)} onDayClick={(date, group) => openNewTransaction(group, date)} />}
+          {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} liteMode={isLite} compactHeader={settings.appMode === 'developer' && ['iphone-16e', 'galaxy-a73'].includes(developerViewport)} onDayClick={(date, group) => openNewTransaction(group, date)} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
