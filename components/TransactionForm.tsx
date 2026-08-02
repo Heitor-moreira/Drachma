@@ -42,7 +42,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   const [cardId, setCardId] = useState(initialData?.cardId || '');
   type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'REIMBURSEMENT' | 'ADVANCE';
   const startingGroup = initialData?.financialGroup || initialFinancialGroup;
-  const initialKind: EntryKind = startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : startingGroup === FinancialGroup.REIMBURSEMENT ? 'REIMBURSEMENT' : startingGroup === FinancialGroup.ADVANCE_TO_OTHERS ? 'ADVANCE' : initialData?.type === TransactionType.INCOME ? 'INCOME' : 'EXPENSE';
+  const initialKind: EntryKind = startingGroup === FinancialGroup.PERSONAL_INCOME ? 'INCOME' : startingGroup === FinancialGroup.PERSONAL_EXPENSE ? 'EXPENSE' : startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : startingGroup === FinancialGroup.REIMBURSEMENT ? 'REIMBURSEMENT' : startingGroup === FinancialGroup.ADVANCE_TO_OTHERS ? 'ADVANCE' : initialData?.type === TransactionType.INCOME ? 'INCOME' : 'EXPENSE';
   const [entryKind, setEntryKind] = useState<EntryKind>(liteMode && (initialKind === 'REIMBURSEMENT' || initialKind === 'ADVANCE') ? 'EXPENSE' : initialKind);
   const currentTagQuery = tagsText.trim().toLowerCase();
   const suggestedTags = availableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);
