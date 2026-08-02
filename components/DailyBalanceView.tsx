@@ -20,6 +20,7 @@ interface Props {
   currencySymbol: string;
   cards?: CreditCard[];
   onDayClick?: (date: string, group: FinancialGroup) => void;
+  compactHeader?: boolean;
 }
 
 // Helper to handle dates locally without UTC shifts
@@ -37,7 +38,17 @@ const parseLocalDate = (dateStr: string) => {
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, currencySymbol, cards = [], onDayClick }) => {
+const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, currencySymbol, cards = [], onDayClick, compactHeader = false }) => {
+  const [isNarrowViewport, setIsNarrowViewport] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 430);
+  const useCompactHeader = compactHeader || isNarrowViewport;
+
+  React.useEffect(() => {
+    const updateViewport = () => setIsNarrowViewport(window.innerWidth <= 430);
+    window.addEventListener('resize', updateViewport);
+    updateViewport();
+    return () => window.removeEventListener('resize', updateViewport);
+  }, []);
+
   // Para a visão de planilha, a ordem padrão é cronológica (mais antigo no topo)
   const [typeFilter, setTypeFilter] = useState('ALL');
   const dailyTypes = [
@@ -88,12 +99,12 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     <div className="space-y-6 transition-colors duration-300">
       {/* Cabeçalho mensal */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="p-4 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800">
-          <Calendar size={20} className="text-slate-500" />
-          <button onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() - 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className="p-2"><ChevronLeft size={20} /></button>
-          <span className="text-xl font-black text-slate-800 dark:text-white">{MONTHS[parseLocalDate(dateRange.start).getMonth()]}/{String(parseLocalDate(dateRange.start).getFullYear()).slice(-2)}</span>
-          <button onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() + 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className="p-2"><ChevronRight size={20} /></button>
-          <div className="relative flex items-center gap-2"><SlidersHorizontal size={18} className="text-slate-500" /><select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="appearance-none pr-7 text-lg font-bold text-slate-700 dark:text-slate-200 bg-transparent outline-none"><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-0 text-slate-500" /></div>
+        <div className={useCompactHeader ? 'p-2 flex flex-nowrap items-center justify-between gap-1 overflow-hidden border-b border-slate-100 dark:border-slate-800' : 'p-2 sm:p-4 grid grid-cols-[auto_auto_auto_auto_auto] items-center justify-between gap-0 sm:flex sm:flex-wrap sm:justify-between sm:gap-2 border-b border-slate-100 dark:border-slate-800'}>
+          <Calendar className={useCompactHeader ? 'w-4 h-4 shrink-0 text-slate-500' : 'w-4 h-4 sm:w-5 sm:h-5 text-slate-500'} />
+          <button onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() - 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className={useCompactHeader ? 'shrink-0 p-0.5' : 'justify-self-center p-1 sm:p-2'}><ChevronLeft className={useCompactHeader ? 'w-5 h-5' : 'w-5 h-5 sm:w-6 sm:h-6'} /></button>
+          <span className={useCompactHeader ? 'shrink-0 whitespace-nowrap text-base font-black text-slate-800 dark:text-white' : 'justify-self-center text-base sm:text-xl font-black text-slate-800 dark:text-white'}>{MONTHS[parseLocalDate(dateRange.start).getMonth()]}/{String(parseLocalDate(dateRange.start).getFullYear()).slice(-2)}</span>
+          <button onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() + 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className={useCompactHeader ? 'shrink-0 p-0.5' : 'justify-self-center p-1 sm:p-2'}><ChevronRight className={useCompactHeader ? 'w-5 h-5' : 'w-5 h-5 sm:w-6 sm:h-6'} /></button>
+          <div className={useCompactHeader ? 'relative flex min-w-0 shrink items-center gap-0.5' : 'relative justify-self-end flex min-w-0 items-center gap-1 sm:gap-2'}><SlidersHorizontal className={useCompactHeader ? 'w-4 h-4 shrink-0 text-slate-500' : 'w-4 h-4 sm:w-[18px] sm:h-[18px] shrink-0 text-slate-500'} /><select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={useCompactHeader ? 'min-w-0 max-w-[4.5rem] appearance-none pr-3 text-sm font-bold text-slate-700 dark:text-slate-200 bg-transparent outline-none' : 'min-w-0 max-w-full appearance-none pr-4 sm:pr-7 text-sm sm:text-lg font-bold text-slate-700 dark:text-slate-200 bg-transparent outline-none'}><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className={useCompactHeader ? 'w-4 h-4 pointer-events-none absolute right-0 text-slate-500' : 'w-4 h-4 sm:w-[18px] sm:h-[18px] pointer-events-none absolute right-0 text-slate-500'} /></div>
         </div>
       </div>
 
