@@ -1,8 +1,8 @@
-# FinanFlow — Especificação do Produto
+# Drachma — Especificação do Produto
 
 ## 1. Visão do Produto
 
-O **FinanFlow** é um aplicativo de gestão de fluxo de caixa pessoal, com interface **mobile-first**, focado em lançamento rápido de receitas e despesas, organização por categorias e múltiplas tags, controle de cartões, análise financeira e dashboards interativos.
+O **Drachma** é um aplicativo de gestão de fluxo de caixa pessoal, com interface **mobile-first**, focado em lançamento rápido de receitas e despesas, organização por categorias e múltiplas tags, controle de cartões, análise financeira e dashboards interativos.
 
 O objetivo é permitir que o usuário acompanhe sua movimentação financeira de forma simples, rápida e visual, sem distorcer os dados com entradas ou saídas que não representam receitas ou gastos pessoais reais.
 
@@ -12,7 +12,7 @@ O objetivo é permitir que o usuário acompanhe sua movimentação financeira de
 
 > **PREENCHER**
 
-Descreva os principais problemas que o FinanFlow pretende resolver.
+Descreva os principais problemas que o Drachma pretende resolver.
 
 Exemplos:
 
