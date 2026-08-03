@@ -333,7 +333,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 pb-28 md:p-8 md:pb-8 space-y-6">
+        <div className={`flex-1 overflow-y-auto pb-28 md:pb-8 ${activeTab === 'dailyBalance' ? 'p-0' : 'p-4 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
               <div className="flex items-center justify-between">
