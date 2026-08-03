@@ -31,7 +31,7 @@ const formatCurrency = (value: string, currencySymbol: string) => {
 const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup, liteMode = false }) => {
   const [description, setDescription] = useState(initialData?.description || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
-  const [type, setType] = useState<TransactionType>(initialData?.type || TransactionType.EXPENSE);
+  const [type, setType] = useState<TransactionType>(initialData?.type || (initialFinancialGroup === FinancialGroup.PERSONAL_INCOME || initialFinancialGroup === FinancialGroup.REIMBURSEMENT ? TransactionType.INCOME : TransactionType.EXPENSE));
   const [category, setCategory] = useState<Category>(initialData?.category || Category.FOOD);
   const [date, setDate] = useState(initialData?.date || initialDate || formatLocalYYYYMMDD(new Date()));
   const [committedTags, setCommittedTags] = useState<string[]>(initialData?.tags || []);
