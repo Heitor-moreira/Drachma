@@ -126,7 +126,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     <div className="touch-pan-y space-y-0 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Cabeçalho mensal */}
       <div className="border-b border-slate-100 dark:border-slate-800 transition-colors">
-          <div className="relative h-11 px-3 flex flex-nowrap items-center gap-1 overflow-visible bg-white dark:bg-slate-950">
+          <div className="relative h-11 px-3 flex flex-nowrap items-center gap-1 overflow-visible bg-white dark:bg-[#2f333b]">
           <div
             className="relative shrink-0"
             tabIndex={-1}
@@ -134,7 +134,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
               if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPeriodPickerOpen(false);
             }}
           >
-            <button aria-label="Selecionar mês e ano" onClick={() => setIsPeriodPickerOpen(value => !value)} className="shrink-0 rounded-lg p-1 text-slate-900 hover:bg-slate-100"><CalendarDays className="h-5 w-5" strokeWidth={2.5} /></button>
+            <button aria-label="Selecionar mês e ano" onClick={() => setIsPeriodPickerOpen(value => !value)} className="shrink-0 rounded-lg p-1 text-slate-900 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-700"><CalendarDays className="h-5 w-5" strokeWidth={2.5} /></button>
             {isPeriodPickerOpen && <div className="absolute left-0 top-10 z-20 flex gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-700 dark:bg-slate-900"><select aria-label="Mês" value={parseLocalDate(dateRange.start).getMonth()} onChange={e => { const d = parseLocalDate(dateRange.start); const month = Number(e.target.value); setDateRange({ start: formatLocalYYYYMMDD(new Date(d.getFullYear(), month, 1)), end: formatLocalYYYYMMDD(new Date(d.getFullYear(), month + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-slate-800 dark:text-white dark:[color-scheme:dark]">{MONTHS.map((month, index) => <option key={month} value={index}>{month}</option>)}</select><select aria-label="Ano" value={parseLocalDate(dateRange.start).getFullYear()} onChange={e => { const year = Number(e.target.value); const d = parseLocalDate(dateRange.start); setDateRange({ start: formatLocalYYYYMMDD(new Date(year, d.getMonth(), 1)), end: formatLocalYYYYMMDD(new Date(year, d.getMonth() + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-slate-800 dark:text-white dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => parseLocalDate(dateRange.start).getFullYear() - 5 + index).map(year => <option key={year} value={year}>{year}</option>)}</select></div>}
           </div>
           <div className="mx-auto flex items-center gap-0.5">
@@ -147,14 +147,14 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
       </div>
 
       {/* Visualização de Planilha */}
-      <div className="bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#363b44] shadow-sm overflow-hidden">
         <div className="overflow-x-hidden max-h-[calc(100vh-7.5rem)] custom-scrollbar">
           <table className="w-full table-fixed border-collapse ">
             <thead className="border-b border-slate-200 dark:border-slate-700">
-              <tr className="bg-white dark:bg-slate-900">
-                <th className="w-[12%] py-3 px-2 bg-white text-left font-normal text-slate-700 dark:bg-slate-900 dark:text-slate-200 uppercase text-[10px]">Dia</th>
-                <th className="w-[58%] py-3 px-2 bg-white dark:bg-slate-900"><div className="flex justify-start"><div className="relative flex items-center gap-2"><Grid2X2 className="w-4 h-4 text-slate-500" /><select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 max-w-[8rem] appearance-none bg-transparent pr-5 text-lg font-normal text-slate-700 outline-none dark:text-slate-200"><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 w-4 h-4 text-slate-500" /></div></div></th>
-                <th className="w-[30%] p-2 bg-white text-right font-normal text-slate-700 dark:bg-slate-900 dark:text-slate-200 uppercase text-lg whitespace-nowrap">Saldos</th>
+              <tr className="bg-white dark:bg-[#363b44]">
+                <th className="w-[12%] py-3 px-2 bg-white text-left font-normal text-slate-700 dark:bg-[#363b44] dark:text-slate-100 uppercase text-[10px]">Dia</th>
+                <th className="w-[58%] py-3 px-2 bg-white dark:bg-[#363b44]"><div className="flex justify-start"><div className="relative flex items-center gap-2"><Grid2X2 className="w-4 h-4 text-slate-500 dark:text-slate-200" /><select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 max-w-[8rem] appearance-none bg-transparent pr-5 text-lg font-normal text-slate-700 outline-none dark:text-slate-100"><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 w-4 h-4 text-slate-500 dark:text-slate-200" /></div></div></th>
+                <th className="w-[30%] p-2 bg-white text-right font-normal text-slate-700 dark:bg-[#363b44] dark:text-slate-100 uppercase text-lg whitespace-nowrap">Saldos</th>
               </tr>
             </thead>
             <tbody>
