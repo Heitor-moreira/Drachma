@@ -388,10 +388,11 @@ const App: React.FC = () => {
                   <button onClick={() => setActiveTab('salary')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Coins size={20} className="text-theme" /> Gestão de Salário</button>
                 </>}
                 <button onClick={() => setActiveTab('subscriptions')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Assinaturas</button>
-                <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Cartões</button>
+                <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme dark:text-white" /> Cartões</button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Settings size={20} className="text-theme" /> Configurações</button>
               </div>
-              <div className="mt-8 flex items-center justify-center gap-3 border-t border-slate-200 pt-5 dark:border-slate-800">
+              <button onClick={() => setIsProfileOpen(true)} className="mx-auto mt-8 flex flex-col items-center gap-2 border-t border-slate-200 pt-5 dark:border-slate-800"><img src={settings.userPhoto} className="h-16 w-16 rounded-full border-2 border-theme object-cover" alt="Foto do usuário" /><span className="text-sm font-bold text-slate-700 dark:text-white">{settings.userName}</span></button>
+              <div className="flex items-center justify-center gap-3 pt-4">
                 <button onClick={exportAppData} aria-label="Exportar dados em JSON" title="Exportar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Upload size={17} /></button>
                 <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" title="Importar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Download size={17} /></button>
                 <button onClick={clearImportedData} aria-label="Excluir dados carregados" title="Excluir dados carregados" className="rounded-full bg-rose-100 p-2.5 text-rose-500 hover:bg-rose-200"><XCircle size={17} /></button>
@@ -412,19 +413,19 @@ const App: React.FC = () => {
         {feedbackMessage && activeTab !== 'balanceHorizon' && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
 
         {activeTab !== 'balanceHorizon' && <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
-          <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
+          <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-slate-200/95 dark:bg-slate-800/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <History size={20} />
               <span>Saldos</span>
             </button>
-            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-slate-300">
+            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-white">
               <Calculator size={20} />
               <span>Totais</span>
             </button>
-            <button onClick={() => openNewTransaction()} aria-label="Adicionar lançamento" className="-mt-7 flex h-16 w-16 place-self-center items-center justify-center rounded-full bg-slate-950 text-white shadow-lg dark:bg-white dark:text-slate-950">
+            <button onClick={() => openNewTransaction()} aria-label="Adicionar lançamento" className="flex h-12 w-12 place-self-center items-center justify-center self-center rounded-full bg-slate-950 text-white shadow-lg dark:bg-white dark:text-slate-950">
               <Plus size={30} />
             </button>
-            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-slate-300">
+            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-white">
               <Tags size={20} />
               <span>Tags</span>
             </button>
