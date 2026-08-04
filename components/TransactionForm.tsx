@@ -80,7 +80,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description || !amount || isSubmitting) return;
+    if (!amount || isSubmitting) return;
     setIsSubmitting(true);
 
     const valAmount = parseFloat(amount);
@@ -176,7 +176,6 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
             onChange={e => setDescription(e.target.value)} 
             className="w-full px-0 py-2 bg-transparent border-0 outline-none focus:ring-0 dark:text-white" 
             placeholder="Descrição" 
-            required 
           /></div>
         </div>
       </div>
