@@ -123,7 +123,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   }, [transactions, dateRange, cards]);
 
   return (
-    <div className="touch-pan-y space-y-2 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="touch-pan-y space-y-0 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Cabeçalho mensal */}
       <div className="border-b border-slate-100 dark:border-slate-800 transition-colors">
           <div className="relative h-11 px-3 flex flex-nowrap items-center gap-1 overflow-visible bg-white dark:bg-slate-950">
@@ -149,7 +149,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
       {/* Visualização de Planilha */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-hidden max-h-[calc(100vh-7.5rem)] custom-scrollbar">
-          <table className="w-full table-fixed border-collapse" style={{ fontFamily: "'Courier New', Consolas, monospace" }}>
+          <table className="w-full table-fixed border-collapse font-sans">
             <thead className="border-b border-slate-200 dark:border-slate-700">
               <tr className="bg-slate-100 dark:bg-slate-800">
                 <th className="w-[12%] py-3 px-2 bg-slate-200/60 text-left font-normal text-slate-700 dark:bg-slate-700/60 dark:text-slate-200 uppercase text-[10px]">Dia</th>
