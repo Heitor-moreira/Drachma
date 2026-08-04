@@ -4,6 +4,8 @@ import { Transaction, TransactionType, DateRange, CreditCard, FinancialGroup } f
 import { projectTransactions, getFinancialGroup } from '../finance';
 import { 
   ArrowRightLeft,
+  ArrowDownLeft,
+  ArrowUpRight,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -57,8 +59,8 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
   const allDailyTypes = [
-    { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: '↙' },
-    { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: '↗' },
+    { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: 'INCOME' },
+    { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: 'EXPENSE' },
     { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: 'E' },
     { key: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', circle: 'bg-cyan-500', icon: '↶' },
     { key: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', circle: 'bg-orange-500', icon: '↔' }
@@ -160,7 +162,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
             <tbody>
                 {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} className="group">
                 {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300 text-sm">{day.day}</td>}
-                <td className="p-2 border-b border-slate-200 dark:border-slate-700"><div className="flex min-w-0 items-center justify-between gap-2"><button type="button" onClick={() => onDayClick?.(day.date, item.key)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>{item.icon}</button><button type="button" onClick={() => onDayClick?.(day.date, item.key)} className="min-w-0 flex-1 truncate bg-transparent text-right text-[clamp(11px,2.5vw,16px)] font-normal text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</button></div></td>
+                <td className="p-2 border-b border-slate-200 dark:border-slate-700"><div className="flex min-w-0 items-center justify-between gap-2"><button type="button" onClick={() => onDayClick?.(day.date, item.key)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>{item.icon === 'INCOME' ? <ArrowDownLeft size={18} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={18} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : item.icon}</button><button type="button" onClick={() => onDayClick?.(day.date, item.key)} className="min-w-0 flex-1 truncate bg-transparent text-right text-[clamp(11px,2.5vw,16px)] font-normal text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</button></div></td>
                 {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border-b border-slate-200 text-right text-[clamp(9px,2.2vw,14px)] font-normal whitespace-nowrap ${day.balance === 0 ? 'bg-amber-100 text-slate-900 dark:border-slate-700 dark:bg-amber-950/40 dark:text-amber-200' : day.balance > 0 ? 'bg-[#e8f7e5] text-[#238636] dark:border-slate-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:border-slate-700 dark:bg-rose-950/50 dark:text-rose-300'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
               </tr>); })}
               {filteredAndSortedReport.length === 0 && (
