@@ -597,10 +597,7 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md p-8 animate-in zoom-in duration-200 transition-colors duration-300">
               <div className="flex flex-col items-center text-center space-y-4">
-                <div className="relative group cursor-pointer" onClick={() => {
-                   const newUrl = prompt("URL da Foto:");
-                   if (newUrl) setSettings({...settings, userPhoto: newUrl});
-                }}>
+                <div className="relative group cursor-pointer" onClick={() => profileFileRef.current?.click()}>
                   <img src={settings.userPhoto} className="w-24 h-24 rounded-full object-cover border-4 border-theme shadow-xl" alt="Profile" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-full transition-opacity"><Camera className="text-white" /></div>
                 </div>
