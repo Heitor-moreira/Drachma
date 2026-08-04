@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, TransactionType, DateRange, CreditCard, FinancialGroup } from '../types';
 import { projectTransactions, getFinancialGroup } from '../finance';
 import { 
@@ -63,6 +63,21 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     { key: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', icon: '↔' }
   ];
   const dailyTypes = liteMode ? allDailyTypes.slice(0, 3) : allDailyTypes;
+  const swipeStartX = useRef<number | null>(null);
+  const moveMonth = (delta: number) => {
+    const date = parseLocalDate(dateRange.start);
+    date.setMonth(date.getMonth() + delta);
+    const start = formatLocalYYYYMMDD(new Date(date.getFullYear(), date.getMonth(), 1));
+    const end = formatLocalYYYYMMDD(new Date(date.getFullYear(), date.getMonth() + 1, 0));
+    setDateRange({ start, end });
+  };
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => { swipeStartX.current = event.touches[0]?.clientX ?? null; };
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (swipeStartX.current === null) return;
+    const distance = (event.changedTouches[0]?.clientX ?? swipeStartX.current) - swipeStartX.current;
+    swipeStartX.current = null;
+    if (Math.abs(distance) >= 50) moveMonth(distance < 0 ? 1 : -1);
+  };
 
   React.useEffect(() => {
     if (liteMode && typeFilter !== 'ALL' && !dailyTypes.some(item => item.key === typeFilter)) {
@@ -107,7 +122,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   }, [transactions, dateRange, cards]);
 
   return (
-    <div className="space-y-2 transition-colors duration-300">
+    <div className="touch-pan-y space-y-2 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Cabeçalho mensal */}
       <div className="border-b border-slate-100 dark:border-slate-800 transition-colors">
           <div className="relative h-11 px-3 flex flex-nowrap items-center gap-1 overflow-visible bg-white dark:bg-slate-950">
@@ -122,9 +137,9 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
             {isPeriodPickerOpen && <div className="absolute left-0 top-10 z-20 flex gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-700 dark:bg-slate-900"><select aria-label="Mês" value={parseLocalDate(dateRange.start).getMonth()} onChange={e => { const d = parseLocalDate(dateRange.start); const month = Number(e.target.value); setDateRange({ start: formatLocalYYYYMMDD(new Date(d.getFullYear(), month, 1)), end: formatLocalYYYYMMDD(new Date(d.getFullYear(), month + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-slate-800 dark:text-white dark:[color-scheme:dark]">{MONTHS.map((month, index) => <option key={month} value={index}>{month}</option>)}</select><select aria-label="Ano" value={parseLocalDate(dateRange.start).getFullYear()} onChange={e => { const year = Number(e.target.value); const d = parseLocalDate(dateRange.start); setDateRange({ start: formatLocalYYYYMMDD(new Date(year, d.getMonth(), 1)), end: formatLocalYYYYMMDD(new Date(year, d.getMonth() + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-slate-800 dark:text-white dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => parseLocalDate(dateRange.start).getFullYear() - 5 + index).map(year => <option key={year} value={year}>{year}</option>)}</select></div>}
           </div>
           <div className="mx-auto flex items-center gap-0.5">
-            <button aria-label="Mês anterior" onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() - 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className="shrink-0 p-1"><ChevronLeft className="w-6 h-6" /></button>
+            <button aria-label="Mês anterior" onClick={() => moveMonth(-1)} className="shrink-0 p-1"><ChevronLeft className="w-6 h-6" /></button>
             <span className="shrink-0 whitespace-nowrap text-xl font-black text-slate-800 dark:text-white">{MONTHS[parseLocalDate(dateRange.start).getMonth()]}/{String(parseLocalDate(dateRange.start).getFullYear()).slice(-2)}</span>
-            <button aria-label="Próximo mês" onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() + 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className="shrink-0 p-1"><ChevronRight className="w-6 h-6" /></button>
+            <button aria-label="Próximo mês" onClick={() => moveMonth(1)} className="shrink-0 p-1"><ChevronRight className="w-6 h-6" /></button>
           </div>
           <button aria-label="Abrir horizonte de saldos" onClick={onOpenHorizon} className="shrink-0 rounded-lg p-1 text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-800"><Grid3X3 className="h-6 w-6" /></button>
         </div>
