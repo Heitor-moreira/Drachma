@@ -35,7 +35,8 @@ export const getCardDueDate = (purchaseDate: string, dueDay: number) => {
 export const getCashImpactDate = (transaction: Transaction, cards: CreditCard[]) => {
   if (transaction.paymentMethod !== 'CREDIT_CARD' || !transaction.cardId) return transaction.date;
   const card = cards.find(c => c.id === transaction.cardId);
-  return card ? (transaction.dueDate || getCardDueDate(transaction.purchaseDate || transaction.date, card.dueDay)) : transaction.date;
+  const cardType = card?.type || 'CREDIT';
+  return card && cardType === 'CREDIT' ? (transaction.dueDate || getCardDueDate(transaction.purchaseDate || transaction.date, card.dueDay || 1)) : transaction.date;
 };
 
 export const projectTransactions = (transactions: Transaction[], start: string, end: string, cards: CreditCard[] = []) => {

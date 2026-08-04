@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Transaction, TransactionType, Category, CreditCard as CreditCardModel, FinancialGroup, PaymentMethod } from '../types';
 import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, PiggyBank, RotateCcw, ArrowRightLeft, X, ChevronDown, Pencil } from 'lucide-react';
 
@@ -31,6 +31,8 @@ const formatCurrency = (value: string, currencySymbol: string) => {
 const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup, liteMode = false }) => {
   const [description, setDescription] = useState(initialData?.description || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [type, setType] = useState<TransactionType>(initialData?.type || (initialFinancialGroup === FinancialGroup.PERSONAL_INCOME || initialFinancialGroup === FinancialGroup.REIMBURSEMENT ? TransactionType.INCOME : TransactionType.EXPENSE));
   const [category, setCategory] = useState<Category>(initialData?.category || Category.FOOD);
   const [date, setDate] = useState(initialData?.date || initialDate || formatLocalYYYYMMDD(new Date()));
@@ -72,9 +74,14 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   const [recurringInterval, setRecurringInterval] = useState(1); // Sempre inicia com 1
   const [recurrenceOption, setRecurrenceOption] = useState(initialData?.isFixed ? 'MONTHLY' : 'NONE');
 
+  useEffect(() => {
+    if (!initialData && !window.matchMedia('(pointer: coarse)').matches) amountInputRef.current?.focus({ preventScroll: true });
+  }, [initialData]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description || !amount) return;
+    if (!description || !amount || isSubmitting) return;
+    setIsSubmitting(true);
 
     const valAmount = parseFloat(amount);
     const purchaseId = initialData?.installmentInfo?.purchaseId || Math.random().toString(36).substr(2, 9);
@@ -86,7 +93,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
 
     if (initialData) {
       // Edição
-      onAdd([{ 
+      window.setTimeout(() => onAdd([{
         ...initialData, 
         description, 
         amount: valAmount, 
@@ -97,8 +104,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         isFixed: type === TransactionType.EXPENSE ? isRecurring : false,
         tags: allTags, financialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
         purchaseDate: paymentMethod === 'CREDIT_CARD' ? date : undefined
-      }]);
-      onClose();
+      }]), 220);
+      window.setTimeout(onClose, 260);
       return;
     }
 
@@ -144,13 +151,13 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
       });
     }
 
-    onAdd(newTransactions);
-    onClose();
+    window.setTimeout(() => onAdd(newTransactions), 220);
+    window.setTimeout(onClose, 260);
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col space-y-0 divide-y divide-slate-200 dark:divide-slate-800">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-black bg-transparent outline-none dark:text-white" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-black bg-transparent outline-none dark:text-white" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
       <div className="flex items-center justify-between py-3"><div className="flex items-center gap-3"><div className={`p-2 rounded-full bg-slate-100 dark:bg-slate-800 ${kindMeta.color}`}><KindIcon size={20} /></div><div className="relative"><select value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className={`appearance-none pr-7 text-lg font-bold bg-transparent outline-none ${kindMeta.color} dark:bg-slate-900`}><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option>{!liteMode && <><option value="REIMBURSEMENT">Reembolso</option><option value="ADVANCE">Adiantamento a terceiros</option></>}</select></div></div><ChevronDown size={18} className={kindMeta.color} /></div>
 
       <div className="py-3">
@@ -257,7 +264,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
 
       {/* Tags */}
       <div className="relative py-3">
-        <div className="flex items-center gap-3"><Tag size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-slate-200">Tags</label></div>
+        <div className="flex items-center gap-3"><Tag size={20} className="text-slate-500" /><label className="flex-1 text-right text-lg font-bold text-slate-700 dark:text-slate-200">Tags</label></div>
         <div className="mt-2 flex flex-wrap items-center gap-2"><div className="flex-1 min-w-[140px] flex flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => item !== tag))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.target.value)} placeholder="Adicionar tags" className="min-w-[140px] flex-1 px-0 py-2 text-sm bg-transparent border-0 outline-none dark:text-white" /></div></div>
         {isTagsFocused && suggestedTags.length > 0 && <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tag} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => [...prev, tag]); setTagsText(''); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-slate-200">{tag}</button>)}</div>}
       </div>
@@ -286,9 +293,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         )}
         <button 
           type="submit" 
-          className={`flex-[2] ${kindMeta.button} text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95`}
+          disabled={isSubmitting}
+          className={`flex-[2] ${kindMeta.button} text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 ${isSubmitting ? 'animate-pulse translate-y-3 opacity-0 duration-200' : ''}`}
         >
-          {initialData ? 'SALVAR ALTERAÇÕES' : `ADICIONAR ${kindMeta.label.toUpperCase()}`}
+          {isSubmitting ? 'CARREGANDO…' : initialData ? 'SALVAR ALTERAÇÕES' : `ADICIONAR ${kindMeta.label.toUpperCase()}`}
         </button>
       </div>
     </form>

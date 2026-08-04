@@ -57,8 +57,13 @@ export interface CreditCard {
   id: string;
   name: string;
   bank: string;
-  limit: number;
-  dueDay: number;
+  type: 'CREDIT' | 'DEBIT';
+  brand?: string;
+  lastFour?: string;
+  color?: string;
+  limit?: number;
+  closingDay?: number;
+  dueDay?: number;
   isActive: boolean;
 }
 
