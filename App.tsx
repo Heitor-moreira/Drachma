@@ -27,6 +27,8 @@ import {
   , Plus
   , Calculator
   , Tags
+  , MessageSquare
+  , HelpCircle
   , Upload
   , Download
   , XCircle
@@ -117,7 +119,6 @@ const App: React.FC = () => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const importFileRef = useRef<HTMLInputElement>(null);
-  const profileFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (settings.theme === 'dark') {
@@ -209,14 +210,6 @@ const App: React.FC = () => {
     setTransactions(prev => [...newTs, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     setFeedbackMessage('Movimentação adicionada!');
     window.setTimeout(() => setFeedbackMessage(''), 2400);
-  };
-  const handleProfileFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = () => setSettings(prev => ({ ...prev, userPhoto: String(reader.result) }));
-    reader.readAsDataURL(file);
-    event.target.value = '';
   };
 
   const updateTransaction = (updated: Transaction) => {
@@ -382,26 +375,14 @@ const App: React.FC = () => {
         <div className={`flex-1 overflow-y-auto pb-28 md:pb-8 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' ? 'p-0' : 'p-4 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Navegação</p>
-                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Menu</h2>
-                </div>
-                <button onClick={() => setActiveTab('dailyBalance')} className="rounded-full px-4 py-2 text-xs font-bold text-theme bg-theme/10">Voltar</button>
+              <div className="border-b border-slate-200 pb-6 dark:border-slate-700"><h2 className="text-3xl font-bold text-slate-900 dark:text-white">{settings.userName}</h2><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Drachma — Finanças descomplicadas</p><span className="mt-4 inline-flex items-center gap-2 rounded-full bg-lime-200 px-3 py-1.5 text-sm font-bold text-lime-900"><span>✓</span> Assinatura ativa</span></div>
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-[#363b44]">
+                <button onClick={() => setIsProfileOpen(true)} className="flex w-full items-center gap-4 border-b border-slate-200 px-5 py-5 text-left text-lg font-normal text-slate-800 dark:border-slate-700 dark:text-slate-100"><User size={22} /> Editar perfil <ChevronRight className="ml-auto text-slate-300" size={20} /></button>
+                <button onClick={() => setActiveTab('dailyBalance')} className="flex w-full items-center gap-4 border-b border-slate-200 px-5 py-5 text-left text-lg font-normal text-slate-800 dark:border-slate-700 dark:text-slate-100"><History size={22} /> Previsão de diário <ChevronRight className="ml-auto text-slate-300" size={20} /></button>
+                <button onClick={() => setIsSettingsOpen(true)} className="flex w-full items-center gap-4 border-b border-slate-200 px-5 py-5 text-left text-lg font-normal text-slate-800 dark:border-slate-700 dark:text-slate-100"><Settings size={22} /> Configurações <ChevronRight className="ml-auto text-slate-300" size={20} /></button>
+                <button onClick={() => setFeedbackMessage('Sugestões poderão ser enviadas em breve.')} className="flex w-full items-center gap-4 border-b border-slate-200 px-5 py-5 text-left text-lg font-normal text-slate-800 dark:border-slate-700 dark:text-slate-100"><MessageSquare size={22} /> Mandar sugestões <ChevronRight className="ml-auto text-slate-300" size={20} /></button>
+                <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex w-full items-center gap-4 px-5 py-5 text-left text-lg font-normal text-slate-800 dark:text-slate-100"><HelpCircle size={22} /> Ajuda <ChevronRight className="ml-auto text-slate-300" size={20} /></button>
               </div>
-              <div className="grid grid-cols-1 gap-3">
-                {!isLite && <>
-                  <button onClick={() => setActiveTab('categorySpending')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Layers size={20} className="text-theme" /> Gastos por Categoria</button>
-                  <button onClick={() => setActiveTab('installments')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CalendarClock size={20} className="text-theme" /> Compras Parceladas</button>
-                  <button onClick={() => setActiveTab('fixed')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Repeat size={20} className="text-theme" /> Compras Recorrentes</button>
-                  <button onClick={() => setActiveTab('salary')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Coins size={20} className="text-theme" /> Gestão de Salário</button>
-                </>}
-                <button onClick={() => setActiveTab('subscriptions')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Assinaturas</button>
-                <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme dark:text-white" /> Cartões</button>
-                <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Settings size={20} className="text-theme" /> Configurações</button>
-              </div>
-              <button onClick={() => profileFileRef.current?.click()} className="mx-auto mt-8 flex flex-col items-center gap-2 border-t border-slate-200 pt-5 dark:border-slate-800"><img src={settings.userPhoto} className="h-16 w-16 rounded-full border-2 border-theme object-cover" alt="Foto do usuário" /><span className="text-sm font-bold text-slate-700 dark:text-white">{settings.userName}</span></button>
-              <input ref={profileFileRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic" onChange={handleProfileFile} className="hidden" />
               <div className="flex items-center justify-center gap-3 pt-4">
                 <button onClick={exportAppData} aria-label="Exportar dados em JSON" title="Exportar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Upload size={17} /></button>
                 <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" title="Importar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Download size={17} /></button>
@@ -597,10 +578,6 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md p-8 animate-in zoom-in duration-200 transition-colors duration-300">
               <div className="flex flex-col items-center text-center space-y-4">
-                <div className="relative group cursor-pointer" onClick={() => profileFileRef.current?.click()}>
-                  <img src={settings.userPhoto} className="w-24 h-24 rounded-full object-cover border-4 border-theme shadow-xl" alt="Profile" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-full transition-opacity"><Camera className="text-white" /></div>
-                </div>
                 <input 
                   type="text" 
                   value={settings.userName} 
