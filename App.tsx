@@ -24,6 +24,8 @@ import {
   Repeat,
   ChevronRight,
   Menu
+  , CalendarDays
+  , ChartNoAxesCombined
 } from 'lucide-react';
 import { Transaction, TransactionType, Category, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup } from './types';
 import { getFinancialGroup } from './finance';
@@ -36,8 +38,10 @@ import SalaryManager from './components/SalaryManager';
 import InstallmentManager from './components/InstallmentManager';
 import RecurringExpensesManager from './components/RecurringExpensesManager';
 import CardManager from './components/CardManager';
+import BalanceHorizonView from './components/BalanceHorizonView';
 
-const STORAGE_KEY_TRANSACTIONS = 'finanflow_transactions';
+const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
+const LEGACY_STORAGE_KEY_TRANSACTIONS = 'finanflow_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'finanflow_subscriptions';
 const STORAGE_KEY_INITIAL_BALANCE = 'finanflow_initial_balance';
 const STORAGE_KEY_SALARY_INFO = 'finanflow_salary_info';
@@ -61,7 +65,7 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dailyBalance' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
+  type TabType = 'dailyBalance' | 'balanceHorizon' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
   const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
@@ -124,18 +128,21 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (settings.appMode === 'lite' && !['dailyBalance', 'menu', 'subscriptions', 'cards'].includes(activeTab)) {
+    if (settings.appMode === 'lite' && !['dailyBalance', 'balanceHorizon', 'menu', 'subscriptions', 'cards'].includes(activeTab)) {
       setActiveTab('dailyBalance');
     }
   }, [settings.appMode, activeTab]);
 
   useEffect(() => {
-    const savedTransactions = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
+    const savedTransactions = localStorage.getItem(STORAGE_KEY_TRANSACTIONS) || localStorage.getItem(LEGACY_STORAGE_KEY_TRANSACTIONS);
     const savedSubscriptions = localStorage.getItem(STORAGE_KEY_SUBSCRIPTIONS);
     const savedInitial = localStorage.getItem(STORAGE_KEY_INITIAL_BALANCE);
     const savedSalaryInfo = localStorage.getItem(STORAGE_KEY_SALARY_INFO);
 
-    if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+    if (savedTransactions) {
+      setTransactions(JSON.parse(savedTransactions));
+      if (!localStorage.getItem(STORAGE_KEY_TRANSACTIONS)) localStorage.setItem(STORAGE_KEY_TRANSACTIONS, savedTransactions);
+    }
     if (savedSubscriptions) setSubscriptions(JSON.parse(savedSubscriptions));
     if (savedInitial) setInitialBalance(JSON.parse(savedInitial));
     if (savedSalaryInfo) setSalaryInfo(JSON.parse(savedSalaryInfo));
@@ -226,6 +233,7 @@ const App: React.FC = () => {
 
   const tabLabels: Record<TabType, string> = {
     dailyBalance: 'Extrato Diário',
+    balanceHorizon: 'Horizonte de Saldos',
     categorySpending: 'Gastos por Categoria',
     installments: 'Compras Parceladas',
     fixed: 'Compras Recorrentes',
@@ -358,7 +366,8 @@ const App: React.FC = () => {
               </div>
             </section>
           )}
-          {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} liteMode={isLite} compactHeader={settings.appMode === 'developer' && ['iphone-16e', 'galaxy-a73'].includes(developerViewport)} onDayClick={(date, group) => openNewTransaction(group, date)} />}
+          {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} liteMode={isLite} compactHeader={settings.appMode === 'developer' && ['iphone-16e', 'galaxy-a73'].includes(developerViewport)} onDayClick={(date, group) => openNewTransaction(group, date)} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
+          {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={() => openNewTransaction()} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -369,7 +378,7 @@ const App: React.FC = () => {
 
         {feedbackMessage && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
 
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
+        <nav className={`${activeTab === 'balanceHorizon' ? 'hidden' : ''} md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none`}>
           <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-3 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-2 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <History size={20} />
