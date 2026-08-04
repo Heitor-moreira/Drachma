@@ -10,6 +10,7 @@ import {
   ChevronDown
   , SlidersHorizontal
   , Grid3X3
+  , Grid2X2
 } from 'lucide-react';
 
 interface Props {
@@ -149,18 +150,18 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-hidden max-h-[calc(100vh-7.5rem)] custom-scrollbar">
           <table className="w-full table-fixed border-collapse" style={{ fontFamily: "'Courier New', Consolas, monospace" }}>
-            <thead>
+            <thead className="border-b border-slate-200 dark:border-slate-700">
               <tr className="bg-slate-100 dark:bg-slate-800">
-                <th className="w-[12%] py-3 px-2 border-y-0 border-l-0 border-r border-slate-200 dark:border-slate-700 bg-slate-200/60 dark:bg-slate-700/60 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px]">Dia</th>
-                <th className="w-[58%] py-3 px-2 border-y-0 border-r border-slate-200 dark:border-slate-700"><div className="flex justify-center"><div className="relative flex items-center gap-1"><SlidersHorizontal className="w-4 h-4 text-slate-500" /><select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 max-w-[8rem] appearance-none bg-transparent pr-5 text-sm font-bold text-slate-700 outline-none dark:text-slate-200"><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 w-4 h-4 text-slate-500" /></div></div></th>
-                <th className="w-[30%] p-2 border-y-0 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] whitespace-nowrap">Saldos</th>
+                <th className="w-[12%] py-3 px-2 bg-slate-200/60 text-left font-normal text-slate-700 dark:bg-slate-700/60 dark:text-slate-200 uppercase text-[10px]">Dia</th>
+                <th className="w-[58%] py-3 px-2"><div className="flex justify-start"><div className="relative flex items-center gap-2"><Grid2X2 className="w-4 h-4 text-slate-500" /><select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 max-w-[8rem] appearance-none bg-transparent pr-5 text-lg font-normal text-slate-700 outline-none dark:text-slate-200"><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 w-4 h-4 text-slate-500" /></div></div></th>
+                <th className="w-[30%] p-2 text-right font-normal text-slate-700 dark:text-slate-200 uppercase text-lg whitespace-nowrap">Saldos</th>
               </tr>
             </thead>
             <tbody>
                 {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} className="group">
-                {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border border-slate-200 dark:border-slate-700 bg-slate-100/70 dark:bg-slate-800/70 text-center font-bold text-slate-700 dark:text-slate-300 text-sm">{day.day}</td>}
-                <td onClick={() => onDayClick?.(day.date, item.key)} className="p-2 border border-slate-200 dark:border-slate-700 transition-colors group-hover:bg-slate-100/80 dark:group-hover:bg-slate-800/80 cursor-pointer"><div className="flex items-center justify-between gap-2"><span aria-label={item.label} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${item.circle} text-base text-white font-black`}>{item.icon}</span><span className="text-right text-[clamp(11px,2.5vw,16px)] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></td>
-                {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border border-slate-200 dark:border-slate-700 text-right text-[clamp(9px,2.2vw,14px)] font-black whitespace-nowrap ${day.balance === 0 ? 'bg-amber-100 text-slate-900 dark:bg-amber-950/40 dark:text-amber-200' : day.balance > 0 ? 'bg-[#e8f7e5] text-[#238636] dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
+                {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300 text-sm">{day.day}</td>}
+                <td onClick={() => onDayClick?.(day.date, item.key)} className="p-2 border-b border-slate-200 transition-colors group-hover:bg-slate-100/80 dark:border-slate-700 dark:group-hover:bg-slate-800/80 cursor-pointer"><div className="flex items-center justify-between gap-2"><span aria-label={item.label} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${item.circle} text-base text-white font-black`}>{item.icon}</span><span className="text-right text-[clamp(11px,2.5vw,16px)] font-normal text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></td>
+                {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border-b border-slate-200 text-right text-[clamp(9px,2.2vw,14px)] font-normal whitespace-nowrap ${day.balance === 0 ? 'bg-amber-100 text-slate-900 dark:border-slate-700 dark:bg-amber-950/40 dark:text-amber-200' : day.balance > 0 ? 'bg-[#e8f7e5] text-[#238636] dark:border-slate-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:border-slate-700 dark:bg-rose-950/50 dark:text-rose-300'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
               </tr>); })}
               {filteredAndSortedReport.length === 0 && (
                 <tr>
