@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   CreditCard, 
   TrendingUp, 
@@ -27,6 +27,9 @@ import {
   , Plus
   , Calculator
   , Tags
+  , Upload
+  , Download
+  , XCircle
   , CalendarDays
   , ChartNoAxesCombined
 } from 'lucide-react';
@@ -113,6 +116,7 @@ const App: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const importFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (settings.theme === 'dark') {
@@ -165,6 +169,28 @@ const App: React.FC = () => {
   const currencySymbol = CURRENCIES[settings.currency].symbol;
 
   const availableTags = useMemo(() => Array.from(new Set(transactions.flatMap(t => t.tags || []))).sort((a, b) => a.localeCompare(b)), [transactions]);
+
+  const exportAppData = () => {
+    const backup = { version: 1, exportedAt: new Date().toISOString(), transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a'); link.href = url; link.download = `drachma-backup-${formatLocalYYYYMMDD(new Date())}.json`; link.click(); URL.revokeObjectURL(url);
+  };
+  const importAppData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { try {
+      const data = JSON.parse(String(reader.result)); if (!Array.isArray(data.transactions)) throw new Error('Arquivo inválido');
+      setTransactions(data.transactions); if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions); if (data.initialBalance) setInitialBalance(data.initialBalance); if (data.salaryInfo) setSalaryInfo(data.salaryInfo); if (data.dateRange) setDateRange(data.dateRange); if (data.settings) setSettings(data.settings); if (Array.isArray(data.cards)) setCards(data.cards);
+      setFeedbackMessage('Dados importados com sucesso!');
+    } catch { setFeedbackMessage('Arquivo JSON inválido.'); } event.target.value = ''; window.setTimeout(() => setFeedbackMessage(''), 2400); };
+    reader.readAsText(file);
+  };
+  const clearImportedData = () => {
+    if (!window.confirm('Excluir os dados carregados e todos os lançamentos salvos?')) return;
+    setTransactions([]); setSubscriptions([]); setInitialBalance({ amount: 0, date: formatLocalYYYYMMDD(new Date()) }); setSalaryInfo({ gross: 0, discounts: [] }); setCards([]);
+    [STORAGE_KEY_TRANSACTIONS, STORAGE_KEY_SUBSCRIPTIONS, STORAGE_KEY_INITIAL_BALANCE, STORAGE_KEY_SALARY_INFO, STORAGE_KEY_DATE_RANGE, STORAGE_KEY_SETTINGS, STORAGE_KEY_CARDS].forEach(key => localStorage.removeItem(key));
+    setFeedbackMessage('Dados excluídos.'); window.setTimeout(() => setFeedbackMessage(''), 2400);
+  };
 
   const calculatedNetSalary = useMemo(() => {
     const totalDiscounts = salaryInfo.discounts.reduce((acc, d) => {
@@ -364,6 +390,12 @@ const App: React.FC = () => {
                 <button onClick={() => setActiveTab('subscriptions')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Assinaturas</button>
                 <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Cartões</button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Settings size={20} className="text-theme" /> Configurações</button>
+              </div>
+              <div className="mt-8 flex items-center justify-center gap-3 border-t border-slate-200 pt-5 dark:border-slate-800">
+                <button onClick={exportAppData} aria-label="Exportar dados em JSON" title="Exportar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Upload size={17} /></button>
+                <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" title="Importar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Download size={17} /></button>
+                <button onClick={clearImportedData} aria-label="Excluir dados carregados" title="Excluir dados carregados" className="rounded-full bg-rose-100 p-2.5 text-rose-500 hover:bg-rose-200"><XCircle size={17} /></button>
+                <input ref={importFileRef} type="file" accept="application/json,.json" onChange={importAppData} className="hidden" />
               </div>
             </section>
           )}
