@@ -285,8 +285,8 @@ const App: React.FC = () => {
         <div className="mb-6">
           <button onClick={() => setIsBalanceSummaryOpen(true)} className="w-full bg-slate-900 dark:bg-slate-800 text-white rounded-3xl p-5 shadow-xl hover:bg-slate-800 dark:hover:bg-slate-700 transition-all group relative overflow-hidden">
             <div className="relative z-10 text-left">
-              <p className="text-[10px] font-black text-theme uppercase tracking-[0.2em] mb-1">Saldo Total</p>
-              <h3 className="text-xl font-black">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
+              <p className="text-[10px] font-bold text-theme uppercase tracking-[0.2em] mb-1">Saldo Total</p>
+              <h3 className="text-xl font-bold">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
             </div>
             <Wallet size={60} className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform" />
           </button>
@@ -329,7 +329,7 @@ const App: React.FC = () => {
             <img src={settings.userPhoto} className="w-9 h-9 rounded-full object-cover shrink-0 border-2 border-theme" alt="Profile" />
             <div className="overflow-hidden">
               <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{settings.userName}</p>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{isLite ? 'Lite User' : 'Pro Plan'}</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{isLite ? 'Lite User' : 'Pro Plan'}</p>
             </div>
           </div>
           <button 
@@ -347,7 +347,7 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
             <div className="absolute top-16 left-4 right-4 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-6 border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-4 duration-300" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-black text-slate-800 dark:text-white uppercase text-xs tracking-widest">Navegação</h3>
+                <h3 className="font-bold text-slate-800 dark:text-white uppercase text-xs tracking-widest">Navegação</h3>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400"><X size={20} /></button>
               </div>
               <div className="grid grid-cols-1 gap-2">
@@ -375,8 +375,8 @@ const App: React.FC = () => {
             <section className="space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-slate-400">Navegação</p>
-                  <h2 className="text-2xl font-black text-slate-800 dark:text-white">Menu</h2>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Navegação</p>
+                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Menu</h2>
                 </div>
                 <button onClick={() => setActiveTab('dailyBalance')} className="rounded-full px-4 py-2 text-xs font-bold text-theme bg-theme/10">Voltar</button>
               </div>
@@ -450,7 +450,7 @@ const App: React.FC = () => {
               <div className="space-y-6">
                 {!isLite && (
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Gestão Financeira</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Gestão Financeira</label>
                     <button 
                       onClick={() => { setActiveTab('salary'); setIsSettingsOpen(false); }}
                       className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-theme dark:hover:border-theme transition-all group"
@@ -470,7 +470,7 @@ const App: React.FC = () => {
                 )}
 
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tema</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Tema</label>
                   <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl">
                     <button 
                       onClick={() => setSettings({...settings, theme: 'light'})}
@@ -488,7 +488,7 @@ const App: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Modo</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Modo</label>
                   <div className="grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl">
                     <button 
                       onClick={() => setSettings({...settings, appMode: 'lite'})}
@@ -511,7 +511,7 @@ const App: React.FC = () => {
                   </div>
                   {settings.appMode === 'developer' && (
                     <div className="mt-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg animate-in slide-in-from-top-2 duration-200">
-                      <p className="px-2 pb-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Proporção da visualização</p>
+                      <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Proporção da visualização</p>
                       {[
                         ['notebook', 'Notebook'],
                         ['iphone-16e', 'iPhone 16e'],
@@ -579,7 +579,7 @@ const App: React.FC = () => {
             { group: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', sign: 1 },
             { group: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', sign: -1 }
           ];
-          return <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"><div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800"><div><p className="text-xs font-black uppercase tracking-widest text-slate-400">Resumo do saldo</p><h3 className="text-2xl font-black dark:text-white">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3></div><button onClick={() => setIsBalanceSummaryOpen(false)} className="p-2 text-slate-500"><X size={22} /></button></div>{rows.map(row => { const total = transactions.filter(t => getFinancialGroup(t) === row.group).reduce((sum, t) => sum + t.amount, 0); return <div key={row.group} className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800"><span className={`text-lg font-bold ${row.color}`}>{row.label}</span><span className="text-lg font-bold text-slate-700 dark:text-slate-200">{row.sign < 0 ? '-' : '+'} {currencySymbol} {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>; })}<button onClick={() => setIsBalanceSummaryOpen(false)} className="m-5 w-[calc(100%-2.5rem)] bg-theme text-white font-bold py-3 rounded-2xl">Fechar</button></div></div>;
+          return <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"><div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800"><div><p className="text-xs font-bold uppercase tracking-widest text-slate-400">Resumo do saldo</p><h3 className="text-2xl font-bold dark:text-white">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3></div><button onClick={() => setIsBalanceSummaryOpen(false)} className="p-2 text-slate-500"><X size={22} /></button></div>{rows.map(row => { const total = transactions.filter(t => getFinancialGroup(t) === row.group).reduce((sum, t) => sum + t.amount, 0); return <div key={row.group} className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800"><span className={`text-lg font-bold ${row.color}`}>{row.label}</span><span className="text-lg font-bold text-slate-700 dark:text-slate-200">{row.sign < 0 ? '-' : '+'} {currencySymbol} {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>; })}<button onClick={() => setIsBalanceSummaryOpen(false)} className="m-5 w-[calc(100%-2.5rem)] bg-theme text-white font-bold py-3 rounded-2xl">Fechar</button></div></div>;
         })()}
 
         {isProfileOpen && (
@@ -597,7 +597,7 @@ const App: React.FC = () => {
                   type="text" 
                   value={settings.userName} 
                   onChange={e => setSettings({...settings, userName: e.target.value})}
-                  className="text-xl font-black text-slate-800 dark:text-white text-center bg-transparent border-b-2 border-transparent focus:border-theme outline-none"
+                  className="text-xl font-bold text-slate-800 dark:text-white text-center bg-transparent border-b-2 border-transparent focus:border-theme outline-none"
                 />
                 <button onClick={() => setIsProfileOpen(false)} className="w-full bg-theme text-white font-bold py-3 rounded-xl hover:bg-theme-dark">Fechar</button>
               </div>

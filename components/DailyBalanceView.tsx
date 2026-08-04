@@ -139,7 +139,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
           </div>
           <div className="mx-auto flex items-center gap-0.5">
             <button aria-label="Mês anterior" onClick={() => moveMonth(-1)} className="shrink-0 p-1"><ChevronLeft className="w-6 h-6" /></button>
-            <span className="shrink-0 whitespace-nowrap text-xl font-black text-slate-800 dark:text-white">{MONTHS[parseLocalDate(dateRange.start).getMonth()]}/{String(parseLocalDate(dateRange.start).getFullYear()).slice(-2)}</span>
+            <span className="shrink-0 whitespace-nowrap text-xl font-bold text-slate-800 dark:text-white">{MONTHS[parseLocalDate(dateRange.start).getMonth()]}/{String(parseLocalDate(dateRange.start).getFullYear()).slice(-2)}</span>
             <button aria-label="Próximo mês" onClick={() => moveMonth(1)} className="shrink-0 p-1"><ChevronRight className="w-6 h-6" /></button>
           </div>
           <button aria-label="Abrir horizonte de saldos" onClick={onOpenHorizon} className="shrink-0 rounded-lg p-1 text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-800"><Grid3X3 className="h-6 w-6" /></button>
@@ -149,7 +149,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
       {/* Visualização de Planilha */}
       <div className="bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
         <div className="overflow-x-hidden max-h-[calc(100vh-7.5rem)] custom-scrollbar">
-          <table className="w-full table-fixed border-collapse font-sans">
+          <table className="w-full table-fixed border-collapse ">
             <thead className="border-b border-slate-200 dark:border-slate-700">
               <tr className="bg-white dark:bg-slate-900">
                 <th className="w-[12%] py-3 px-2 bg-white text-left font-normal text-slate-700 dark:bg-slate-900 dark:text-slate-200 uppercase text-[10px]">Dia</th>
@@ -160,7 +160,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
             <tbody>
                 {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} className="group">
                 {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300 text-sm">{day.day}</td>}
-                <td onClick={() => onDayClick?.(day.date, item.key)} className="p-2 border-b border-slate-200 transition-colors group-hover:bg-slate-100/80 dark:border-slate-700 dark:group-hover:bg-slate-800/80 cursor-pointer"><div className="flex items-center justify-between gap-2"><span aria-label={item.label} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${item.circle} text-base text-white font-black`}>{item.icon}</span><span className="text-right text-[clamp(11px,2.5vw,16px)] font-normal text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></td>
+                <td onClick={() => onDayClick?.(day.date, item.key)} className="p-2 border-b border-slate-200 transition-colors group-hover:bg-slate-100/80 dark:border-slate-700 dark:group-hover:bg-slate-800/80 cursor-pointer"><div className="flex items-center justify-between gap-2"><span aria-label={item.label} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${item.circle} text-base text-white font-bold`}>{item.icon}</span><span className="text-right text-[clamp(11px,2.5vw,16px)] font-normal text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></td>
                 {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border-b border-slate-200 text-right text-[clamp(9px,2.2vw,14px)] font-normal whitespace-nowrap ${day.balance === 0 ? 'bg-amber-100 text-slate-900 dark:border-slate-700 dark:bg-amber-950/40 dark:text-amber-200' : day.balance > 0 ? 'bg-[#e8f7e5] text-[#238636] dark:border-slate-700 dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:border-slate-700 dark:bg-rose-950/50 dark:text-rose-300'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
               </tr>); })}
               {filteredAndSortedReport.length === 0 && (

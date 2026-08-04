@@ -281,7 +281,7 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
                     <div className="bg-white p-2 rounded-lg border border-slate-100 group-hover:bg-indigo-100 group-hover:border-indigo-200 transition-colors">
                       <Table size={16} className="text-slate-400 group-hover:text-indigo-600" />
                     </div>
-                    <span className="font-semibold text-slate-700 group-hover:text-indigo-700 truncate">{name}</span>
+                    <span className="font-bold text-slate-700 group-hover:text-indigo-700 truncate">{name}</span>
                   </button>
                 ))}
               </div>

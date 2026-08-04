@@ -49,8 +49,8 @@ const InstallmentManager: React.FC<Props> = ({ transactions, baseSalary, onEdit,
           <div className="flex items-center gap-4">
             <div className="p-3 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-500 rounded-2xl"><PieChart size={24} /></div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">Comprometimento Mensal</p>
-              <h4 className="text-2xl font-black text-slate-800 dark:text-slate-100">Compras Parceladas: {monthlyPerc.toFixed(1)}%</h4>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">Comprometimento Mensal</p>
+              <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Compras Parceladas: {monthlyPerc.toFixed(1)}%</h4>
             </div>
           </div>
           <div className="text-right">
@@ -61,8 +61,8 @@ const InstallmentManager: React.FC<Props> = ({ transactions, baseSalary, onEdit,
           <div className="flex items-center gap-4">
             <div className="p-3 bg-[#9ce492]/20 text-[#9ce492] rounded-2xl"><TrendingUp size={24} /></div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">Peso no Orçamento Anual</p>
-              <h4 className="text-2xl font-black text-white">{annualPerc.toFixed(2)}%</h4>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">Peso no Orçamento Anual</p>
+              <h4 className="text-2xl font-bold text-white">{annualPerc.toFixed(2)}%</h4>
             </div>
           </div>
           <div className="text-right">
@@ -81,7 +81,7 @@ const InstallmentManager: React.FC<Props> = ({ transactions, baseSalary, onEdit,
                 <div className="mt-2 w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                    <div className="bg-rose-500 h-full transition-all duration-1000" style={{ width: `${(g.current / g.total) * 100}%` }}></div>
                 </div>
-                <div className="flex justify-between mt-1 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase whitespace-nowrap">
+                <div className="flex justify-between mt-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase whitespace-nowrap">
                    <span>Parcela {g.current} de {g.total}</span>
                    <span>{currencySymbol} {g.amount.toLocaleString('pt-BR')} / mês</span>
                 </div>
@@ -89,7 +89,7 @@ const InstallmentManager: React.FC<Props> = ({ transactions, baseSalary, onEdit,
             </div>
             <div className="flex items-center gap-4 w-full md:w-auto justify-end">
                <div className="text-right whitespace-nowrap">
-                  <p className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase">Restante</p>
+                  <p className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase">Restante</p>
                   <p className="font-bold text-slate-700 dark:text-slate-300">{g.remaining > 0 ? `${currencySymbol} ${(g.amount * g.remaining).toLocaleString('pt-BR')}` : 'Finalizado'}</p>
                </div>
                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

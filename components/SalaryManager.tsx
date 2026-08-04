@@ -70,13 +70,13 @@ const SalaryManager: React.FC<Props> = ({ salaryInfo, onUpdate, currencySymbol }
             <div>
               <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 tracking-widest">Salário Bruto (Mensal)</label>
               <div className="relative">
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-400 dark:text-slate-600 text-lg">{currencySymbol}</span>
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400 dark:text-slate-600 text-lg">{currencySymbol}</span>
                 <input
                   type="number"
                   step="0.01"
                   value={salaryInfo.gross || ''}
                   onChange={e => handleGrossChange(parseFloat(e.target.value) || 0)}
-                  className="w-full pl-14 pr-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-theme/20 focus:border-theme outline-none text-2xl font-black text-slate-800 dark:text-white transition-all"
+                  className="w-full pl-14 pr-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-theme/20 focus:border-theme outline-none text-2xl font-bold text-slate-800 dark:text-white transition-all"
                   placeholder="0,00"
                 />
               </div>
@@ -84,12 +84,12 @@ const SalaryManager: React.FC<Props> = ({ salaryInfo, onUpdate, currencySymbol }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
               <div className="p-6 bg-rose-50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/10 rounded-2xl">
-                <span className="text-[10px] font-black text-rose-400 dark:text-rose-500 uppercase tracking-widest block mb-1">Total de Descontos</span>
-                <p className="text-2xl font-black text-rose-600 dark:text-rose-500">- {currencySymbol} {totalDiscounts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                <span className="text-[10px] font-bold text-rose-400 dark:text-rose-500 uppercase tracking-widest block mb-1">Total de Descontos</span>
+                <p className="text-2xl font-bold text-rose-600 dark:text-rose-500">- {currencySymbol} {totalDiscounts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
               <div className="p-6 bg-theme/10 dark:bg-theme/5 border border-theme/30 dark:border-theme/20 rounded-2xl">
-                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Salário Líquido Real</span>
-                <p className="text-2xl font-black text-slate-800 dark:text-theme">{currencySymbol} {netSalary.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Salário Líquido Real</span>
+                <p className="text-2xl font-bold text-slate-800 dark:text-theme">{currencySymbol} {netSalary.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
           </div>
@@ -121,7 +121,7 @@ const SalaryManager: React.FC<Props> = ({ salaryInfo, onUpdate, currencySymbol }
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-black text-rose-500">{currencySymbol} {absoluteAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      <span className="font-bold text-rose-500">{currencySymbol} {absoluteAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                       <button 
                         onClick={() => removeDiscount(discount.id)}
                         className="p-2 text-slate-300 dark:text-slate-600 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
