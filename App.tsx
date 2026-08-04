@@ -117,6 +117,7 @@ const App: React.FC = () => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const importFileRef = useRef<HTMLInputElement>(null);
+  const profileFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (settings.theme === 'dark') {
@@ -208,6 +209,14 @@ const App: React.FC = () => {
     setTransactions(prev => [...newTs, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     setFeedbackMessage('Movimentação adicionada!');
     window.setTimeout(() => setFeedbackMessage(''), 2400);
+  };
+  const handleProfileFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => setSettings(prev => ({ ...prev, userPhoto: String(reader.result) }));
+    reader.readAsDataURL(file);
+    event.target.value = '';
   };
 
   const updateTransaction = (updated: Transaction) => {
@@ -391,7 +400,8 @@ const App: React.FC = () => {
                 <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme dark:text-white" /> Cartões</button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Settings size={20} className="text-theme" /> Configurações</button>
               </div>
-              <button onClick={() => setIsProfileOpen(true)} className="mx-auto mt-8 flex flex-col items-center gap-2 border-t border-slate-200 pt-5 dark:border-slate-800"><img src={settings.userPhoto} className="h-16 w-16 rounded-full border-2 border-theme object-cover" alt="Foto do usuário" /><span className="text-sm font-bold text-slate-700 dark:text-white">{settings.userName}</span></button>
+              <button onClick={() => profileFileRef.current?.click()} className="mx-auto mt-8 flex flex-col items-center gap-2 border-t border-slate-200 pt-5 dark:border-slate-800"><img src={settings.userPhoto} className="h-16 w-16 rounded-full border-2 border-theme object-cover" alt="Foto do usuário" /><span className="text-sm font-bold text-slate-700 dark:text-white">{settings.userName}</span></button>
+              <input ref={profileFileRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic" onChange={handleProfileFile} className="hidden" />
               <div className="flex items-center justify-center gap-3 pt-4">
                 <button onClick={exportAppData} aria-label="Exportar dados em JSON" title="Exportar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Upload size={17} /></button>
                 <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" title="Importar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200"><Download size={17} /></button>
