@@ -108,40 +108,45 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     <div className="space-y-2 transition-colors duration-300">
       {/* Cabeçalho mensal */}
       <div className="border-b border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="relative h-14 px-3 flex flex-nowrap items-center gap-1 overflow-visible">
-          <button aria-label="Selecionar mês e ano" onClick={() => setIsPeriodPickerOpen(value => !value)} className="shrink-0 p-1"><Calendar className="w-5 h-5 text-slate-500" /></button>
+          <div className="relative h-11 px-3 flex flex-nowrap items-center gap-1 overflow-visible bg-white dark:bg-slate-950">
+          <div
+            className="relative shrink-0"
+            tabIndex={-1}
+            onBlur={event => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPeriodPickerOpen(false);
+            }}
+          >
+            <button aria-label="Selecionar mês e ano" onClick={() => setIsPeriodPickerOpen(value => !value)} className="shrink-0 p-1"><Calendar className="w-5 h-5 text-slate-500" /></button>
+            {isPeriodPickerOpen && <div className="absolute left-0 top-10 z-20 flex gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-700 dark:bg-slate-900"><select aria-label="Mês" value={parseLocalDate(dateRange.start).getMonth()} onChange={e => { const d = parseLocalDate(dateRange.start); const month = Number(e.target.value); setDateRange({ start: formatLocalYYYYMMDD(new Date(d.getFullYear(), month, 1)), end: formatLocalYYYYMMDD(new Date(d.getFullYear(), month + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-slate-800 dark:text-white dark:[color-scheme:dark]">{MONTHS.map((month, index) => <option key={month} value={index}>{month}</option>)}</select><select aria-label="Ano" value={parseLocalDate(dateRange.start).getFullYear()} onChange={e => { const year = Number(e.target.value); const d = parseLocalDate(dateRange.start); setDateRange({ start: formatLocalYYYYMMDD(new Date(year, d.getMonth(), 1)), end: formatLocalYYYYMMDD(new Date(year, d.getMonth() + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-slate-800 dark:text-white dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => parseLocalDate(dateRange.start).getFullYear() - 5 + index).map(year => <option key={year} value={year}>{year}</option>)}</select></div>}
+          </div>
           <div className="mx-auto flex items-center gap-0.5">
             <button aria-label="Mês anterior" onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() - 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className="shrink-0 p-1"><ChevronLeft className="w-6 h-6" /></button>
             <span className="shrink-0 whitespace-nowrap text-xl font-black text-slate-800 dark:text-white">{MONTHS[parseLocalDate(dateRange.start).getMonth()]}/{String(parseLocalDate(dateRange.start).getFullYear()).slice(-2)}</span>
             <button aria-label="Próximo mês" onClick={() => { const d = parseLocalDate(dateRange.start); d.setMonth(d.getMonth() + 1); const start = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth(), 1)); const end = formatLocalYYYYMMDD(new Date(d.getFullYear(), d.getMonth() + 1, 0)); setDateRange({ start, end }); }} className="shrink-0 p-1"><ChevronRight className="w-6 h-6" /></button>
           </div>
-          <div className="relative flex min-w-0 shrink items-center gap-0.5"><SlidersHorizontal className="w-5 h-5 shrink-0 text-slate-500" /><select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 max-w-[7rem] appearance-none pr-5 text-sm font-bold text-slate-700 dark:text-slate-200 bg-transparent outline-none"><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className="w-4 h-4 pointer-events-none absolute right-0 text-slate-500" /></div>
-          {isPeriodPickerOpen && <div className="absolute left-2 top-12 z-20 flex gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-700 dark:bg-slate-900"><select aria-label="Mês" value={parseLocalDate(dateRange.start).getMonth()} onChange={e => { const d = parseLocalDate(dateRange.start); const month = Number(e.target.value); setDateRange({ start: formatLocalYYYYMMDD(new Date(d.getFullYear(), month, 1)), end: formatLocalYYYYMMDD(new Date(d.getFullYear(), month + 1, 0)) }); }} className="rounded-lg bg-transparent p-1 font-bold dark:text-white">{MONTHS.map((month, index) => <option key={month} value={index}>{month}</option>)}</select><select aria-label="Ano" value={parseLocalDate(dateRange.start).getFullYear()} onChange={e => { const year = Number(e.target.value); const d = parseLocalDate(dateRange.start); setDateRange({ start: formatLocalYYYYMMDD(new Date(year, d.getMonth(), 1)), end: formatLocalYYYYMMDD(new Date(year, d.getMonth() + 1, 0)) }); }} className="rounded-lg bg-transparent p-1 font-bold dark:text-white">{Array.from({ length: 11 }, (_, index) => parseLocalDate(dateRange.start).getFullYear() - 5 + index).map(year => <option key={year} value={year}>{year}</option>)}</select></div>}
         </div>
       </div>
 
       {/* Visualização de Planilha */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div className="overflow-x-hidden max-h-[calc(100vh-9rem)] custom-scrollbar">
+        <div className="overflow-x-hidden max-h-[calc(100vh-7.5rem)] custom-scrollbar">
           <table className="w-full table-fixed border-collapse" style={{ fontFamily: "'Courier New', Consolas, monospace" }}>
             <thead>
               <tr className="bg-slate-100 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
-                <th className="w-[12%] p-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px]">Dia</th>
-                <th className="w-[28%] p-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px]">Tipo</th>
-                <th className="w-[30%] p-2 border border-slate-300 dark:border-slate-700 text-right font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] whitespace-nowrap">Valor</th>
+                <th className="w-[12%] py-3 px-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px]">Dia</th>
+                <th className="w-[58%] py-3 px-2 border border-slate-300 dark:border-slate-700"><div className="relative flex items-center justify-center gap-1"><SlidersHorizontal className="w-4 h-4 text-slate-500" /><select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 max-w-[8rem] appearance-none pr-5 text-sm font-bold text-slate-700 dark:text-slate-200 bg-transparent outline-none"><option value="ALL">Todas</option>{dailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className="w-4 h-4 pointer-events-none text-slate-500" /></div></th>
                 <th className="w-[30%] p-2 border border-slate-300 dark:border-slate-700 text-center font-bold text-slate-800 dark:text-slate-100 uppercase text-[10px] whitespace-nowrap">Saldo</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} onClick={() => onDayClick?.(day.date, item.key)} className="cursor-pointer">
-                {index === 0 && <td rowSpan={visibleTypes.length} className="p-2 border border-slate-200 dark:border-slate-700 text-center font-bold text-slate-700 dark:text-slate-300 text-sm">{day.day}</td>}
-                <td aria-label={item.label} className="p-2 border border-slate-200 dark:border-slate-700 text-center text-sm transition-colors hover:bg-slate-100/80 active:bg-slate-200/80 dark:hover:bg-slate-800/80 dark:active:bg-slate-700/80"><span className={`inline-flex h-7 w-7 items-center justify-center rounded-full bg-current/10 ${item.color} font-black`}>{item.icon}</span></td>
-                <td className="p-2 border border-slate-200 dark:border-slate-700 text-right text-sm font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border border-slate-200 dark:border-slate-700 text-right text-sm font-black whitespace-nowrap ${day.balance >= 0 ? 'bg-emerald-950/40 text-emerald-300' : 'bg-rose-950/50 text-rose-300'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
+                {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} className="group">
+                {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-slate-700 dark:text-slate-300 text-sm transition-colors group-hover:bg-slate-100/80 dark:group-hover:bg-slate-800/80">{day.day}</td>}
+                <td onClick={() => onDayClick?.(day.date, item.key)} className="p-2 border border-slate-200 dark:border-slate-700 transition-colors group-hover:bg-slate-100/80 dark:group-hover:bg-slate-800/80 cursor-pointer"><div className="flex items-center justify-between gap-2"><span aria-label={item.label} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-current/10 ${item.color} font-black`}>{item.icon}</span><span className="text-right text-[clamp(9px,2.2vw,14px)] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></td>
+                {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border border-slate-200 dark:border-slate-700 text-right text-[clamp(9px,2.2vw,14px)] font-black whitespace-nowrap ${day.balance >= 0 ? 'bg-[#e8f7e5] text-[#238636] dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
               </tr>); })}
               {filteredAndSortedReport.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-10 text-center text-slate-400 italic text-xs">
+                  <td colSpan={3} className="p-10 text-center text-slate-400 italic text-xs">
                     Nenhum registro encontrado para este período.
                   </td>
                 </tr>

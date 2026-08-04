@@ -106,6 +106,7 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
 
   useEffect(() => {
     if (settings.theme === 'dark') {
@@ -123,7 +124,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (settings.appMode === 'lite' && activeTab !== 'dailyBalance' && activeTab !== 'menu') {
+    if (settings.appMode === 'lite' && !['dailyBalance', 'menu', 'subscriptions', 'cards'].includes(activeTab)) {
       setActiveTab('dailyBalance');
     }
   }, [settings.appMode, activeTab]);
@@ -171,6 +172,8 @@ const App: React.FC = () => {
 
   const addTransactions = (newTs: Transaction[]) => {
     setTransactions(prev => [...newTs, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    setFeedbackMessage('Movimentação adicionada!');
+    window.setTimeout(() => setFeedbackMessage(''), 2400);
   };
 
   const updateTransaction = (updated: Transaction) => {
@@ -255,7 +258,6 @@ const App: React.FC = () => {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-1">
-          <button onClick={() => { setActiveTab('dailyBalance'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'dailyBalance' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><History size={18} /> Saldos</button>
           
           {!isLite && (
             <>
@@ -278,10 +280,10 @@ const App: React.FC = () => {
                 )}
               </div>
 
-              <button onClick={() => { setActiveTab('subscriptions'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'subscriptions' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CreditCard size={18} /> Assinaturas</button>
-              <button onClick={() => { setActiveTab('cards'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'cards' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CreditCard size={18} /> Cartões</button>
             </>
           )}
+          <button onClick={() => { setActiveTab('subscriptions'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'subscriptions' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CreditCard size={18} /> Assinaturas</button>
+          <button onClick={() => { setActiveTab('cards'); setIsReportsOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === 'cards' ? 'bg-theme/20 text-slate-700 dark:text-theme font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}><CreditCard size={18} /> Cartões</button>
         </nav>
 
         <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
@@ -344,15 +346,14 @@ const App: React.FC = () => {
                 <button onClick={() => setActiveTab('dailyBalance')} className="rounded-full px-4 py-2 text-xs font-bold text-theme bg-theme/10">Voltar</button>
               </div>
               <div className="grid grid-cols-1 gap-3">
-                <button onClick={() => setActiveTab('dailyBalance')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><History size={20} className="text-theme" /> Saldos</button>
                 {!isLite && <>
                   <button onClick={() => setActiveTab('categorySpending')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Layers size={20} className="text-theme" /> Gastos por Categoria</button>
                   <button onClick={() => setActiveTab('installments')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CalendarClock size={20} className="text-theme" /> Compras Parceladas</button>
                   <button onClick={() => setActiveTab('fixed')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Repeat size={20} className="text-theme" /> Compras Recorrentes</button>
-                  <button onClick={() => setActiveTab('subscriptions')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Assinaturas</button>
                   <button onClick={() => setActiveTab('salary')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Coins size={20} className="text-theme" /> Gestão de Salário</button>
-                  <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Cartões</button>
                 </>}
+                <button onClick={() => setActiveTab('subscriptions')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Assinaturas</button>
+                <button onClick={() => setActiveTab('cards')} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><CreditCard size={20} className="text-theme" /> Cartões</button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 text-left font-bold shadow-sm border border-slate-100 dark:border-slate-800"><Settings size={20} className="text-theme" /> Configurações</button>
               </div>
             </section>
@@ -366,8 +367,10 @@ const App: React.FC = () => {
           {activeTab === 'cards' && <CardManager cards={cards} onChange={setCards} currencySymbol={currencySymbol} />}
         </div>
 
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none">
-          <div className="mx-auto grid max-w-md grid-cols-3 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-2 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
+        {feedbackMessage && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
+
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
+          <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-3 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-2 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <History size={20} />
               <span>Saldos</span>
