@@ -413,7 +413,7 @@ const App: React.FC = () => {
         {feedbackMessage && activeTab !== 'balanceHorizon' && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
 
         {activeTab !== 'balanceHorizon' && <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
-          <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-slate-200/95 dark:bg-slate-800/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
+          <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-600/80 bg-slate-100/95 dark:bg-[#363b44]/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <History size={20} />
               <span>Saldos</span>
@@ -422,7 +422,7 @@ const App: React.FC = () => {
               <Calculator size={20} />
               <span>Totais</span>
             </button>
-            <button onClick={() => openNewTransaction()} aria-label="Adicionar lançamento" className="flex h-12 w-12 place-self-center items-center justify-center self-center rounded-full bg-slate-950 text-white shadow-lg dark:bg-white dark:text-slate-950">
+            <button onClick={() => openNewTransaction()} aria-label="Adicionar lançamento" className="flex h-14 w-14 place-self-center items-center justify-center self-center rounded-full bg-slate-950 text-white shadow-lg dark:bg-slate-100 dark:text-slate-900">
               <Plus size={30} />
             </button>
             <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-white">
