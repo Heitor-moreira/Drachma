@@ -24,6 +24,9 @@ import {
   Repeat,
   ChevronRight,
   Menu
+  , Plus
+  , Calculator
+  , Tags
   , CalendarDays
   , ChartNoAxesCombined
 } from 'lucide-react';
@@ -41,13 +44,12 @@ import CardManager from './components/CardManager';
 import BalanceHorizonView from './components/BalanceHorizonView';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
-const LEGACY_STORAGE_KEY_TRANSACTIONS = 'finanflow_transactions';
-const STORAGE_KEY_SUBSCRIPTIONS = 'finanflow_subscriptions';
-const STORAGE_KEY_INITIAL_BALANCE = 'finanflow_initial_balance';
-const STORAGE_KEY_SALARY_INFO = 'finanflow_salary_info';
-const STORAGE_KEY_DATE_RANGE = 'finanflow_global_date_range';
-const STORAGE_KEY_SETTINGS = 'finanflow_user_settings';
-const STORAGE_KEY_CARDS = 'finanflow_credit_cards';
+const STORAGE_KEY_SUBSCRIPTIONS = 'drachma_subscriptions';
+const STORAGE_KEY_INITIAL_BALANCE = 'drachma_initial_balance';
+const STORAGE_KEY_SALARY_INFO = 'drachma_salary_info';
+const STORAGE_KEY_DATE_RANGE = 'drachma_global_date_range';
+const STORAGE_KEY_SETTINGS = 'drachma_user_settings';
+const STORAGE_KEY_CARDS = 'drachma_credit_cards';
 
 const CURRENCIES: Record<CurrencyCode, { symbol: string; name: string }> = {
   BRL: { symbol: 'R$', name: 'Real Brasileiro' },
@@ -134,14 +136,13 @@ const App: React.FC = () => {
   }, [settings.appMode, activeTab]);
 
   useEffect(() => {
-    const savedTransactions = localStorage.getItem(STORAGE_KEY_TRANSACTIONS) || localStorage.getItem(LEGACY_STORAGE_KEY_TRANSACTIONS);
+    const savedTransactions = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
     const savedSubscriptions = localStorage.getItem(STORAGE_KEY_SUBSCRIPTIONS);
     const savedInitial = localStorage.getItem(STORAGE_KEY_INITIAL_BALANCE);
     const savedSalaryInfo = localStorage.getItem(STORAGE_KEY_SALARY_INFO);
 
     if (savedTransactions) {
       setTransactions(JSON.parse(savedTransactions));
-      if (!localStorage.getItem(STORAGE_KEY_TRANSACTIONS)) localStorage.setItem(STORAGE_KEY_TRANSACTIONS, savedTransactions);
     }
     if (savedSubscriptions) setSubscriptions(JSON.parse(savedSubscriptions));
     if (savedInitial) setInitialBalance(JSON.parse(savedInitial));
@@ -343,7 +344,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className={`flex-1 overflow-y-auto pb-28 md:pb-8 ${activeTab === 'dailyBalance' ? 'p-0' : 'p-4 md:p-8'} space-y-6`}>
+        <div className={`flex-1 overflow-y-auto pb-28 md:pb-8 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' ? 'p-0' : 'p-4 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
               <div className="flex items-center justify-between">
@@ -376,24 +377,31 @@ const App: React.FC = () => {
           {activeTab === 'cards' && <CardManager cards={cards} onChange={setCards} currencySymbol={currencySymbol} />}
         </div>
 
-        {feedbackMessage && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
+        {feedbackMessage && activeTab !== 'balanceHorizon' && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
 
-        <nav className={`${activeTab === 'balanceHorizon' ? 'hidden' : ''} md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none`}>
-          <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-3 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-2 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
+        {activeTab !== 'balanceHorizon' && <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
+          <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <History size={20} />
               <span>Saldos</span>
             </button>
-            <button onClick={() => { setActiveTab('subscriptions'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'subscriptions' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
-              <CreditCard size={20} />
-              <span>Assinaturas</span>
+            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-slate-300">
+              <Calculator size={20} />
+              <span>Totais</span>
+            </button>
+            <button onClick={() => openNewTransaction()} aria-label="Adicionar lançamento" className="-mt-7 flex h-16 w-16 place-self-center items-center justify-center rounded-full bg-slate-950 text-white shadow-lg dark:bg-white dark:text-slate-950">
+              <Plus size={30} />
+            </button>
+            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-slate-300">
+              <Tags size={20} />
+              <span>Tags</span>
             </button>
             <button onClick={() => setActiveTab('menu')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'menu' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <Menu size={22} />
               <span>Menu</span>
             </button>
           </div>
-        </nav>
+        </nav>}
 
         {settings.aiEnabled && (
           <AiInsights isOpen={isAiOpen} transactions={transactions} salaryInfo={salaryInfo} onClose={() => setIsAiOpen(false)} />
