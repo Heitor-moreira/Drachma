@@ -197,7 +197,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
             
             {/* Download Section */}
             <div className="space-y-4">
-              <h4 className="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+              <h4 className="text-sm font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2">
                 <span className="w-1 h-3 bg-slate-300 rounded-full"></span> 1. Baixe o Modelo
               </h4>
               <p className="text-xs text-slate-500 leading-relaxed">
@@ -216,7 +216,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
 
             {/* Upload Section */}
             <div className="space-y-4">
-              <h4 className="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+              <h4 className="text-sm font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2">
                 <span className="w-1 h-3 bg-slate-300 rounded-full"></span> 2. Envie os Dados
               </h4>
               <p className="text-xs text-slate-500 leading-relaxed">

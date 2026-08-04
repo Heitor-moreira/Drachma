@@ -73,7 +73,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
         ) : (
           sortedDates.map(date => (
             <div key={date} className="space-y-3">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-2 flex items-center gap-2">
+              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] pl-2 flex items-center gap-2">
                 <span className="w-1 h-3 bg-[#9ce492] rounded-full"></span>
                 {parseLocalDate(date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </h4>
@@ -86,7 +86,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h5 className="font-semibold text-slate-800 truncate">{t.description}</h5>
+                          <h5 className="font-bold text-slate-800 truncate">{t.description}</h5>
                           {t.installmentInfo && (
                             <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold">
                               {t.installmentInfo.current}/{t.installmentInfo.total}

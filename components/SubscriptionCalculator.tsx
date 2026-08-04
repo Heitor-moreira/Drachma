@@ -43,7 +43,7 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 transition-colors">
       <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 h-fit transition-colors">
-        <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-2">
           <Plus size={20} className="text-[#9ce492]" /> {editingId ? 'Editar Assinatura' : 'Nova Assinatura'}
         </h3>
         <div className="space-y-4">
@@ -56,7 +56,7 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
             <input type="number" value={newAmount} onChange={e => setNewAmount(e.target.value)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none font-bold dark:text-slate-200 transition-colors" placeholder="0,00" />
           </div>
           <div className="flex gap-2">
-            <button onClick={saveSubscription} className="flex-1 bg-[#9ce492] hover:bg-[#8bd381] text-slate-800 font-black py-4 rounded-2xl transition-all shadow-md active:scale-95 uppercase text-xs">
+            <button onClick={saveSubscription} className="flex-1 bg-[#9ce492] hover:bg-[#8bd381] text-slate-800 font-bold py-4 rounded-2xl transition-all shadow-md active:scale-95 uppercase text-xs">
               {editingId ? 'Salvar Edição' : 'Adicionar Assinatura'}
             </button>
             {editingId && <button onClick={() => {setEditingId(null); setNewName(''); setNewAmount('')}} className="px-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-rose-500 transition-colors"><Trash2 size={20} /></button>}
@@ -66,7 +66,7 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
 
       <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 flex items-center gap-2"><CreditCard size={20} className="text-[#9ce492]" /> Minhas Assinaturas</h3>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2"><CreditCard size={20} className="text-[#9ce492]" /> Minhas Assinaturas</h3>
           <span className="bg-[#9ce492]/20 text-slate-700 dark:text-[#9ce492] px-3 py-1 rounded-full text-xs font-bold">{subscriptions.length} Listadas</span>
         </div>
 
@@ -79,11 +79,11 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
                 </button>
                 <div>
                   <h5 className="font-bold text-slate-700 dark:text-slate-200">{s.name}</h5>
-                  <p className="text-[10px] font-black uppercase tracking-tighter text-slate-400 dark:text-slate-500">{s.isActive ? 'Ativa' : 'Pausada'}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-slate-400 dark:text-slate-500">{s.isActive ? 'Ativa' : 'Pausada'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-black text-slate-800 dark:text-white">{currencySymbol} {s.amount.toLocaleString('pt-BR')}</span>
+                <span className="font-bold text-slate-800 dark:text-white">{currencySymbol} {s.amount.toLocaleString('pt-BR')}</span>
                 <div className="flex items-center gap-1">
                   <button onClick={() => startEdit(s)} className="p-2 text-indigo-400 hover:text-indigo-600 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-all"><Edit2 size={16} /></button>
                   <button onClick={() => setSubscriptions(prev => prev.filter(x => x.id !== s.id))} className="p-2 text-rose-300 hover:text-rose-600 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-all"><Trash2 size={16} /></button>
@@ -105,12 +105,12 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
               <div className="p-2.5 bg-[#9ce492] text-slate-800 rounded-xl shadow-lg shadow-emerald-200/50"><PieChart size={20} /></div>
               <div>
                 <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest block">Impacto de Assinaturas Ativas</span>
-                <span className="text-2xl font-black text-slate-800 dark:text-[#9ce492]">{percentageOfSalary.toFixed(1)}% <small className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">do Salário</small></span>
+                <span className="text-2xl font-bold text-slate-800 dark:text-[#9ce492]">{percentageOfSalary.toFixed(1)}% <small className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">do Salário</small></span>
               </div>
             </div>
             <div className="text-right">
                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block">Total Mensal</span>
-               <span className="font-black text-slate-700 dark:text-slate-300">{currencySymbol} {totalMonthlyActive.toLocaleString('pt-BR')}</span>
+               <span className="font-bold text-slate-700 dark:text-slate-300">{currencySymbol} {totalMonthlyActive.toLocaleString('pt-BR')}</span>
             </div>
           </div>
         </div>
