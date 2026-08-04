@@ -56,11 +56,11 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
   const allDailyTypes = [
-    { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', icon: '↙' },
-    { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', icon: '↗' },
-    { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', icon: 'E' },
-    { key: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', icon: '↶' },
-    { key: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', icon: '↔' }
+    { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: '↙' },
+    { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: '↗' },
+    { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: 'E' },
+    { key: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', circle: 'bg-cyan-500', icon: '↶' },
+    { key: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', circle: 'bg-orange-500', icon: '↔' }
   ];
   const dailyTypes = liteMode ? allDailyTypes.slice(0, 3) : allDailyTypes;
   const swipeStartX = useRef<number | null>(null);
@@ -158,8 +158,8 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
             </thead>
             <tbody>
                 {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} className="group">
-                {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border border-slate-200 dark:border-slate-700 bg-slate-100/70 dark:bg-slate-800/70 text-center font-bold text-slate-700 dark:text-slate-300 text-sm transition-colors group-hover:bg-slate-200/80 dark:group-hover:bg-slate-700/80">{day.day}</td>}
-                <td onClick={() => onDayClick?.(day.date, item.key)} className="p-2 border border-slate-200 dark:border-slate-700 transition-colors group-hover:bg-slate-100/80 dark:group-hover:bg-slate-800/80 cursor-pointer"><div className="flex items-center justify-between gap-2"><span aria-label={item.label} className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-current/10 ${item.color} font-black`}>{item.icon}</span><span className="text-right text-[clamp(11px,2.5vw,16px)] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></td>
+                {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border border-slate-200 dark:border-slate-700 bg-slate-100/70 dark:bg-slate-800/70 text-center font-bold text-slate-700 dark:text-slate-300 text-sm">{day.day}</td>}
+                <td onClick={() => onDayClick?.(day.date, item.key)} className="p-2 border border-slate-200 dark:border-slate-700 transition-colors group-hover:bg-slate-100/80 dark:group-hover:bg-slate-800/80 cursor-pointer"><div className="flex items-center justify-between gap-2"><span aria-label={item.label} className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${item.circle} text-white font-black`}>{item.icon}</span><span className="text-right text-[clamp(11px,2.5vw,16px)] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></td>
                 {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border border-slate-200 dark:border-slate-700 text-right text-[clamp(9px,2.2vw,14px)] font-black whitespace-nowrap ${day.balance === 0 ? 'bg-amber-100 text-slate-900 dark:bg-amber-950/40 dark:text-amber-200' : day.balance > 0 ? 'bg-[#e8f7e5] text-[#238636] dark:bg-emerald-950/40 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
               </tr>); })}
               {filteredAndSortedReport.length === 0 && (
