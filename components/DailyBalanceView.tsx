@@ -62,8 +62,6 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: 'INCOME' },
     { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: 'EXPENSE' },
     { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: 'E' },
-    { key: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', circle: 'bg-cyan-500', icon: '↶' },
-    { key: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', circle: 'bg-orange-500', icon: '↔' }
   ];
   const dailyTypes = liteMode ? allDailyTypes.slice(0, 3) : allDailyTypes;
   const swipeStartX = useRef<number | null>(null);
