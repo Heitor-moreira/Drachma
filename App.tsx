@@ -46,6 +46,7 @@ import InstallmentManager from './components/InstallmentManager';
 import RecurringExpensesManager from './components/RecurringExpensesManager';
 import CardManager from './components/CardManager';
 import BalanceHorizonView from './components/BalanceHorizonView';
+import TotalsView from './components/TotalsView';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'drachma_subscriptions';
@@ -71,7 +72,7 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dailyBalance' | 'balanceHorizon' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
+  type TabType = 'dailyBalance' | 'balanceHorizon' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
   const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
@@ -391,6 +392,7 @@ const App: React.FC = () => {
           )}
           {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} liteMode={isLite} compactHeader={settings.appMode === 'developer' && ['iphone-16e', 'galaxy-a73'].includes(developerViewport)} onDayClick={(date, group) => openNewTransaction(group, date)} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
           {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={(date) => openNewTransaction(undefined, date)} />}
+          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -407,7 +409,7 @@ const App: React.FC = () => {
               <History size={20} />
               <span>Saldos</span>
             </button>
-            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-white">
+            <button onClick={() => setActiveTab('totals')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold ${activeTab === 'totals' ? 'bg-theme/15 text-theme' : 'text-slate-700 dark:text-white'}`}>
               <Calculator size={20} />
               <span>Totais</span>
             </button>
