@@ -40,7 +40,6 @@ import { getFinancialGroup } from './finance';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';
-import AiInsights from './components/AiInsights';
 import DailyBalanceView from './components/DailyBalanceView';
 import SalaryManager from './components/SalaryManager';
 import InstallmentManager from './components/InstallmentManager';
@@ -113,7 +112,6 @@ const App: React.FC = () => {
   const [newTransactionDate, setNewTransactionDate] = useState<string | undefined>();
   const [newTransactionGroup, setNewTransactionGroup] = useState<FinancialGroup | undefined>(undefined);
   const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false);
-  const [isAiOpen, setIsAiOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -427,10 +425,6 @@ const App: React.FC = () => {
           </div>
         </nav>}
 
-        {settings.aiEnabled && (
-          <AiInsights isOpen={isAiOpen} transactions={transactions} salaryInfo={salaryInfo} onClose={() => setIsAiOpen(false)} />
-        )}
-
         {isSettingsOpen && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
             <div className="bg-white dark:bg-[#363b44] rounded-[2rem] shadow-2xl w-full max-w-md p-6 my-8 animate-in zoom-in duration-200 transition-colors duration-300">
@@ -478,18 +472,6 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-[#2f333b] rounded-2xl border border-slate-200 dark:border-slate-600">
-                    <div>
-                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Consultoria de IA</p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">Habilitar recursos Gemini 3</p>
-                    </div>
-                    <button 
-                      onClick={() => setSettings({...settings, aiEnabled: !settings.aiEnabled})}
-                      className={`w-12 h-6 rounded-full transition-all relative ${settings.aiEnabled ? 'bg-theme' : 'bg-slate-300 dark:bg-slate-700'}`}
-                    >
-                      <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${settings.aiEnabled ? 'left-7' : 'left-1'}`} />
-                    </button>
-                  </div>
                 </div>
 
                 <button onClick={() => setIsSettingsOpen(false)} className="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-800 dark:hover:bg-white transition-colors">Salvar Alterações</button>
