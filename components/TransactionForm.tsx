@@ -156,7 +156,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col space-y-0 divide-y divide-slate-200 dark:divide-slate-800">
+    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-slate-700">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-bold bg-transparent outline-none dark:text-white" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
       <div className="relative flex min-h-11 w-full cursor-pointer items-center justify-between py-1" aria-label="Selecionar tipo de lançamento"><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-xl font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`text-lg font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={18} className={kindMeta.color} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option></select></div>
 
@@ -273,7 +273,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
       </div>
 
       {/* Botões de Ação */}
-      <div className="flex gap-3">
+      <div className="mt-auto flex gap-3 pt-6">
         {initialData && (
           <button 
             type="button" 

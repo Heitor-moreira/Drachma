@@ -508,9 +508,9 @@ const App: React.FC = () => {
         )}
 
         {(isFormOpen || editingTransaction) && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-              <div className="p-6 overflow-y-auto max-h-[80vh]">
+          <div className="fixed inset-0 z-[120] flex items-center justify-center bg-white dark:bg-[#2f333b]">
+            <div className="h-full min-h-screen w-full overflow-hidden bg-white dark:bg-[#2f333b] flex flex-col animate-in fade-in duration-200">
+              <div className="h-full overflow-y-auto p-6 md:px-12 md:py-8">
                 <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]!) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null); setNewTransactionDate(undefined); setNewTransactionGroup(undefined)}} initialData={editingTransaction} initialDate={newTransactionDate} initialFinancialGroup={newTransactionGroup} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} liteMode={isLite} />
               </div>
             </div>
