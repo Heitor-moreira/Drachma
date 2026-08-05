@@ -65,6 +65,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   ];
   const dailyTypes = liteMode ? allDailyTypes.slice(0, 3) : allDailyTypes;
   const swipeStartX = useRef<number | null>(null);
+  const swipeStartY = useRef<number | null>(null);
   const moveMonth = (delta: number) => {
     const date = parseLocalDate(dateRange.start);
     date.setMonth(date.getMonth() + delta);
@@ -72,12 +73,14 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     const end = formatLocalYYYYMMDD(new Date(date.getFullYear(), date.getMonth() + 1, 0));
     setDateRange({ start, end });
   };
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => { swipeStartX.current = event.touches[0]?.clientX ?? null; };
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => { swipeStartX.current = event.touches[0]?.clientX ?? null; swipeStartY.current = event.touches[0]?.clientY ?? null; };
   const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
     if (swipeStartX.current === null) return;
     const distance = (event.changedTouches[0]?.clientX ?? swipeStartX.current) - swipeStartX.current;
+    const distanceY = (event.changedTouches[0]?.clientY ?? swipeStartY.current ?? 0) - (swipeStartY.current ?? 0);
     swipeStartX.current = null;
-    if (Math.abs(distance) >= 50) moveMonth(distance < 0 ? 1 : -1);
+    swipeStartY.current = null;
+    if (Math.abs(distance) >= 50 && Math.abs(distance) > Math.abs(distanceY)) moveMonth(distance < 0 ? 1 : -1);
   };
 
   React.useEffect(() => {
