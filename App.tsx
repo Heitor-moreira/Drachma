@@ -433,9 +433,9 @@ const App: React.FC = () => {
 
         {isSettingsOpen && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md p-6 my-8 animate-in zoom-in duration-200 transition-colors duration-300">
+            <div className="bg-white dark:bg-[#363b44] rounded-[2rem] shadow-2xl w-full max-w-md p-6 my-8 animate-in zoom-in duration-200 transition-colors duration-300">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg flex items-center gap-2"><Settings className="text-theme" /> Configurações</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white text-2xl flex items-center gap-3"><Settings className="text-theme" size={26} /> Configurações</h3>
                 <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><X size={20} /></button>
               </div>
               
@@ -463,7 +463,7 @@ const App: React.FC = () => {
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Tema</label>
-                  <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl">
+                  <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-[#2f333b] p-1 rounded-2xl">
                     <button 
                       onClick={() => setSettings({...settings, theme: 'light'})}
                       className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.theme === 'light' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm' : 'text-slate-400'}`}
@@ -481,7 +481,7 @@ const App: React.FC = () => {
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Modo</label>
-                  <div className="grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-2xl">
+                  <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-[#2f333b] p-1 rounded-2xl">
                     <button 
                       onClick={() => setSettings({...settings, appMode: 'lite'})}
                       className={`flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'lite' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
@@ -543,7 +543,7 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-[#2f333b] rounded-2xl border border-slate-200 dark:border-slate-600">
                     <div>
                       <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Consultoria de IA</p>
                       <p className="text-[10px] text-slate-400 font-bold uppercase">Habilitar recursos Gemini 3</p>
