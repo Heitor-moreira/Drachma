@@ -255,13 +255,13 @@ const Dashboard: React.FC<Props> = ({ transactions, baseSalary, currencySymbol }
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ bottom: 30 }}>
-                <defs><linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#2687c5" stopOpacity={0.4}/><stop offset="95%" stopColor="#2687c5" stopOpacity={0}/></linearGradient></defs>
+                <defs><linearGradient id="colorSaldo" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#35b784" stopOpacity={0.4}/><stop offset="95%" stopColor="#35b784" stopOpacity={0}/></linearGradient></defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 500}} interval={chartData.length > 31 ? Math.floor(chartData.length / 15) : 1} height={30} />
                 <XAxis dataKey="month" axisLine={false} tickLine={false} interval={0} tick={(props) => { const { x, y, payload, index } = props; const isFirst = index === 0 || chartData[index]?.month !== chartData[index - 1]?.month; if (!isFirst) return null; return ( <text x={x} y={Number(y ?? 0) + 25} fill="currentColor" className="text-slate-600 dark:text-slate-400" fontSize={11} fontWeight={700} textAnchor="start">{payload.value}</text> ); }} xAxisId="monthAxis" padding={{ left: 10, right: 10 }} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} tickFormatter={(val) => { const numeric = Number(val ?? 0); return `${currencySymbol} ${numeric >= 1000 ? (numeric / 1000).toFixed(0) + 'k' : numeric}`; }} />
-                <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)', fontSize: '12px', backgroundColor: '#fff', color: '#1e293b' }} itemStyle={{ color: '#2687c5' }} formatter={(value) => { const numeric = Number(value ?? 0); return [`${currencySymbol} ${numeric.toLocaleString('pt-BR')}`, 'Saldo']; }} labelFormatter={(label, payload) => { if (payload && payload.length > 0) { const item = payload[0].payload; return `${item.day} de ${item.month}`; } return label; }} labelStyle={{ fontWeight: 'bold', marginBottom: '4px', color: '#1e293b' }} />
-                <Area type="monotone" dataKey="saldo" stroke="#2687c5" strokeWidth={4} fillOpacity={1} fill="url(#colorSaldo)" />
+                <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)', fontSize: '12px', backgroundColor: '#fff', color: '#1e293b' }} itemStyle={{ color: '#35b784' }} formatter={(value) => { const numeric = Number(value ?? 0); return [`${currencySymbol} ${numeric.toLocaleString('pt-BR')}`, 'Saldo']; }} labelFormatter={(label, payload) => { if (payload && payload.length > 0) { const item = payload[0].payload; return `${item.day} de ${item.month}`; } return label; }} labelStyle={{ fontWeight: 'bold', marginBottom: '4px', color: '#1e293b' }} />
+                <Area type="monotone" dataKey="saldo" stroke="#35b784" strokeWidth={4} fillOpacity={1} fill="url(#colorSaldo)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
