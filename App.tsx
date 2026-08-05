@@ -440,27 +440,6 @@ const App: React.FC = () => {
               </div>
               
               <div className="space-y-6">
-                {!isLite && (
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Gestão Financeira</label>
-                    <button 
-                      onClick={() => { setActiveTab('salary'); setIsSettingsOpen(false); }}
-                      className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-theme dark:hover:border-theme transition-all group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-theme/20 text-theme dark:text-theme rounded-lg group-hover:bg-theme group-hover:text-white transition-colors">
-                          <Coins size={18} />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Configurar Salário</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">Ganhos e Descontos</p>
-                        </div>
-                      </div>
-                      <ChevronRight size={16} className="text-slate-300" />
-                    </button>
-                  </div>
-                )}
-
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Tema</label>
                   <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-[#2f333b] p-1 rounded-2xl">
@@ -477,50 +456,6 @@ const App: React.FC = () => {
                       <Moon size={16} /> Escuro
                     </button>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Modo</label>
-                  <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-[#2f333b] p-1 rounded-2xl">
-                    <button 
-                      onClick={() => setSettings({...settings, appMode: 'lite'})}
-                      className={`flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'lite' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
-                    >
-                      <Zap size={16} /> Lite
-                    </button>
-                    <button 
-                      onClick={() => setSettings({...settings, appMode: 'pro'})}
-                      className={`flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'pro' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
-                    >
-                      <Monitor size={16} /> Pro
-                    </button>
-                    <button
-                      onClick={() => setSettings({...settings, appMode: 'developer'})}
-                      className={`flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.appMode === 'developer' ? 'bg-theme/20 text-theme dark:text-theme' : 'text-slate-400'}`}
-                    >
-                      <Code2 size={16} /> Dev
-                    </button>
-                  </div>
-                  {settings.appMode === 'developer' && (
-                    <div className="mt-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg animate-in slide-in-from-top-2 duration-200">
-                      <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Proporção da visualização</p>
-                      {[
-                        ['notebook', 'Notebook'],
-                        ['iphone-16e', 'iPhone 16e'],
-                        ['galaxy-a73', 'Galaxy A73'],
-                        ['ipad-11', 'iPad 11"']
-                      ].map(([value, label]) => (
-                        <button
-                          key={value}
-                          onClick={() => setSettings({...settings, developerViewport: value as UserSettings['developerViewport']})}
-                          className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-bold transition-colors ${developerViewport === value ? 'bg-theme/15 text-theme' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
-                        >
-                          <span>{label}</span>
-                          {developerViewport === value && <span className="text-xs">✓</span>}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 <div className="h-px bg-slate-100 dark:bg-slate-800"></div>
