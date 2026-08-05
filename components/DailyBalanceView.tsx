@@ -151,7 +151,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
 
       {/* Visualização de Planilha */}
       <div className="bg-white dark:bg-[#363b44] shadow-sm overflow-hidden">
-        <div className="overflow-x-hidden max-h-[calc(100vh-7.5rem)] custom-scrollbar">
+        <div className="overflow-x-hidden max-h-[calc(100dvh-7.5rem)] custom-scrollbar">
           <table className="w-full table-fixed border-collapse ">
             <thead className="border-b border-slate-200 dark:border-slate-700">
               <tr className="bg-white dark:bg-[#363b44]">
