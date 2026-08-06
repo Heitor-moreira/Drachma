@@ -158,7 +158,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   return (
     <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-slate-700">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-bold bg-transparent outline-none dark:text-white" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
-      <div className="relative flex min-h-11 w-full cursor-pointer items-center justify-between py-1" aria-label="Selecionar tipo de lançamento"><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-xl font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`text-lg font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={18} className={kindMeta.color} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option></select></div>
+      <div className="relative flex min-h-11 w-full cursor-pointer items-center justify-between py-1" aria-label="Selecionar tipo de lançamento"><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-2xl font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`text-lg font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={18} className={kindMeta.color} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option></select></div>
 
       {type === TransactionType.EXPENSE && paymentMethod === 'CREDIT_CARD' && <div className="py-3 relative flex items-center gap-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={isInstallment ? String(installmentCount) : 'NONE'} onChange={e => { const value = e.target.value; setIsInstallment(value !== 'NONE'); if (value !== 'NONE') { setInstallmentCount(Number(value)); setIsRecurring(false); setRecurrenceOption('NONE'); } }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-slate-200 bg-transparent border-0 outline-none"><option value="NONE">Não parcela</option>{Array.from({ length: 11 }, (_, index) => <option key={index + 2} value={index + 2}>{index + 2} parcelas</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>}
 
@@ -205,7 +205,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
             {isRecurring && (
               <div className="pl-6 animate-in slide-in-from-top-1">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Meses</label>
+                  <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Meses</label>
                   <input 
                     type="number" 
                     min="1" 
@@ -240,7 +240,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
             </div>
             {isInstallment && (
               <div className="pl-6 animate-in slide-in-from-top-1">
-                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Número de Parcelas</label>
+                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Número de Parcelas</label>
                 <input 
                   type="number" 
                   min="1" 

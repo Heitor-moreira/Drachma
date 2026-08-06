@@ -99,13 +99,13 @@ const CustomDatePicker: React.FC<{
   return (
     <div className="relative" ref={containerRef}>
       <div className="flex flex-col">
-        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase leading-none mb-1">{label}</span>
+        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase leading-none mb-1">{label}</span>
         <div className="flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 shadow-sm focus-within:ring-2 focus-within:ring-theme">
-          <input type="text" value={editDay} onChange={(e) => handleFieldChange('d', e.target.value)} className="w-5 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none bg-transparent text-center" maxLength={2} />
+          <input type="text" value={editDay} onChange={(e) => handleFieldChange('d', e.target.value)} className="w-5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none bg-transparent text-center" maxLength={2} />
           <span className="text-slate-300 dark:text-slate-600">/</span>
-          <input type="text" value={editMonth} onChange={(e) => handleFieldChange('m', e.target.value)} className="w-5 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none bg-transparent text-center" maxLength={2} />
+          <input type="text" value={editMonth} onChange={(e) => handleFieldChange('m', e.target.value)} className="w-5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none bg-transparent text-center" maxLength={2} />
           <span className="text-slate-300 dark:text-slate-600">/</span>
-          <input type="text" value={editYear} onChange={(e) => handleFieldChange('y', e.target.value)} className="w-10 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none bg-transparent text-center" maxLength={4} />
+          <input type="text" value={editYear} onChange={(e) => handleFieldChange('y', e.target.value)} className="w-10 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none bg-transparent text-center" maxLength={4} />
           <button onClick={() => setIsOpen(!isOpen)} className="ml-1 text-slate-400 hover:text-theme dark:text-slate-500"><CalendarIcon size={12} /></button>
         </div>
       </div>
@@ -117,7 +117,7 @@ const CustomDatePicker: React.FC<{
             <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="p-1 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg dark:text-slate-300"><ChevronRight size={16}/></button>
           </div>
           <div className="grid grid-cols-7 gap-1 text-center mb-2">
-            {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map(d => <span key={d} className="text-[10px] font-bold text-slate-400 dark:text-slate-500">{d}</span>)}
+            {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map(d => <span key={d} className="text-xs font-bold text-slate-400 dark:text-slate-500">{d}</span>)}
           </div>
           <div className="grid grid-cols-7 gap-1">
             {calendarDays.map((day, i) => (
@@ -131,7 +131,7 @@ const CustomDatePicker: React.FC<{
                     setIsOpen(false);
                   }
                 }}
-                className={`h-7 w-7 text-[10px] flex items-center justify-center rounded-lg transition-colors ${!day ? 'invisible' : 'hover:bg-theme/20 dark:hover:bg-theme/10 text-slate-600 dark:text-slate-300'} ${day && formatDateToISO(new Date(viewDate.getFullYear(), viewDate.getMonth(), day, 12, 0, 0)) === value ? 'bg-theme text-white font-bold' : ''}`}
+                className={`h-7 w-7 text-xs flex items-center justify-center rounded-lg transition-colors ${!day ? 'invisible' : 'hover:bg-theme/20 dark:hover:bg-theme/10 text-slate-600 dark:text-slate-300'} ${day && formatDateToISO(new Date(viewDate.getFullYear(), viewDate.getMonth(), day, 12, 0, 0)) === value ? 'bg-theme text-white font-bold' : ''}`}
               >
                 {day}
               </button>

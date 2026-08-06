@@ -61,7 +61,7 @@ const SalaryManager: React.FC<Props> = ({ salaryInfo, onUpdate, currencySymbol }
               <Landmark size={24} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Meu Salário</h3>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Meu Salário</h3>
               <p className="text-sm text-slate-400 dark:text-slate-500">Configure seus ganhos brutos e descontos recorrentes</p>
             </div>
           </div>
@@ -84,11 +84,11 @@ const SalaryManager: React.FC<Props> = ({ salaryInfo, onUpdate, currencySymbol }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
               <div className="p-6 bg-rose-50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/10 rounded-2xl">
-                <span className="text-[10px] font-bold text-rose-400 dark:text-rose-500 uppercase tracking-widest block mb-1">Total de Descontos</span>
+                <span className="text-xs font-bold text-rose-400 dark:text-rose-500 uppercase tracking-widest block mb-1">Total de Descontos</span>
                 <p className="text-2xl font-bold text-rose-600 dark:text-rose-500">- {currencySymbol} {totalDiscounts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
               <div className="p-6 bg-theme/10 dark:bg-theme/5 border border-theme/30 dark:border-theme/20 rounded-2xl">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Salário Líquido Real</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Salário Líquido Real</span>
                 <p className="text-2xl font-bold text-slate-800 dark:text-theme">{currencySymbol} {netSalary.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
@@ -98,7 +98,7 @@ const SalaryManager: React.FC<Props> = ({ salaryInfo, onUpdate, currencySymbol }
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
           <div className="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
             <h4 className="font-bold text-slate-700 dark:text-slate-300">Detalhamento de Descontos</h4>
-            <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase">{salaryInfo.discounts.length} Itens</span>
+            <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1 rounded-full text-xs font-bold uppercase">{salaryInfo.discounts.length} Itens</span>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-slate-800 max-h-[400px] overflow-y-auto custom-scrollbar">
             {salaryInfo.discounts.length === 0 ? (
@@ -116,7 +116,7 @@ const SalaryManager: React.FC<Props> = ({ salaryInfo, onUpdate, currencySymbol }
                   <div key={discount.id} className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
                     <div>
                       <p className="font-bold text-slate-700 dark:text-slate-200">{discount.name}</p>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-tighter">
+                      <p className="text-xs text-slate-400 dark:text-slate-500 uppercase font-bold tracking-tighter">
                         {discount.type === 'PERCENT' ? `${discount.amount}% do Bruto` : 'Valor Fixo'}
                       </p>
                     </div>

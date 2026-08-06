@@ -33,8 +33,8 @@ const FixedExpensesManager: React.FC<Props> = ({ transactions, baseSalary, onEdi
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-indigo-900 p-8 rounded-[32px] text-white shadow-xl flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-2 flex items-center gap-2"><ShieldCheck size={14} /> Custos de Segurança</p>
-            <h4 className="text-4xl font-bold">{monthlyPerc.toFixed(1)}% <small className="text-sm font-bold opacity-50 uppercase">do mensal</small></h4>
+            <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-2 flex items-center gap-2"><ShieldCheck size={14} /> Custos de Segurança</p>
+            <h4 className="text-3xl font-bold">{monthlyPerc.toFixed(1)}% <small className="text-sm font-bold opacity-50 uppercase">do mensal</small></h4>
             <p className="mt-4 font-bold text-indigo-100">R$ {monthlyTotal.toLocaleString('pt-BR')} <span className="text-xs font-normal opacity-50">/ mês fixo</span></p>
           </div>
           <div className="p-4 bg-white/10 rounded-3xl"><Zap size={40} className="text-[#9ce492]" /></div>
@@ -68,7 +68,7 @@ const FixedExpensesManager: React.FC<Props> = ({ transactions, baseSalary, onEdi
                  <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center font-bold">FX</div>
                  <div>
                    <h5 className="font-bold text-slate-800">{t.description}</h5>
-                   <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">{t.category}</p>
+                   <p className="text-xs font-bold uppercase text-slate-400 tracking-widest">{t.category}</p>
                  </div>
                </div>
                <div className="flex items-center gap-4">

@@ -91,7 +91,7 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
             </div>
             <div>
               <h3 className="font-bold">Consultoria de IA</h3>
-              <p className="text-[10px] font-bold text-theme uppercase tracking-widest">Drachma Assistant</p>
+              <p className="text-xs font-bold text-theme uppercase tracking-widest">Drachma Assistant</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
@@ -106,7 +106,7 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
                 <Loader2 className="animate-spin text-theme" size={48} />
                 <Sparkles size={20} className="absolute -top-1 -right-1 text-theme animate-bounce" />
               </div>
-              <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest animate-pulse">Analisando sua saúde financeira...</p>
+              <p className="text-slate-400 font-bold uppercase text-xs tracking-widest animate-pulse">Analisando sua saúde financeira...</p>
             </div>
           ) : (
             <>
@@ -123,15 +123,15 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                 <div className="p-4 bg-emerald-50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-100 dark:border-emerald-500/10 flex items-start gap-3">
                   <div className="p-1.5 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-500 rounded-lg shrink-0"><Lightbulb size={16} /></div>
-                  <p className="text-[11px] text-emerald-800 dark:text-emerald-200 font-medium leading-relaxed">Dica: Gastos fixos que superam 50% do salário líquido podem comprometer sua capacidade de investimento e lazer.</p>
+                  <p className="text-xs text-emerald-800 dark:text-emerald-200 font-medium leading-relaxed">Dica: Gastos fixos que superam 50% do salário líquido podem comprometer sua capacidade de investimento e lazer.</p>
                 </div>
                 <div className="p-4 bg-rose-50 dark:bg-rose-500/5 rounded-2xl border border-rose-100 dark:border-rose-500/10 flex items-start gap-3">
                   <div className="p-1.5 bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-500 rounded-lg shrink-0"><TrendingDown size={16} /></div>
-                  <p className="text-[11px] text-rose-800 dark:text-rose-200 font-medium leading-relaxed">Cuidado: Compras parceladas dão a ilusão de caixa sobrando. Mantenha o total de parcelas sob 30% do seu ganho.</p>
+                  <p className="text-xs text-rose-800 dark:text-rose-200 font-medium leading-relaxed">Cuidado: Compras parceladas dão a ilusão de caixa sobrando. Mantenha o total de parcelas sob 30% do seu ganho.</p>
                 </div>
                 <div className="p-4 bg-indigo-50 dark:bg-indigo-500/5 rounded-2xl border border-indigo-100 dark:border-indigo-500/10 flex items-start gap-3">
                   <div className="p-1.5 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-500 rounded-lg shrink-0"><Target size={16} /></div>
-                  <p className="text-[11px] text-indigo-800 dark:text-indigo-200 font-medium leading-relaxed">Estratégia: Tente aplicar a regra 50-30-20 (50% fixos, 30% lazer, 20% reserva).</p>
+                  <p className="text-xs text-indigo-800 dark:text-indigo-200 font-medium leading-relaxed">Estratégia: Tente aplicar a regra 50-30-20 (50% fixos, 30% lazer, 20% reserva).</p>
                 </div>
               </div>
             </>
@@ -147,7 +147,7 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
             <Sparkles size={16} className="text-theme dark:text-white" />
             Atualizar Consultoria
           </button>
-          <p className="text-[9px] text-slate-400 text-center font-bold uppercase tracking-widest leading-none">Dados processados localmente com Gemini 3 Pro</p>
+          <p className="text-xs text-slate-400 text-center font-bold uppercase tracking-widest leading-none">Dados processados localmente com Gemini 3 Pro</p>
         </div>
       </div>
     </>
