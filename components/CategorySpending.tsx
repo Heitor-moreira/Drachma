@@ -37,36 +37,36 @@ const CategorySpending: React.FC<Props> = ({ transactions, dateRange, setDateRan
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
+      <div className="bg-white dark:bg-dark-app-surface p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-dark-app-border flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#9ce492]/20 rounded-lg text-slate-700 dark:text-[#9ce492]"><Layers size={20} /></div>
+          <div className="p-2 bg-[#35b784]/20 rounded-lg text-slate-700 dark:text-[#35b784]"><Layers size={20} /></div>
           <div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 whitespace-nowrap">Gastos por Categoria</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500">Distribuição financeira no período</p>
+            <h3 className="font-bold text-slate-800 dark:text-dark-app-text-primary whitespace-nowrap">Gastos por Categoria</h3>
+            <p className="text-xs text-slate-400 dark:text-dark-app-text-secondary">Distribuição financeira no período</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
-          <Calendar size={14} className="text-slate-400 dark:text-slate-500 ml-1" />
-          <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="bg-transparent text-xs font-bold outline-none dark:text-slate-200" />
-          <span className="text-slate-300 dark:text-slate-600">-</span>
-          <input type="date" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} className="bg-transparent text-xs font-bold outline-none dark:text-slate-200" />
+        <div className="flex items-center gap-2 bg-slate-50 dark:bg-dark-app-surface-secondary p-2 rounded-xl border border-slate-200 dark:border-dark-app-border transition-colors">
+          <Calendar size={14} className="text-slate-400 dark:text-dark-app-text-secondary ml-1" />
+          <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="bg-transparent text-xs font-bold outline-none dark:text-dark-app-text-secondary" />
+          <span className="text-slate-300 dark:text-dark-app-text-secondary">-</span>
+          <input type="date" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} className="bg-transparent text-xs font-bold outline-none dark:text-dark-app-text-secondary" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categorySummary.map(([cat, amount]) => (
-          <div key={cat} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all flex flex-col justify-between">
+          <div key={cat} className="bg-white dark:bg-dark-app-surface p-6 rounded-3xl border border-slate-100 dark:border-dark-app-border hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-bold uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: CATEGORY_COLORS[cat as Category] || '#35b784' }}>{cat}</span>
               <div className="w-8 h-8 rounded-full shrink-0" style={{ backgroundColor: `${CATEGORY_COLORS[cat as Category] || '#35b784'}20`, border: `2px solid ${CATEGORY_COLORS[cat as Category] || '#35b784'}` }}></div>
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-800 dark:text-white">{currencySymbol} {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-              <div className="mt-2 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <p className="text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary">{currencySymbol} {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              <div className="mt-2 w-full bg-slate-100 dark:bg-dark-app-surface-secondary h-1.5 rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all duration-500" style={{ backgroundColor: CATEGORY_COLORS[cat as Category] || '#35b784', width: `${(amount / totalPeriod) * 100}%` }}></div>
               </div>
-              <p className="mt-1 text-right text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{((amount / totalPeriod) * 100).toFixed(1)}% do total</p>
+              <p className="mt-1 text-right text-xs font-bold text-slate-400 dark:text-dark-app-text-secondary uppercase tracking-widest">{((amount / totalPeriod) * 100).toFixed(1)}% do total</p>
             </div>
           </div>
         ))}
@@ -74,8 +74,8 @@ const CategorySpending: React.FC<Props> = ({ transactions, dateRange, setDateRan
       
       {categorySummary.length === 0 && (
         <div className="py-24 text-center">
-           <Layers size={48} className="mx-auto text-slate-200 dark:text-slate-800 mb-4" />
-           <p className="text-slate-400 dark:text-slate-600 font-bold">Nenhum gasto registrado neste período.</p>
+           <Layers size={48} className="mx-auto text-slate-200 dark:text-dark-app-text-secondary mb-4" />
+           <p className="text-slate-400 dark:text-dark-app-text-secondary font-bold">Nenhum gasto registrado neste período.</p>
         </div>
       )}
     </div>

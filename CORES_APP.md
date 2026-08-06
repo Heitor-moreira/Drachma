@@ -31,12 +31,14 @@ Consultar este arquivo antes de criar novos assets. Usar os tokens e combinaçõ
 
 | Token | Cor | Uso |
 |---|---|---|
-| `dark-background` | `#14171F` | fundo geral |
-| `dark-surface` | `#2F333B` | cards, modais e áreas principais |
-| `dark-surface-secondary` | `#363B44` | superfícies secundárias |
+| `dark-background` | `#1A1D21` | fundo geral |
+| `dark-surface` | `#2A2F33` | cards, modais e áreas principais |
+| `dark-surface-secondary` | `#343A40` | superfícies secundárias |
 | `dark-text-primary` | `#F8FAFC` | texto principal |
-| `dark-text-secondary` | `#CBD5E1` | textos auxiliares |
-| `dark-border` | `#475569` | bordas e divisores |
+| `dark-text-secondary` | `#C4CBD1` | textos auxiliares |
+| `dark-border` | `#4A525A` | bordas e divisores |
+
+O modo escuro usa uma escala neutra de carvão e cinza. Não combinar superfícies `slate` azuladas com as superfícies cinza do app.
 
 ## Estados de saldo
 

@@ -19,7 +19,25 @@
             colors: {
               theme: {
                 DEFAULT: '#35b784',
-                dark: '#1d6ba0'
+                dark: '#35b784'
+              },
+              danger: '#B8353A',
+              ochre: '#C58A3A',
+              app: {
+                background: '#F8FAFC',
+                surface: '#FFFFFF',
+                'surface-secondary': '#F1F5F9',
+                'text-primary': '#1E293B',
+                'text-secondary': '#64748B',
+                border: '#E2E8F0'
+              },
+              'dark-app': {
+                background: '#1A1D21',
+                surface: '#2A2F33',
+                'surface-secondary': '#343A40',
+                'text-primary': '#F8FAFC',
+                'text-secondary': '#C4CBD1',
+                border: '#4A525A'
               }
             }
           }
@@ -33,7 +51,7 @@
         background-color: #f8fafc;
       }
       .dark body {
-        background-color: #14171f;
+        background-color: #1A1D21;
       }
 
       /* Em telas grandes, mantemos a mesma área útil do iPhone 16. */
@@ -43,7 +61,7 @@
         }
 
         .dark body {
-          background: #0f172a;
+          background: #1A1D21;
         }
 
         .phone-shell {
@@ -69,6 +87,16 @@
       .theme-text { color: #35b784; }
       .theme-border { border-color: #35b784; }
       .theme-ring:focus { --tw-ring-color: #35b784; }
+      .app-danger { color: #B8353A; }
+      .app-danger-bg { background-color: #B8353A; }
+      .app-ochre { color: #C58A3A; }
+      .app-ochre-bg { background-color: #C58A3A; }
+      .app-saldo-positive { background-color: #E8F7F1; color: #176B4D; }
+      .dark .app-saldo-positive { background-color: #163D32; color: #75D6AF; }
+      .app-saldo-negative { background-color: #FBEAEC; color: #8F2B31; }
+      .dark .app-saldo-negative { background-color: #4A2226; color: #F08A8E; }
+      .app-saldo-neutral { background-color: #FFF3D6; color: #79551F; }
+      .dark .app-saldo-neutral { background-color: #51401F; color: #F0C875; }
 
       /* Efeito Luminoso de IA */
       @keyframes aura-glow {
