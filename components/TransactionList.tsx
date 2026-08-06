@@ -54,11 +54,11 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Buscar transações ou comentários..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-[#9ce492] outline-none text-sm"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-[#35b784] outline-none text-sm"
           />
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setFilterType('ALL')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterType === 'ALL' ? 'bg-[#9ce492] text-slate-800 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>Todos</button>
+          <button onClick={() => setFilterType('ALL')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterType === 'ALL' ? 'bg-[#35b784] text-slate-800 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>Todos</button>
           <button onClick={() => setFilterType(TransactionType.INCOME)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterType === TransactionType.INCOME ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>Receitas</button>
           <button onClick={() => setFilterType(TransactionType.EXPENSE)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterType === TransactionType.EXPENSE ? 'bg-rose-600 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>Despesas</button>
         </div>
@@ -74,7 +74,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
           sortedDates.map(date => (
             <div key={date} className="space-y-3">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] pl-2 flex items-center gap-2">
-                <span className="w-1 h-3 bg-[#9ce492] rounded-full"></span>
+                <span className="w-1 h-3 bg-[#35b784] rounded-full"></span>
                 {parseLocalDate(date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </h4>
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">

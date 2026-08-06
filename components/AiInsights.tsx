@@ -82,9 +82,9 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
 
       {/* Painel Lateral (Drawer) */}
       <div 
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl z-[90] transition-transform duration-500 ease-in-out border-l border-slate-200 dark:border-slate-800 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-dark-app-surface shadow-2xl z-[90] transition-transform duration-500 ease-in-out border-l border-slate-200 dark:border-dark-app-border flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-900 text-white shrink-0">
+        <div className="p-6 border-b border-slate-100 dark:border-dark-app-border flex justify-between items-center bg-slate-900 text-white shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-theme text-white rounded-xl shadow-lg">
               <BrainCircuit size={20} className={loading ? 'animate-pulse' : ''} />
@@ -99,7 +99,7 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar dark:bg-slate-900">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar dark:bg-dark-app-surface">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="relative">
@@ -111,10 +111,10 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
           ) : (
             <>
               {insight && (
-                <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-6 rounded-3xl text-slate-700 dark:text-slate-200 text-sm leading-relaxed whitespace-pre-wrap animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-100 dark:border-dark-app-border p-6 rounded-3xl text-slate-700 dark:text-dark-app-text-secondary text-sm leading-relaxed whitespace-pre-wrap animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="flex items-center gap-2 mb-4">
                     <Sparkles size={16} className="text-theme" />
-                    <span className="font-bold text-slate-800 dark:text-slate-100">Principais Insights</span>
+                    <span className="font-bold text-slate-800 dark:text-dark-app-text-primary">Principais Insights</span>
                   </div>
                   {insight}
                 </div>
@@ -138,13 +138,13 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
           )}
         </div>
 
-        <div className="p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex flex-col gap-4 shrink-0">
+        <div className="p-6 bg-slate-50 dark:bg-dark-app-surface-secondary border-t border-slate-100 dark:border-dark-app-border flex flex-col gap-4 shrink-0">
           <button 
             onClick={generateInsights}
             disabled={loading}
             className="w-full bg-slate-900 dark:bg-theme text-white font-bold py-3 rounded-2xl transition-all active:scale-95 hover:bg-slate-800 disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
-            <Sparkles size={16} className="text-theme dark:text-white" />
+            <Sparkles size={16} className="text-theme dark:text-dark-app-text-primary" />
             Atualizar Consultoria
           </button>
           <p className="text-xs text-slate-400 text-center font-bold uppercase tracking-widest leading-none">Dados processados localmente com Gemini 3 Pro</p>

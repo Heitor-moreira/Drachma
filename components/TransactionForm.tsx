@@ -156,39 +156,39 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-slate-700">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-bold bg-transparent outline-none dark:text-white" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
-      <div className="relative flex min-h-11 w-full cursor-pointer items-center justify-between py-1" aria-label="Selecionar tipo de lançamento"><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-2xl font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`text-lg font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={18} className={kindMeta.color} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option></select></div>
+    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border">
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-dark-app-border pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
+      <div className="relative flex min-h-[68px] w-full cursor-pointer items-center justify-between py-3" aria-label="Selecionar tipo de lançamento"><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-2xl font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`text-lg font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={18} className={kindMeta.color} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option></select></div>
 
-      {type === TransactionType.EXPENSE && paymentMethod === 'CREDIT_CARD' && <div className="py-3 relative flex items-center gap-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={isInstallment ? String(installmentCount) : 'NONE'} onChange={e => { const value = e.target.value; setIsInstallment(value !== 'NONE'); if (value !== 'NONE') { setInstallmentCount(Number(value)); setIsRecurring(false); setRecurrenceOption('NONE'); } }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-slate-200 bg-transparent border-0 outline-none"><option value="NONE">Não parcela</option>{Array.from({ length: 11 }, (_, index) => <option key={index + 2} value={index + 2}>{index + 2} parcelas</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>}
+      {type === TransactionType.EXPENSE && paymentMethod === 'CREDIT_CARD' && <div className="relative flex min-h-[68px] items-center gap-3 py-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={isInstallment ? String(installmentCount) : 'NONE'} onChange={e => { const value = e.target.value; setIsInstallment(value !== 'NONE'); if (value !== 'NONE') { setInstallmentCount(Number(value)); setIsRecurring(false); setRecurrenceOption('NONE'); } }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary bg-transparent border-0 outline-none"><option value="NONE">Não parcela</option>{Array.from({ length: 11 }, (_, index) => <option key={index + 2} value={index + 2}>{index + 2} parcelas</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>}
 
-      <div className="py-3">
+      <div className="min-h-[68px] py-3">
         <div>
           <div className="flex items-center gap-3"><Pencil size={20} className="text-slate-500" /><input 
             type="text" 
             value={description} 
             onChange={e => setDescription(e.target.value)} 
-            className="w-full px-0 py-2 bg-transparent border-0 outline-none focus:ring-0 dark:text-white" 
+            className="w-full px-0 py-2 bg-transparent border-0 outline-none focus:ring-0 dark:text-dark-app-text-primary" 
             placeholder="Descrição" 
           /></div>
         </div>
       </div>
 
       {/* Data */}
-      <div className="py-3">
-        <div className="relative flex min-h-11 items-center justify-between"><div className="flex items-center gap-3"><Calendar size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-slate-200">Data</label></div><span className="mr-7 text-lg font-bold text-slate-700 dark:text-slate-200">{date.split('-').reverse().join('/')}</span><input aria-label="Data do lançamento" type="date" value={date} onChange={e => setDate(e.target.value)} className="absolute right-0 top-0 h-full w-44 cursor-pointer opacity-0" /><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
+      <div className="min-h-[68px] py-3">
+        <div className="relative flex min-h-11 items-center justify-between"><div className="flex items-center gap-3"><Calendar size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">Data</label></div><span className="mr-7 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{date.split('-').reverse().join('/')}</span><input aria-label="Data do lançamento" type="date" value={date} onChange={e => setDate(e.target.value)} className="absolute right-0 top-0 h-full w-44 cursor-pointer opacity-0" /><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
       </div>
 
-      <div className="py-3 relative flex items-center gap-3"><Repeat size={20} className="text-slate-500 shrink-0" /><select value={recurrenceOption} onChange={e => { const value = e.target.value; setRecurrenceOption(value); setIsRecurring(value !== 'NONE'); setRecurringInterval(value === 'MONTHLY' ? 1 : 1); }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-slate-200 bg-transparent border-0 outline-none"><option value="NONE">Não repete</option><option value="DAILY">Diária</option><option value="WEEKLY">Semanal</option><option value="MONTHLY">Mensal</option><option value="YEARLY">Anual</option></select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
+      <div className="relative flex min-h-[68px] items-center gap-3 py-3"><Repeat size={20} className="text-slate-500 shrink-0" /><select value={recurrenceOption} onChange={e => { const value = e.target.value; setRecurrenceOption(value); setIsRecurring(value !== 'NONE'); setRecurringInterval(value === 'MONTHLY' ? 1 : 1); }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary bg-transparent border-0 outline-none"><option value="NONE">Não repete</option><option value="DAILY">Diária</option><option value="WEEKLY">Semanal</option><option value="MONTHLY">Mensal</option><option value="YEARLY">Anual</option></select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
 
       {/* Opções Avançadas (Apenas para Despesas) */}
       {false && type === TransactionType.EXPENSE && paymentMethod === 'CREDIT_CARD' && (
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 animate-in fade-in duration-300">
+        <div className="bg-slate-50 dark:bg-dark-app-surface-secondary/50 p-4 rounded-2xl border border-slate-200 dark:border-dark-app-border space-y-4 animate-in fade-in duration-300">
           
           {/* Recorrência */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-dark-app-text-secondary cursor-pointer">
                 <input 
                   type="checkbox" 
                   checked={isRecurring} 
@@ -196,35 +196,35 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
                     setIsRecurring(e.target.checked);
                     if (e.target.checked) setIsInstallment(false);
                   }} 
-                  className="w-4 h-4 rounded text-theme focus:ring-theme dark:bg-slate-700 dark:border-slate-600" 
+                  className="w-4 h-4 rounded text-theme focus:ring-theme dark:bg-dark-app-surface-secondary dark:border-dark-app-border" 
                 />
                 <span className="flex items-center gap-2"><Calendar size={18} className="text-slate-500" />{isRecurring ? 'Mensal' : 'Não repete'}</span>
               </label>
-              <Repeat size={18} className={isRecurring ? 'text-theme' : 'text-slate-300 dark:text-slate-600'} />
+              <Repeat size={18} className={isRecurring ? 'text-theme' : 'text-slate-300 dark:text-dark-app-text-secondary'} />
             </div>
             {isRecurring && (
               <div className="pl-6 animate-in slide-in-from-top-1">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Meses</label>
+                  <label className="block text-xs font-bold text-slate-400 dark:text-dark-app-text-secondary uppercase mb-1">Meses</label>
                   <input 
                     type="number" 
                     min="1" 
                     max="12" 
                     value={recurringInterval} 
                     onChange={e => setRecurringInterval(parseInt(e.target.value) || 1)} 
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg outline-none dark:text-white font-bold" 
+                    className="w-full px-3 py-2 bg-white dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-lg outline-none dark:text-dark-app-text-primary font-bold" 
                   />
                 </div>
               </div>
             )}
           </div>
 
-          <div className="h-px bg-slate-200 dark:bg-slate-700"></div>
+          <div className="h-px bg-slate-200 dark:bg-dark-app-surface-secondary"></div>
 
           {/* Parcelamento */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-dark-app-text-secondary cursor-pointer">
                 <input 
                   type="checkbox" 
                   checked={isInstallment} 
@@ -232,22 +232,22 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
                     setIsInstallment(e.target.checked);
                     if (e.target.checked) setIsRecurring(false);
                   }} 
-                  className="w-4 h-4 rounded text-theme focus:ring-theme dark:bg-slate-700 dark:border-slate-600" 
+                  className="w-4 h-4 rounded text-theme focus:ring-theme dark:bg-dark-app-surface-secondary dark:border-dark-app-border" 
                 />
                 Parcelamento
               </label>
-              <CreditCard size={18} className={isInstallment ? 'text-theme' : 'text-slate-300 dark:text-slate-600'} />
+              <CreditCard size={18} className={isInstallment ? 'text-theme' : 'text-slate-300 dark:text-dark-app-text-secondary'} />
             </div>
             {isInstallment && (
               <div className="pl-6 animate-in slide-in-from-top-1">
-                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Número de Parcelas</label>
+                <label className="block text-xs font-bold text-slate-400 dark:text-dark-app-text-secondary uppercase mb-1">Número de Parcelas</label>
                 <input 
                   type="number" 
                   min="1" 
                   max="120" 
                   value={installmentCount} 
                   onChange={e => setInstallmentCount(parseInt(e.target.value) || 1)} 
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg outline-none dark:text-white font-bold" 
+                  className="w-full px-3 py-2 bg-white dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-lg outline-none dark:text-dark-app-text-primary font-bold" 
                 />
               </div>
             )}
@@ -256,18 +256,18 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
       )}
 
       {/* Tags */}
-      <div className="relative py-3">
-        <div className="flex items-center gap-3"><Tag size={20} className="shrink-0 text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-slate-200">Tags</label><div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => item !== tag))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.target.value)} placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''} className="min-w-0 flex-1 px-0 py-2 text-sm bg-transparent border-0 outline-none dark:text-white" /></div></div>
-        {isTagsFocused && suggestedTags.length > 0 && <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tag} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => [...prev, tag]); setTagsText(''); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-slate-200">{tag}</button>)}</div>}
+      <div className="relative min-h-[68px] py-3">
+        <div className="flex items-center gap-3"><Tag size={20} className="shrink-0 text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">Tags</label><div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => item !== tag))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.target.value)} placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''} className="min-w-0 flex-1 px-0 py-2 text-sm bg-transparent border-0 outline-none dark:text-dark-app-text-primary" /></div></div>
+        {isTagsFocused && suggestedTags.length > 0 && <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-slate-200 dark:border-dark-app-border bg-white dark:bg-dark-app-surface-secondary shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tag} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => [...prev, tag]); setTagsText(''); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-dark-app-text-secondary">{tag}</button>)}</div>}
       </div>
       {/* Observações mantidas apenas no modelo, fora do modal básico */}
       <div className="hidden">
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1 flex items-center gap-1">Observações</label>
+        <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-1 flex items-center gap-1">Observações</label>
         <textarea 
           rows={2} 
           value={comment} 
           onChange={e => setComment(e.target.value)} 
-          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none resize-none dark:text-white" 
+          className="w-full px-4 py-2 bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-xl outline-none resize-none dark:text-dark-app-text-primary" 
           placeholder="Detalhes extras..."
         ></textarea>
       </div>
@@ -278,7 +278,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
           <button 
             type="button" 
             onClick={onClose}
-            className="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold py-4 rounded-2xl transition-all active:scale-95"
+            className="flex-1 bg-slate-200 dark:bg-dark-app-surface-secondary text-slate-600 dark:text-dark-app-text-secondary font-bold py-4 rounded-2xl transition-all active:scale-95"
           >
             CANCELAR
           </button>

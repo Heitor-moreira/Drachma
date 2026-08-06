@@ -163,7 +163,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
         {/* Header */}
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-[#9ce492] text-slate-800 rounded-2xl shadow-sm">
+            <div className="p-2.5 bg-[#35b784] text-slate-800 rounded-2xl shadow-sm">
               <FileSpreadsheet size={20} />
             </div>
             <div>

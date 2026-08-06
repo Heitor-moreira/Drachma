@@ -37,7 +37,7 @@ const FixedExpensesManager: React.FC<Props> = ({ transactions, baseSalary, onEdi
             <h4 className="text-3xl font-bold">{monthlyPerc.toFixed(1)}% <small className="text-sm font-bold opacity-50 uppercase">do mensal</small></h4>
             <p className="mt-4 font-bold text-indigo-100">R$ {monthlyTotal.toLocaleString('pt-BR')} <span className="text-xs font-normal opacity-50">/ mês fixo</span></p>
           </div>
-          <div className="p-4 bg-white/10 rounded-3xl"><Zap size={40} className="text-[#9ce492]" /></div>
+          <div className="p-4 bg-white/10 rounded-3xl"><Zap size={40} className="text-[#35b784]" /></div>
         </div>
 
         <div className="bg-white p-8 rounded-[32px] border border-slate-100 flex flex-col justify-center">
@@ -47,7 +47,7 @@ const FixedExpensesManager: React.FC<Props> = ({ transactions, baseSalary, onEdi
           </div>
           <div className="flex items-end gap-4">
             <span className="text-3xl font-bold text-slate-900">R$ {annualTotal.toLocaleString('pt-BR')}</span>
-            <span className="mb-1 text-xs font-bold text-[#9ce492]">{annualPerc.toFixed(1)}% do salário anual</span>
+            <span className="mb-1 text-xs font-bold text-[#35b784]">{annualPerc.toFixed(1)}% do salário anual</span>
           </div>
           <div className="mt-4 h-2 w-full bg-slate-100 rounded-full">
             <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${Math.min(annualPerc, 100)}%` }}></div>
