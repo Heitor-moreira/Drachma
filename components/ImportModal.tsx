@@ -302,17 +302,17 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
                 <div className="space-y-3">
                   <h5 className="font-bold text-slate-700 text-xs uppercase tracking-wider">Mapeamento de Tempo</h5>
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase">Data Completa</label>
+                    <label className="block text-xs font-bold text-slate-400 uppercase">Data Completa</label>
                     <select onChange={e => setMapping({...mapping, date: e.target.value})} value={mapping.date} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
                       <option value="">-- Selecione a coluna --</option>
                       {headers.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                     <div className="flex items-center gap-2 py-1">
                       <div className="h-px bg-slate-100 flex-1"></div>
-                      <span className="text-[9px] font-bold text-slate-300">OU</span>
+                      <span className="text-xs font-bold text-slate-300">OU</span>
                       <div className="h-px bg-slate-100 flex-1"></div>
                     </div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase">Apenas o Dia</label>
+                    <label className="block text-xs font-bold text-slate-400 uppercase">Apenas o Dia</label>
                     <select onChange={e => setMapping({...mapping, day: e.target.value})} value={mapping.day} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
                       <option value="">-- Selecione a coluna --</option>
                       {headers.map(h => <option key={h} value={h}>{h}</option>)}
@@ -323,7 +323,7 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
                 <div className="space-y-3">
                   <h5 className="font-bold text-slate-700 text-xs uppercase tracking-wider">Mapeamento Financeiro</h5>
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase">Descrição</label>
+                    <label className="block text-xs font-bold text-slate-400 uppercase">Descrição</label>
                     <select onChange={e => setMapping({...mapping, description: e.target.value})} value={mapping.description} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500">
                       <option value="">-- Selecione a coluna --</option>
                       {headers.map(h => <option key={h} value={h}>{h}</option>)}
@@ -331,15 +331,15 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
 
                     <div className="grid grid-cols-2 gap-2 mt-4">
                       <div className="space-y-1">
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase">Entradas</label>
-                        <select onChange={e => setMapping({...mapping, income: e.target.value})} value={mapping.income} className="w-full p-2 bg-emerald-50 border border-emerald-100 rounded-lg text-[10px] outline-none">
+                        <label className="block text-xs font-bold text-slate-400 uppercase">Entradas</label>
+                        <select onChange={e => setMapping({...mapping, income: e.target.value})} value={mapping.income} className="w-full p-2 bg-emerald-50 border border-emerald-100 rounded-lg text-xs outline-none">
                           <option value="">-- Coluna --</option>
                           {headers.map(h => <option key={h} value={h}>{h}</option>)}
                         </select>
                       </div>
                       <div className="space-y-1">
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase">Saídas</label>
-                        <select onChange={e => setMapping({...mapping, expense: e.target.value})} value={mapping.expense} className="w-full p-2 bg-rose-50 border border-rose-100 rounded-lg text-[10px] outline-none">
+                        <label className="block text-xs font-bold text-slate-400 uppercase">Saídas</label>
+                        <select onChange={e => setMapping({...mapping, expense: e.target.value})} value={mapping.expense} className="w-full p-2 bg-rose-50 border border-rose-100 rounded-lg text-xs outline-none">
                           <option value="">-- Coluna --</option>
                           {headers.map(h => <option key={h} value={h}>{h}</option>)}
                         </select>

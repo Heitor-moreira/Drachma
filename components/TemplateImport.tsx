@@ -168,7 +168,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
             </div>
             <div>
               <h3 className="font-bold text-slate-800">Importação por Template</h3>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Excel / CSV Professional</p>
+              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Excel / CSV Professional</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20} /></button>
@@ -181,7 +181,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
             <AlertTriangle className="text-amber-500 shrink-0 mt-0.5" size={18} />
             <div className="space-y-1">
                <p className="text-xs font-bold text-amber-800">Defina o período de destino</p>
-               <p className="text-[10px] text-amber-700 leading-relaxed">
+               <p className="text-xs text-amber-700 leading-relaxed">
                  Os lançamentos serão registrados no mês e ano selecionados abaixo. Certifique-se de que o template preenchido corresponde a este período.
                </p>
                <input 
@@ -266,7 +266,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
         </div>
 
         <div className="p-6 bg-slate-50 text-center border-t border-slate-100">
-           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Atenção: Valores duplicados no mesmo dia serão somados no saldo diário.</p>
+           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Atenção: Valores duplicados no mesmo dia serão somados no saldo diário.</p>
         </div>
       </div>
     </div>

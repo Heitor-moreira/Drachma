@@ -79,7 +79,7 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
                 </button>
                 <div>
                   <h5 className="font-bold text-slate-700 dark:text-slate-200">{s.name}</h5>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-slate-400 dark:text-slate-500">{s.isActive ? 'Ativa' : 'Pausada'}</p>
+                  <p className="text-xs font-bold uppercase tracking-tighter text-slate-400 dark:text-slate-500">{s.isActive ? 'Ativa' : 'Pausada'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -104,12 +104,12 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-[#9ce492] text-slate-800 rounded-xl shadow-lg shadow-emerald-200/50"><PieChart size={20} /></div>
               <div>
-                <span className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest block">Impacto de Assinaturas Ativas</span>
+                <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest block">Impacto de Assinaturas Ativas</span>
                 <span className="text-2xl font-bold text-slate-800 dark:text-[#9ce492]">{percentageOfSalary.toFixed(1)}% <small className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">do Salário</small></span>
               </div>
             </div>
             <div className="text-right">
-               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block">Total Mensal</span>
+               <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase block">Total Mensal</span>
                <span className="font-bold text-slate-700 dark:text-slate-300">{currencySymbol} {totalMonthlyActive.toLocaleString('pt-BR')}</span>
             </div>
           </div>

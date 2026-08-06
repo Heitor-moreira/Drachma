@@ -58,7 +58,7 @@ const CategorySpending: React.FC<Props> = ({ transactions, dateRange, setDateRan
         {categorySummary.map(([cat, amount]) => (
           <div key={cat} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: CATEGORY_COLORS[cat as Category] || '#35b784' }}>{cat}</span>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: CATEGORY_COLORS[cat as Category] || '#35b784' }}>{cat}</span>
               <div className="w-8 h-8 rounded-full shrink-0" style={{ backgroundColor: `${CATEGORY_COLORS[cat as Category] || '#35b784'}20`, border: `2px solid ${CATEGORY_COLORS[cat as Category] || '#35b784'}` }}></div>
             </div>
             <div>
@@ -66,7 +66,7 @@ const CategorySpending: React.FC<Props> = ({ transactions, dateRange, setDateRan
               <div className="mt-2 w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all duration-500" style={{ backgroundColor: CATEGORY_COLORS[cat as Category] || '#35b784', width: `${(amount / totalPeriod) * 100}%` }}></div>
               </div>
-              <p className="mt-1 text-right text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{((amount / totalPeriod) * 100).toFixed(1)}% do total</p>
+              <p className="mt-1 text-right text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{((amount / totalPeriod) * 100).toFixed(1)}% do total</p>
             </div>
           </div>
         ))}

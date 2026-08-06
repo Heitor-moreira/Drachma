@@ -53,7 +53,7 @@ const SheetsManager: React.FC<Props> = ({ transactions, onDelete, onDeleteBatch 
     return (
       <div className="text-center py-24 bg-white rounded-3xl border-2 border-dashed border-slate-200">
         <FileSpreadsheet size={64} className="mx-auto text-slate-200 mb-6" />
-        <h3 className="text-xl font-bold text-slate-700 mb-2">Nenhuma Planilha Importada</h3>
+        <h3 className="text-2xl font-bold text-slate-700 mb-2">Nenhuma Planilha Importada</h3>
         <p className="text-slate-400 max-w-sm mx-auto">
           Utilize o botão "Importar Planilha" no topo para carregar dados do Google Sheets ou CSV.
         </p>
@@ -105,16 +105,16 @@ const SheetsManager: React.FC<Props> = ({ transactions, onDelete, onDeleteBatch 
                   {confirmDeleteBatch === batch.id ? (
                     <div className="flex items-center gap-2 bg-rose-50 p-1.5 rounded-xl border border-rose-100 animate-in fade-in zoom-in duration-200">
                       <AlertCircle size={14} className="text-rose-600 hidden xs:block" />
-                      <span className="text-[10px] font-bold text-rose-600 whitespace-nowrap">Excluir tudo?</span>
+                      <span className="text-xs font-bold text-rose-600 whitespace-nowrap">Excluir tudo?</span>
                       <button 
                         onClick={() => handleDeleteBatch(batch.id)} 
-                        className="bg-rose-600 text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-rose-700 transition-colors"
+                        className="bg-rose-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-rose-700 transition-colors"
                       >
                         Sim
                       </button>
                       <button 
                         onClick={() => setConfirmDeleteBatch(null)} 
-                        className="text-slate-400 hover:text-slate-600 px-2 text-[10px] font-bold"
+                        className="text-slate-400 hover:text-slate-600 px-2 text-xs font-bold"
                       >
                         Não
                       </button>
@@ -144,11 +144,11 @@ const SheetsManager: React.FC<Props> = ({ transactions, onDelete, onDeleteBatch 
                 <table className="w-full text-left">
                   <thead className="bg-slate-50 border-b border-slate-100">
                     <tr>
-                      <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase">Data</th>
-                      <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase">Descrição</th>
-                      <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase">Categoria</th>
-                      <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase">Valor</th>
-                      <th className="px-6 py-3 text-right text-[10px] font-bold text-slate-400 uppercase">Ações</th>
+                      <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase">Data</th>
+                      <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase">Descrição</th>
+                      <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase">Categoria</th>
+                      <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase">Valor</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-slate-400 uppercase">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -159,10 +159,10 @@ const SheetsManager: React.FC<Props> = ({ transactions, onDelete, onDeleteBatch 
                         </td>
                         <td className="px-6 py-4">
                           <p className="text-sm font-bold text-slate-700">{t.description}</p>
-                          {t.comment && <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{t.comment}</p>}
+                          {t.comment && <p className="text-xs text-slate-400 truncate max-w-[200px]">{t.comment}</p>}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-[10px] font-bold px-2 py-1 rounded-lg" style={{ backgroundColor: `${CATEGORY_COLORS[t.category]}15`, color: CATEGORY_COLORS[t.category] }}>
+                          <span className="text-xs font-bold px-2 py-1 rounded-lg" style={{ backgroundColor: `${CATEGORY_COLORS[t.category]}15`, color: CATEGORY_COLORS[t.category] }}>
                             {t.category}
                           </span>
                         </td>
@@ -174,8 +174,8 @@ const SheetsManager: React.FC<Props> = ({ transactions, onDelete, onDeleteBatch 
                         <td className="px-6 py-4 text-right relative">
                           {confirmDelete === t.id ? (
                             <div className="flex items-center justify-end gap-2 animate-in fade-in slide-in-from-right-2">
-                              <button onClick={() => setConfirmDelete(null)} className="text-[10px] font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
-                              <button onClick={() => handleDelete(t.id)} className="bg-rose-500 text-white px-2 py-1 rounded-md text-[10px] font-bold">Excluir</button>
+                              <button onClick={() => setConfirmDelete(null)} className="text-xs font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
+                              <button onClick={() => handleDelete(t.id)} className="bg-rose-500 text-white px-2 py-1 rounded-md text-xs font-bold">Excluir</button>
                             </div>
                           ) : (
                             <button 

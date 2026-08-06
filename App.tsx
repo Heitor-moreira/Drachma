@@ -280,14 +280,14 @@ const App: React.FC = () => {
           className="flex items-center gap-3 mb-6 hover:opacity-80 transition-opacity text-left"
         >
           <div className="bg-theme p-2 rounded-xl text-white shadow-sm"><TrendingUp size={24} /></div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Drachma</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Drachma</h1>
         </button>
 
         <div className="mb-6">
           <button onClick={() => setIsBalanceSummaryOpen(true)} className="w-full bg-slate-900 dark:bg-slate-800 text-white rounded-3xl p-5 shadow-xl hover:bg-slate-800 dark:hover:bg-slate-700 transition-all group relative overflow-hidden">
             <div className="relative z-10 text-left">
-              <p className="text-[10px] font-bold text-theme uppercase tracking-[0.2em] mb-1">Saldo Total</p>
-              <h3 className="text-xl font-bold">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
+              <p className="text-xs font-bold text-theme uppercase tracking-[0.2em] mb-1">Saldo Total</p>
+              <h3 className="text-2xl font-bold">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
             </div>
             <Wallet size={60} className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform" />
           </button>
@@ -330,7 +330,7 @@ const App: React.FC = () => {
             <img src={settings.userPhoto} className="w-9 h-9 rounded-full object-cover shrink-0 border-2 border-theme" alt="Profile" />
             <div className="overflow-hidden">
               <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{settings.userName}</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{isLite ? 'Lite User' : 'Pro Plan'}</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{isLite ? 'Lite User' : 'Pro Plan'}</p>
             </div>
           </div>
           <button 
@@ -371,7 +371,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className={`flex-1 overflow-y-auto pb-28 md:pb-8 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' ? 'p-0' : 'p-4 md:p-8'} space-y-6`}>
+        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
               <div className="border-b border-slate-200 pb-6 dark:border-slate-700"><h2 className="text-3xl font-bold text-slate-900 dark:text-white">{settings.userName}</h2><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Drachma — Finanças descomplicadas</p><span className="mt-4 inline-flex items-center gap-2 rounded-full bg-lime-200 px-3 py-1.5 text-sm font-bold text-lime-900"><span>✓</span> Assinatura ativa</span></div>
@@ -405,22 +405,22 @@ const App: React.FC = () => {
 
         {activeTab !== 'balanceHorizon' && <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
           <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-slate-600/80 bg-slate-100/95 dark:bg-[#363b44]/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
-            <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
+            <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-xs font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <History size={20} />
               <span>Saldos</span>
             </button>
-            <button onClick={() => setActiveTab('totals')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold ${activeTab === 'totals' ? 'bg-theme/15 text-theme' : 'text-slate-700 dark:text-white'}`}>
+            <button onClick={() => setActiveTab('totals')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-xs font-bold ${activeTab === 'totals' ? 'bg-theme/15 text-theme' : 'text-slate-700 dark:text-white'}`}>
               <Calculator size={20} />
               <span>Totais</span>
             </button>
             <button onClick={() => openNewTransaction()} aria-label="Adicionar lançamento" className="flex h-14 w-14 place-self-center items-center justify-center self-center rounded-full bg-slate-950 text-white shadow-lg dark:bg-slate-100 dark:text-slate-900">
               <Plus size={30} />
             </button>
-            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold text-slate-700 dark:text-white">
+            <button onClick={() => setActiveTab('menu')} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-xs font-bold text-slate-700 dark:text-white">
               <Tags size={20} />
               <span>Tags</span>
             </button>
-            <button onClick={() => setActiveTab('menu')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-[10px] font-bold transition-colors ${activeTab === 'menu' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('menu')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-xs font-bold transition-colors ${activeTab === 'menu' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-slate-400'}`}>
               <Menu size={22} />
               <span>Menu</span>
             </button>
@@ -437,7 +437,7 @@ const App: React.FC = () => {
               
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Tema</label>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Tema</label>
                   <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-[#2f333b] p-1 rounded-2xl">
                     <button 
                       onClick={() => setSettings({...settings, theme: 'light'})}
@@ -501,7 +501,7 @@ const App: React.FC = () => {
                   type="text" 
                   value={settings.userName} 
                   onChange={e => setSettings({...settings, userName: e.target.value})}
-                  className="text-xl font-bold text-slate-800 dark:text-white text-center bg-transparent border-b-2 border-transparent focus:border-theme outline-none"
+                  className="text-2xl font-bold text-slate-800 dark:text-white text-center bg-transparent border-b-2 border-transparent focus:border-theme outline-none"
                 />
                 <button onClick={() => setIsProfileOpen(false)} className="w-full bg-theme text-white font-bold py-3 rounded-xl hover:bg-theme-dark">Fechar</button>
               </div>
@@ -529,7 +529,7 @@ const App: React.FC = () => {
               </div>
               <div className="space-y-4">
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Novo Saldo Total ({currencySymbol})</label>
-                <input type="number" step="0.01" defaultValue={totalBalance} onKeyDown={(e) => { if (e.key === 'Enter') handleManualAdjustment(parseFloat((e.target as HTMLInputElement).value) || 0); }} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-theme outline-none text-xl font-bold dark:text-white" />
+                <input type="number" step="0.01" defaultValue={totalBalance} onKeyDown={(e) => { if (e.key === 'Enter') handleManualAdjustment(parseFloat((e.target as HTMLInputElement).value) || 0); }} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-theme outline-none text-2xl font-bold dark:text-white" />
                 <button onClick={(e) => { const input = (e.currentTarget.parentElement?.querySelector('input') as HTMLInputElement); handleManualAdjustment(parseFloat(input.value) || 0); }} className="w-full bg-theme text-white font-bold py-3 rounded-xl hover:bg-theme-dark transition-colors">Confirmar</button>
               </div>
             </div>
