@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Transaction, TransactionType, Category, CreditCard as CreditCardModel, FinancialGroup, PaymentMethod } from '../types';
-import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, PiggyBank, RotateCcw, ArrowRightLeft, X, ChevronDown, Pencil } from 'lucide-react';
+import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, PiggyBank, X, ChevronDown, Pencil } from 'lucide-react';
 
 interface Props {
   onAdd: (transactions: Transaction[]) => void;
@@ -33,19 +33,19 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const amountInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [type, setType] = useState<TransactionType>(initialData?.type || (initialFinancialGroup === FinancialGroup.PERSONAL_INCOME || initialFinancialGroup === FinancialGroup.REIMBURSEMENT ? TransactionType.INCOME : TransactionType.EXPENSE));
+  const [type, setType] = useState<TransactionType>(initialData?.type || (initialFinancialGroup === FinancialGroup.PERSONAL_EXPENSE || initialFinancialGroup === FinancialGroup.SAVINGS ? TransactionType.EXPENSE : TransactionType.INCOME));
   const [category, setCategory] = useState<Category>(initialData?.category || Category.FOOD);
   const [date, setDate] = useState(initialData?.date || initialDate || formatLocalYYYYMMDD(new Date()));
   const [committedTags, setCommittedTags] = useState<string[]>(initialData?.tags || []);
   const [tagsText, setTagsText] = useState('');
   const [isTagsFocused, setIsTagsFocused] = useState(false);
-  const [financialGroup, setFinancialGroup] = useState<FinancialGroup>(initialData?.financialGroup || (initialData?.type === TransactionType.INCOME ? FinancialGroup.PERSONAL_INCOME : FinancialGroup.PERSONAL_EXPENSE));
+  const [financialGroup, setFinancialGroup] = useState<FinancialGroup>(initialData?.financialGroup || (initialData?.type === TransactionType.EXPENSE ? FinancialGroup.PERSONAL_EXPENSE : FinancialGroup.PERSONAL_INCOME));
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initialData?.paymentMethod || 'PIX');
   const [cardId, setCardId] = useState(initialData?.cardId || '');
-  type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'REIMBURSEMENT' | 'ADVANCE';
+  type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS';
   const startingGroup = initialData?.financialGroup || initialFinancialGroup;
-  const initialKind: EntryKind = startingGroup === FinancialGroup.PERSONAL_INCOME ? 'INCOME' : startingGroup === FinancialGroup.PERSONAL_EXPENSE ? 'EXPENSE' : startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : startingGroup === FinancialGroup.REIMBURSEMENT ? 'REIMBURSEMENT' : startingGroup === FinancialGroup.ADVANCE_TO_OTHERS ? 'ADVANCE' : initialData?.type === TransactionType.INCOME ? 'INCOME' : 'EXPENSE';
-  const [entryKind, setEntryKind] = useState<EntryKind>(liteMode && (initialKind === 'REIMBURSEMENT' || initialKind === 'ADVANCE') ? 'EXPENSE' : initialKind);
+  const initialKind: EntryKind = startingGroup === FinancialGroup.PERSONAL_INCOME ? 'INCOME' : startingGroup === FinancialGroup.PERSONAL_EXPENSE ? 'EXPENSE' : startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : initialData?.type === TransactionType.EXPENSE ? 'EXPENSE' : 'INCOME';
+  const [entryKind, setEntryKind] = useState<EntryKind>(initialKind);
   const currentTagQuery = tagsText.trim().toLowerCase();
   const suggestedTags = availableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);
   const allTags = Array.from(new Set([...committedTags, ...(tagsText.trim() ? [tagsText.trim()] : [])]));
@@ -58,8 +58,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
     }
     setTagsText(value);
   };
-  const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: PiggyBank }, REIMBURSEMENT: { label: 'Reembolso', color: 'text-cyan-600', pill: '#cffafe', button: 'bg-cyan-500', icon: RotateCcw }, ADVANCE: { label: 'Adiantamento a terceiros', color: 'text-orange-600', pill: '#ffedd5', button: 'bg-orange-500', icon: ArrowRightLeft } }[entryKind];
-  const selectKind = (kind: EntryKind) => { setEntryKind(kind); setType(kind === 'INCOME' || kind === 'REIMBURSEMENT' ? TransactionType.INCOME : TransactionType.EXPENSE); setFinancialGroup(kind === 'INCOME' ? FinancialGroup.PERSONAL_INCOME : kind === 'REIMBURSEMENT' ? FinancialGroup.REIMBURSEMENT : kind === 'SAVINGS' ? FinancialGroup.SAVINGS : kind === 'ADVANCE' ? FinancialGroup.ADVANCE_TO_OTHERS : FinancialGroup.PERSONAL_EXPENSE); };
+  const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: PiggyBank } }[entryKind];
+  const selectKind = (kind: EntryKind) => { setEntryKind(kind); setType(kind === 'INCOME' ? TransactionType.INCOME : TransactionType.EXPENSE); setFinancialGroup(kind === 'INCOME' ? FinancialGroup.PERSONAL_INCOME : kind === 'SAVINGS' ? FinancialGroup.SAVINGS : FinancialGroup.PERSONAL_EXPENSE); };
   const KindIcon = kindMeta.icon;
   
   // Regra específica: Observações nunca devem vir pré-preenchidas
@@ -179,7 +179,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         <div className="relative flex min-h-11 items-center justify-between"><div className="flex items-center gap-3"><Calendar size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">Data</label></div><span className="mr-7 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{date.split('-').reverse().join('/')}</span><input aria-label="Data do lançamento" type="date" value={date} onChange={e => setDate(e.target.value)} className="absolute right-0 top-0 h-full w-44 cursor-pointer opacity-0" /><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
       </div>
 
-      <div className="relative flex min-h-[68px] items-center gap-3 py-3"><Repeat size={20} className="text-slate-500 shrink-0" /><select value={recurrenceOption} onChange={e => { const value = e.target.value; setRecurrenceOption(value); setIsRecurring(value !== 'NONE'); setRecurringInterval(value === 'MONTHLY' ? 1 : 1); }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary bg-transparent border-0 outline-none"><option value="NONE">Não repete</option><option value="DAILY">Diária</option><option value="WEEKLY">Semanal</option><option value="MONTHLY">Mensal</option><option value="YEARLY">Anual</option></select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
+      <div className="flex min-h-[68px] items-center gap-3 py-3"><Repeat size={20} className="shrink-0 text-slate-500" /><div className="relative min-w-0 flex-1"><select value={recurrenceOption} onChange={e => { const value = e.target.value; setRecurrenceOption(value); setIsRecurring(value !== 'NONE'); setRecurringInterval(value === 'MONTHLY' ? 1 : 1); }} className="w-full appearance-none bg-transparent pr-8 text-lg font-bold text-slate-700 outline-none dark:text-dark-app-text-secondary"><option value="NONE">Não repete</option><option value="DAILY">Diária</option><option value="WEEKLY">Semanal</option><option value="MONTHLY">Mensal</option><option value="YEARLY">Anual</option></select><ChevronDown size={18} className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-slate-500" /></div></div>
 
       {/* Opções Avançadas (Apenas para Despesas) */}
       {false && type === TransactionType.EXPENSE && paymentMethod === 'CREDIT_CARD' && (

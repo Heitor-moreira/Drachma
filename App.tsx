@@ -47,6 +47,7 @@ import RecurringExpensesManager from './components/RecurringExpensesManager';
 import CardManager from './components/CardManager';
 import BalanceHorizonView from './components/BalanceHorizonView';
 import TotalsView from './components/TotalsView';
+import DayTransactionsView from './components/DayTransactionsView';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'drachma_subscriptions';
@@ -73,7 +74,8 @@ const formatLocalYYYYMMDD = (date: Date) => {
 
 const App: React.FC = () => {
   type TabType = 'dailyBalance' | 'balanceHorizon' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
-  const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
+  const [activeTab, setActiveTab] = useState<TabType | 'dayTransactions'>('dailyBalance');
+  const [selectedDay, setSelectedDay] = useState(formatLocalYYYYMMDD(new Date()));
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
   const [isBalanceSummaryOpen, setIsBalanceSummaryOpen] = useState(false);
@@ -135,7 +137,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (settings.appMode === 'lite' && !['dailyBalance', 'balanceHorizon', 'menu', 'subscriptions', 'cards'].includes(activeTab)) {
+    if (settings.appMode === 'lite' && !['dailyBalance', 'balanceHorizon', 'dayTransactions', 'menu', 'subscriptions', 'cards'].includes(activeTab)) {
       setActiveTab('dailyBalance');
     }
   }, [settings.appMode, activeTab]);
@@ -222,7 +224,15 @@ const App: React.FC = () => {
 
   const openNewTransaction = (group?: FinancialGroup, date?: string) => {
     setEditingTransaction(null);
-    setNewTransactionDate(date);
+    if (date) {
+      setNewTransactionDate(date);
+    } else {
+      const today = new Date();
+      const selectedPeriod = new Date(`${dateRange.start}T12:00:00`);
+      const lastDayOfSelectedMonth = new Date(selectedPeriod.getFullYear(), selectedPeriod.getMonth() + 1, 0).getDate();
+      const selectedDay = Math.min(today.getDate(), lastDayOfSelectedMonth);
+      setNewTransactionDate(formatLocalYYYYMMDD(new Date(selectedPeriod.getFullYear(), selectedPeriod.getMonth(), selectedDay)));
+    }
     setNewTransactionGroup(group);
     setIsFormOpen(true);
   };
@@ -371,7 +381,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
+        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
               <div className="border-b border-slate-200 pb-6 dark:border-dark-app-border"><h2 className="text-3xl font-bold text-slate-900 dark:text-dark-app-text-primary">{settings.userName}</h2><p className="mt-1 text-sm text-slate-500 dark:text-dark-app-text-secondary">Drachma — Finanças descomplicadas</p><span className="mt-4 inline-flex items-center gap-2 rounded-full bg-lime-200 px-3 py-1.5 text-sm font-bold text-lime-900"><span>✓</span> Assinatura ativa</span></div>
@@ -391,7 +401,8 @@ const App: React.FC = () => {
             </section>
           )}
           {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} liteMode={isLite} compactHeader={settings.appMode === 'developer' && ['iphone-16e', 'galaxy-a73'].includes(developerViewport)} onDayClick={(date, group) => openNewTransaction(group, date)} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
-          {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={(date) => openNewTransaction(undefined, date)} />}
+          {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={(date) => openNewTransaction(undefined, date)} onDayClick={(date) => { setSelectedDay(date); setActiveTab('dayTransactions'); }} />}
+          {activeTab === 'dayTransactions' && <DayTransactionsView date={selectedDay} transactions={transactions} cards={cards} currencySymbol={currencySymbol} liteMode={isLite} onBack={() => setActiveTab('balanceHorizon')} onAdd={(date) => openNewTransaction(undefined, date)} />}
           {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -403,7 +414,7 @@ const App: React.FC = () => {
 
         {feedbackMessage && activeTab !== 'balanceHorizon' && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
 
-        {activeTab !== 'balanceHorizon' && <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
+        {activeTab !== 'balanceHorizon' && activeTab !== 'dayTransactions' && <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] min-[431px]:absolute min-[431px]:bottom-3 min-[431px]:left-1/2 min-[431px]:right-auto min-[431px]:w-[calc(100%_-_1.5rem)] min-[431px]:max-w-md min-[431px]:-translate-x-1/2 min-[431px]:px-0 min-[431px]:pb-[max(0.25rem,env(safe-area-inset-bottom))] pointer-events-none">
           <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-[2rem] border border-slate-200/80 dark:border-dark-app-border/80 bg-slate-100/95 dark:bg-dark-app-surface-secondary/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.5rem] text-xs font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-dark-app-text-secondary'}`}>
               <History size={20} />
@@ -487,8 +498,6 @@ const App: React.FC = () => {
             { group: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', sign: 1 },
             { group: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', sign: -1 },
             { group: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', sign: -1 },
-            { group: FinancialGroup.REIMBURSEMENT, label: 'Reembolso', color: 'text-cyan-600', sign: 1 },
-            { group: FinancialGroup.ADVANCE_TO_OTHERS, label: 'Adiantamento', color: 'text-orange-600', sign: -1 }
           ];
           return <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"><div className="w-full max-w-md bg-white dark:bg-dark-app-surface rounded-3xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-dark-app-border"><div><p className="text-xs font-bold uppercase tracking-widest text-slate-400">Resumo do saldo</p><h3 className="text-2xl font-bold dark:text-dark-app-text-primary">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3></div><button onClick={() => setIsBalanceSummaryOpen(false)} className="p-2 text-slate-500"><X size={22} /></button></div>{rows.map(row => { const total = transactions.filter(t => getFinancialGroup(t) === row.group).reduce((sum, t) => sum + t.amount, 0); return <div key={row.group} className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-dark-app-border"><span className={`text-lg font-bold ${row.color}`}>{row.label}</span><span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{row.sign < 0 ? '-' : '+'} {currencySymbol} {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>; })}<button onClick={() => setIsBalanceSummaryOpen(false)} className="m-5 w-[calc(100%-2.5rem)] bg-theme text-white font-bold py-3 rounded-2xl">Fechar</button></div></div>;
         })()}
