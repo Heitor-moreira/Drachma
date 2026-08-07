@@ -371,7 +371,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
+        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
               <div className="border-b border-slate-200 pb-6 dark:border-dark-app-border"><h2 className="text-3xl font-bold text-slate-900 dark:text-dark-app-text-primary">{settings.userName}</h2><p className="mt-1 text-sm text-slate-500 dark:text-dark-app-text-secondary">Drachma — Finanças descomplicadas</p><span className="mt-4 inline-flex items-center gap-2 rounded-full bg-lime-200 px-3 py-1.5 text-sm font-bold text-lime-900"><span>✓</span> Assinatura ativa</span></div>
