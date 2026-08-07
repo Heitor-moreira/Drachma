@@ -12,13 +12,16 @@ const BalanceHorizonView: React.FC<Props> = ({ transactions, dateRange, setDateR
   const anchor = parseDate(dateRange.start);
   const scrollRef = useRef<HTMLDivElement>(null);
   const gestureRef = useRef<{ x: number; y: number; axis: 'x' | 'y' | null }>({ x: 0, y: 0, axis: null });
-  const [activeIndex, setActiveIndex] = useState(12);
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const horizonStartIndex = 5 * 12 + currentMonth;
+  const [activeIndex, setActiveIndex] = useState(horizonStartIndex);
   const months = useMemo(() => {
-    const first = new Date(anchor.getFullYear(), anchor.getMonth() - 12, 1, 12);
-    const last = new Date(anchor.getFullYear(), anchor.getMonth() + 13, 0, 12);
+    const first = new Date(currentYear - 5, 0, 1, 12);
+    const last = new Date(currentYear + 6, 0, 0, 12);
     const projected = projectTransactions(transactions, '0000-01-01', formatDate(last), cards);
     let balance = initialBalance.amount + projected.filter(t => parseDate(t.date) < first).reduce((sum, t) => sum + (t.type === TransactionType.INCOME ? t.amount : -t.amount), 0);
-    return Array.from({ length: 25 }, (_, index) => {
+    return Array.from({ length: 11 * 12 }, (_, index) => {
       const month = new Date(first.getFullYear(), first.getMonth() + index, 1, 12);
       const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
       const rows = Array.from({ length: days }, (_, dayIndex) => {
@@ -28,7 +31,7 @@ const BalanceHorizonView: React.FC<Props> = ({ transactions, dateRange, setDateR
       });
       return { month, rows };
     });
-  }, [transactions, dateRange, initialBalance, cards]);
+  }, [transactions, currentYear, initialBalance, cards]);
 
   const monthWidth = () => scrollRef.current ? scrollRef.current.clientWidth / 3 : 0;
   const scrollToIndex = (index: number) => scrollRef.current?.scrollTo({ left: Math.max(0, Math.min(index, months.length - 3) * monthWidth()), behavior: 'smooth' });
@@ -38,7 +41,7 @@ const BalanceHorizonView: React.FC<Props> = ({ transactions, dateRange, setDateR
     scrollToIndex(next);
   };
 
-  useEffect(() => { const timer = window.setTimeout(() => scrollToIndex(12), 0); return () => window.clearTimeout(timer); }, []);
+  useEffect(() => { const timer = window.setTimeout(() => scrollToIndex(horizonStartIndex), 0); return () => window.clearTimeout(timer); }, [horizonStartIndex]);
   const handleScroll = () => { const width = monthWidth(); if (!width) return; const index = Math.round((scrollRef.current?.scrollLeft ?? 0) / width); setActiveIndex(Math.max(0, Math.min(index, months.length - 3))); };
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => { const touch = event.touches[0]; gestureRef.current = { x: touch?.clientX ?? 0, y: touch?.clientY ?? 0, axis: null }; };
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
