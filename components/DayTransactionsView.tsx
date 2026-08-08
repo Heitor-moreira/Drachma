@@ -15,11 +15,12 @@ const DayTransactionsView: React.FC<Props> = ({ date, transactions, cards = [], 
     { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: <ArrowDownLeft size={18} strokeWidth={3} /> },
     { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: <ArrowUpLeft size={18} strokeWidth={3} /> },
     { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: <PiggyBank size={18} strokeWidth={3} /> },
+    { key: 'CARD', label: 'Gasto com cartão', color: 'text-violet-600', circle: 'bg-violet-600', icon: <span className="text-xl font-bold">C</span> },
   ];
   const visibleTypes = liteMode ? types.slice(0, 3) : types;
   const dayTransactions = useMemo(() => {
     const projected = projectTransactions(transactions, selectedDate, selectedDate, cards);
-    return projected.filter(transaction => typeFilter === 'ALL' || getFinancialGroup(transaction) === typeFilter);
+    return projected.filter(transaction => typeFilter === 'ALL' || (typeFilter === 'CARD' ? transaction.paymentMethod === 'CREDIT_CARD' : getFinancialGroup(transaction) === typeFilter));
   }, [transactions, selectedDate, cards, typeFilter]);
   const moveDay = (delta: number) => { const next = parseDate(selectedDate); next.setDate(next.getDate() + delta); setSelectedDate(formatDate(next)); };
   const selectedType = (transaction: Transaction) => visibleTypes.find(item => item.key === getFinancialGroup(transaction)) || visibleTypes[0];
