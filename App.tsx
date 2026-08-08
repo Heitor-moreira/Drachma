@@ -113,7 +113,7 @@ const App: React.FC = () => {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTransactionDate, setNewTransactionDate] = useState<string | undefined>();
-  const [newTransactionGroup, setNewTransactionGroup] = useState<FinancialGroup | undefined>(undefined);
+  const [newTransactionGroup, setNewTransactionGroup] = useState<(FinancialGroup | 'CARD') | undefined>(undefined);
   const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -222,7 +222,7 @@ const App: React.FC = () => {
     setTransactions(prev => prev.filter(t => t.id !== id));
   };
 
-  const openNewTransaction = (group?: FinancialGroup, date?: string) => {
+  const openNewTransaction = (group?: FinancialGroup | 'CARD', date?: string) => {
     setEditingTransaction(null);
     if (date) {
       setNewTransactionDate(date);

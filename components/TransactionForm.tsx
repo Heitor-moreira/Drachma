@@ -11,7 +11,7 @@ interface Props {
   cards?: CreditCardModel[];
   availableTags?: string[];
   initialDate?: string;
-  initialFinancialGroup?: FinancialGroup;
+  initialFinancialGroup?: FinancialGroup | 'CARD';
   liteMode?: boolean;
 }
 
@@ -40,11 +40,11 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   const [tagsText, setTagsText] = useState('');
   const [isTagsFocused, setIsTagsFocused] = useState(false);
   const [financialGroup, setFinancialGroup] = useState<FinancialGroup>(initialData?.financialGroup || (initialData?.type === TransactionType.EXPENSE ? FinancialGroup.PERSONAL_EXPENSE : FinancialGroup.PERSONAL_INCOME));
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initialData?.paymentMethod || 'PIX');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initialData?.paymentMethod || (initialFinancialGroup === 'CARD' ? 'CREDIT_CARD' : 'PIX'));
   const [cardId, setCardId] = useState(initialData?.cardId || '');
   type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'CARD';
   const startingGroup = initialData?.financialGroup || initialFinancialGroup;
-  const initialKind: EntryKind = initialData?.paymentMethod === 'CREDIT_CARD' ? 'CARD' : startingGroup === FinancialGroup.PERSONAL_INCOME ? 'INCOME' : startingGroup === FinancialGroup.PERSONAL_EXPENSE ? 'EXPENSE' : startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : initialData?.type === TransactionType.EXPENSE ? 'EXPENSE' : 'INCOME';
+  const initialKind: EntryKind = initialData?.paymentMethod === 'CREDIT_CARD' || startingGroup === 'CARD' ? 'CARD' : startingGroup === FinancialGroup.PERSONAL_INCOME ? 'INCOME' : startingGroup === FinancialGroup.PERSONAL_EXPENSE ? 'EXPENSE' : startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : initialData?.type === TransactionType.EXPENSE ? 'EXPENSE' : 'INCOME';
   const [entryKind, setEntryKind] = useState<EntryKind>(initialKind);
   const currentTagQuery = tagsText.trim().toLowerCase();
   const suggestedTags = availableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);

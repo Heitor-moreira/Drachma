@@ -23,7 +23,7 @@ interface Props {
   onDelete: (id: string) => void;
   currencySymbol: string;
   cards?: CreditCard[];
-  onDayClick?: (date: string, group: FinancialGroup) => void;
+  onDayClick?: (date: string, group: FinancialGroup | 'CARD') => void;
   liteMode?: boolean;
   compactHeader?: boolean;
   onOpenHorizon?: () => void;
