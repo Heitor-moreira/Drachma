@@ -62,8 +62,9 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: 'INCOME' },
     { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: 'EXPENSE' },
     { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: 'E' },
+    { key: 'CARD', label: 'Gasto com cartão', color: 'text-violet-600', circle: 'bg-violet-600', icon: 'C' },
   ];
-  const dailyTypes = liteMode ? allDailyTypes.slice(0, 3) : allDailyTypes;
+  const dailyTypes = liteMode ? allDailyTypes : allDailyTypes;
   const swipeStartX = useRef<number | null>(null);
   const swipeStartY = useRef<number | null>(null);
   const moveMonth = (delta: number) => {
@@ -117,7 +118,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
         day: parseLocalDate(dateStr).getDate(),
         income: inc,
         expense: exp,
-        amounts: dailyTypes.reduce((acc, item) => { acc[item.key] = dayTs.filter(t => getFinancialGroup(t) === item.key).reduce((sum, t) => sum + t.amount, 0); return acc; }, {} as Record<string, number>),
+        amounts: dailyTypes.reduce((acc, item) => { acc[item.key] = dayTs.filter(t => item.key === 'CARD' ? t.paymentMethod === 'CREDIT_CARD' : getFinancialGroup(t) === item.key).reduce((sum, t) => sum + t.amount, 0); return acc; }, {} as Record<string, number>),
         balance: runningBalance
       });
     });
@@ -163,7 +164,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
             <tbody>
                 {filteredAndSortedReport.map((day) => { const visibleTypes = typeFilter === 'ALL' ? dailyTypes : dailyTypes.filter(item => item.key === typeFilter); return visibleTypes.map((item, index) => <tr key={`${day.date}-${item.key}`} className="group">
                 {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-dark-app-border dark:bg-dark-app-surface-secondary/70 dark:text-dark-app-text-secondary text-sm">{day.day}</td>}
-                <td className="p-2 border-b border-slate-200 dark:border-dark-app-border"><div className="flex min-w-0 items-center justify-between gap-2"><button type="button" onClick={() => onDayClick?.(day.date, item.key)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>{item.icon === 'INCOME' ? <ArrowDownLeft size={18} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={18} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : item.icon}</button><button type="button" onClick={() => onDayClick?.(day.date, item.key)} className="min-w-0 flex-1 truncate bg-transparent text-right text-base font-normal text-slate-700 dark:text-dark-app-text-secondary whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</button></div></td>
+                <td className="p-2 border-b border-slate-200 dark:border-dark-app-border"><div className="flex min-w-0 items-center justify-between gap-2"><button type="button" onClick={() => onDayClick?.(day.date, item.key as FinancialGroup)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>{item.icon === 'INCOME' ? <ArrowDownLeft size={18} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={18} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : <span>C</span>}</button><button type="button" onClick={() => onDayClick?.(day.date, item.key as FinancialGroup)} className="min-w-0 flex-1 truncate bg-transparent text-right text-base font-normal text-slate-700 dark:text-dark-app-text-secondary whitespace-nowrap">{currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</button></div></td>
                 {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border-b border-slate-200 dark:border-dark-app-border text-right text-base font-normal whitespace-nowrap ${day.balance === 0 ? 'app-saldo-neutral' : day.balance > 0 ? 'app-saldo-positive' : 'app-saldo-negative'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
               </tr>); })}
               {filteredAndSortedReport.length === 0 && (
