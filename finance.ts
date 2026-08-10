@@ -1,11 +1,10 @@
-import { FinancialGroup, PaymentMethod, Transaction, TransactionType, CreditCard } from './types';
+import { Category, FinancialGroup, PaymentMethod, Transaction, TransactionType, CreditCard } from './types';
 
 export const getFinancialGroup = (transaction: Transaction): FinancialGroup => {
-  if (transaction.financialGroup) return transaction.financialGroup;
-  if (transaction.category === 'Reserva') return FinancialGroup.SAVINGS;
-  return transaction.type === TransactionType.INCOME
-    ? FinancialGroup.PERSONAL_INCOME
-    : FinancialGroup.PERSONAL_EXPENSE;
+  if (transaction.category === Category.RESERVE) return FinancialGroup.SAVINGS;
+  if (transaction.type === TransactionType.INCOME) return FinancialGroup.PERSONAL_INCOME;
+  if (transaction.financialGroup === FinancialGroup.SAVINGS) return FinancialGroup.SAVINGS;
+  return FinancialGroup.PERSONAL_EXPENSE;
 };
 
 const formatDate = (date: Date) => {

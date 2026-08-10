@@ -84,6 +84,11 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
     setIsSubmitting(true);
 
     const valAmount = parseFloat(amount);
+    const normalizedFinancialGroup = entryKind === 'SAVINGS'
+      ? FinancialGroup.SAVINGS
+      : type === TransactionType.INCOME
+        ? FinancialGroup.PERSONAL_INCOME
+        : FinancialGroup.PERSONAL_EXPENSE;
     const purchaseId = initialData?.installmentInfo?.purchaseId || Math.random().toString(36).substr(2, 9);
     const newTransactions: Transaction[] = [];
     
@@ -102,7 +107,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         date, 
         comment, // Salva o novo comentário (ou vazio)
         isFixed: type === TransactionType.EXPENSE ? isRecurring : false,
-        tags: allTags, financialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
+        tags: allTags, financialGroup: normalizedFinancialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
         purchaseDate: paymentMethod === 'CREDIT_CARD' ? date : undefined
       }]), 220);
       window.setTimeout(onClose, 260);
@@ -137,7 +142,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         amount: valAmount,
         type,
         category,
-        tags: allTags, financialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
+        tags: allTags, financialGroup: normalizedFinancialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
         purchaseDate: paymentMethod === 'CREDIT_CARD' ? formattedDate : undefined,
         date: formattedDate,
         comment: comment.trim(),
