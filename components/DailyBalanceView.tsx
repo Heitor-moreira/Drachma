@@ -1,6 +1,6 @@
 
 import React, { useMemo, useRef, useState } from 'react';
-import { Transaction, TransactionType, DateRange, CreditCard, FinancialGroup } from '../types';
+import { Transaction, TransactionType, DateRange, CreditCard, FinancialGroup, InitialBalance } from '../types';
 import { projectTransactions, getFinancialGroup } from '../finance';
 import { 
   ArrowRightLeft,
@@ -19,6 +19,7 @@ interface Props {
   transactions: Transaction[];
   dateRange: DateRange;
   setDateRange: (range: DateRange) => void;
+  initialBalance: InitialBalance;
   onEdit: (t: Transaction) => void;
   onDelete: (id: string) => void;
   currencySymbol: string;
@@ -44,7 +45,7 @@ const parseLocalDate = (dateStr: string) => {
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, currencySymbol, cards = [], onDayClick, liteMode = false, compactHeader = false, onOpenHorizon }) => {
+const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, initialBalance, currencySymbol, cards = [], onDayClick, liteMode = false, compactHeader = false, onOpenHorizon }) => {
   const [isNarrowViewport, setIsNarrowViewport] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 430);
   const useCompactHeader = compactHeader || isNarrowViewport;
 
@@ -95,7 +96,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     const end = parseLocalDate(dateRange.end);
     
     const projected = projectTransactions(transactions, '0000-01-01', dateRange.end, cards);
-    let runningBalance = projected
+    let runningBalance = initialBalance.amount + projected
       .filter(t => parseLocalDate(t.date) < start)
       .reduce((acc, t) => t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0);
 
