@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, ChevronDown, ChevronLeft, ChevronRight, Grid2X2, PiggyBank, Plus } from 'lucide-react';
+import { ArrowDownLeft, ArrowLeft, ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, Grid2X2, PiggyBank, Plus } from 'lucide-react';
 import { CreditCard, FinancialGroup, Transaction, TransactionType } from '../types';
 import { getFinancialGroup, projectTransactions } from '../finance';
 
@@ -13,7 +13,7 @@ const DayTransactionsView: React.FC<Props> = ({ date, transactions, cards = [], 
   const [typeFilter, setTypeFilter] = useState('ALL');
   const types = [
     { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: <ArrowDownLeft size={18} strokeWidth={3} /> },
-    { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: <ArrowUpLeft size={18} strokeWidth={3} /> },
+    { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: <ArrowUpRight size={18} strokeWidth={3} /> },
     { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: <PiggyBank size={18} strokeWidth={3} /> },
     { key: 'CARD', label: 'Gasto com cartão', color: 'text-violet-600', circle: 'bg-violet-600', icon: <span className="text-xl font-bold">C</span> },
   ];
