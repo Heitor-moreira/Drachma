@@ -137,7 +137,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (settings.appMode === 'lite' && !['dailyBalance', 'balanceHorizon', 'dayTransactions', 'menu', 'subscriptions', 'cards'].includes(activeTab)) {
+    if (settings.appMode === 'lite' && !['dailyBalance', 'balanceHorizon', 'dayTransactions', 'menu', 'subscriptions', 'cards', 'totals'].includes(activeTab)) {
       setActiveTab('dailyBalance');
     }
   }, [settings.appMode, activeTab]);
