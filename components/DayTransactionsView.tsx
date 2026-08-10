@@ -23,7 +23,10 @@ const DayTransactionsView: React.FC<Props> = ({ date, transactions, cards = [], 
     return projected.filter(transaction => typeFilter === 'ALL' || (typeFilter === 'CARD' ? transaction.paymentMethod === 'CREDIT_CARD' : getFinancialGroup(transaction) === typeFilter));
   }, [transactions, selectedDate, cards, typeFilter]);
   const moveDay = (delta: number) => { const next = parseDate(selectedDate); next.setDate(next.getDate() + delta); setSelectedDate(formatDate(next)); };
-  const selectedType = (transaction: Transaction) => visibleTypes.find(item => item.key === getFinancialGroup(transaction)) || visibleTypes[0];
+  const selectedType = (transaction: Transaction) => {
+    if (transaction.paymentMethod === 'CREDIT_CARD') return visibleTypes.find(item => item.key === 'CARD') || visibleTypes[0];
+    return visibleTypes.find(item => item.key === getFinancialGroup(transaction)) || visibleTypes[0];
+  };
 
   return <section className="flex min-h-full flex-col bg-white dark:bg-dark-app-surface">
     <header className="flex items-center justify-between border-b border-slate-100 px-4 py-4 dark:border-dark-app-border"><button onClick={onBack} aria-label="Voltar" className="rounded-xl p-2 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={26} /></button><div className="flex items-center gap-2"><button onClick={() => moveDay(-1)} aria-label="Dia anterior" className="rounded-xl p-2"><ChevronLeft size={26} /></button><span className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">{displayDate(parseDate(selectedDate))}</span><button onClick={() => moveDay(1)} aria-label="Próximo dia" className="rounded-xl p-2"><ChevronRight size={26} /></button></div><button onClick={() => onAdd(selectedDate)} aria-label="Adicionar lançamento" className="rounded-xl p-2 text-slate-900 dark:text-dark-app-text-primary"><Plus size={30} /></button></header>
