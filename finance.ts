@@ -1,8 +1,27 @@
-import { Category, FinancialGroup, PaymentMethod, Transaction, TransactionType, CreditCard } from './types';
+import { FinancialGroup, PaymentMethod, Transaction, TransactionType, CreditCard, EntryType } from './types';
+
+export const getTransactionEntryType = (transaction: Transaction): EntryType => {
+  if (transaction.entryType) return transaction.entryType;
+  if (transaction.paymentMethod === 'CREDIT_CARD') return 'CARD';
+  if (transaction.financialGroup === FinancialGroup.SAVINGS) return 'SAVINGS';
+  return transaction.type === TransactionType.INCOME ? 'INCOME' : 'EXPENSE';
+};
+
+export const normalizeTransaction = (transaction: Transaction): Transaction => {
+  const entryType = getTransactionEntryType(transaction);
+  const { category, ...rest } = transaction as Transaction & { category?: unknown };
+  return { ...rest, entryType };
+};
+
+export const serializeTransaction = (transaction: Transaction): Transaction => {
+  const normalized = normalizeTransaction(transaction);
+  const { type, financialGroup, paymentMethod, ...rest } = normalized;
+  return rest;
+};
 
 export const getFinancialGroup = (transaction: Transaction): FinancialGroup => {
-  if (transaction.category === Category.RESERVE) return FinancialGroup.SAVINGS;
-  if (transaction.type === TransactionType.INCOME) return FinancialGroup.PERSONAL_INCOME;
+  if (getTransactionEntryType(transaction) === 'CARD') return FinancialGroup.PERSONAL_EXPENSE;
+  if (getTransactionEntryType(transaction) === 'INCOME') return FinancialGroup.PERSONAL_INCOME;
   if (transaction.financialGroup === FinancialGroup.SAVINGS) return FinancialGroup.SAVINGS;
   return FinancialGroup.PERSONAL_EXPENSE;
 };
@@ -32,21 +51,20 @@ export const getCardDueDate = (purchaseDate: string, dueDay: number) => {
 };
 
 export const getCashImpactDate = (transaction: Transaction, cards: CreditCard[]) => {
-  if (transaction.paymentMethod !== 'CREDIT_CARD' || !transaction.cardId) return transaction.date;
+  if (getTransactionEntryType(transaction) !== 'CARD' || !transaction.cardId) return transaction.date;
   const card = cards.find(c => c.id === transaction.cardId);
-  const cardType = card?.type || 'CREDIT';
-  return card && cardType === 'CREDIT' ? (transaction.dueDate || getCardDueDate(transaction.purchaseDate || transaction.date, card.dueDay || 1)) : transaction.date;
+  return card ? transaction.date : transaction.date;
 };
 
 export const projectTransactions = (transactions: Transaction[], start: string, end: string, cards: CreditCard[] = []) => {
   const result: Transaction[] = [];
   for (const transaction of transactions) {
-    const baseDate = transaction.purchaseDate || transaction.date;
+    const baseDate = transaction.date;
     const interval = transaction.isFixed ? 1 : 0;
     let cursor = baseDate;
     let index = 0;
     while (cursor <= end && index < 120) {
-      const projected = index === 0 ? transaction : { ...transaction, id: `${transaction.id}-projection-${index}`, date: cursor, purchaseDate: cursor };
+      const projected = index === 0 ? transaction : { ...transaction, id: `${transaction.id}-projection-${index}`, date: cursor };
       const impactDate = getCashImpactDate(projected, cards);
       if (impactDate >= start && impactDate <= end) result.push({ ...projected, date: impactDate });
       if (!interval) break;
@@ -57,7 +75,7 @@ export const projectTransactions = (transactions: Transaction[], start: string, 
   return result;
 };
 
-export const isPersonalIncome = (t: Transaction) => getFinancialGroup(t) === FinancialGroup.PERSONAL_INCOME;
+export const isPersonalIncome = (t: Transaction) => getTransactionEntryType(t) === 'INCOME';
 export const isPersonalExpense = (t: Transaction) => getFinancialGroup(t) === FinancialGroup.PERSONAL_EXPENSE;
 export const isSavings = (t: Transaction) => getFinancialGroup(t) === FinancialGroup.SAVINGS;
 

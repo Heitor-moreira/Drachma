@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo } from 'react';
-import { Transaction, TransactionType } from '../types';
+import { Transaction } from '../types';
 import { Trash2, ChevronDown, ChevronUp, FileSpreadsheet, Calendar, Hash, ArrowRightLeft, AlertTriangle, AlertCircle } from 'lucide-react';
-import { CATEGORY_COLORS } from '../constants';
+import { getTransactionEntryType } from '../finance';
 
 interface Props {
   transactions: Transaction[];
@@ -96,8 +96,8 @@ const SheetsManager: React.FC<Props> = ({ transactions, onDelete, onDeleteBatch 
               <div className="flex items-center gap-6">
                 <div className="text-right hidden sm:block">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Impacto no Saldo</p>
-                  <p className={`font-bold ${batch.items.reduce((acc, i) => i.type === TransactionType.INCOME ? acc + i.amount : acc - i.amount, 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    R$ {Math.abs(batch.items.reduce((acc, i) => i.type === TransactionType.INCOME ? acc + i.amount : acc - i.amount, 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  <p className={`font-bold ${batch.items.reduce((acc, i) => getTransactionEntryType(i) === 'INCOME' ? acc + i.amount : acc - i.amount, 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    R$ {Math.abs(batch.items.reduce((acc, i) => getTransactionEntryType(i) === 'INCOME' ? acc + i.amount : acc - i.amount, 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
 
@@ -162,13 +162,13 @@ const SheetsManager: React.FC<Props> = ({ transactions, onDelete, onDeleteBatch 
                           {t.comment && <p className="text-xs text-slate-400 truncate max-w-[200px]">{t.comment}</p>}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-xs font-bold px-2 py-1 rounded-lg" style={{ backgroundColor: `${CATEGORY_COLORS[t.category]}15`, color: CATEGORY_COLORS[t.category] }}>
-                            {t.category}
+                          <span className="text-xs font-bold px-2 py-1 rounded-lg" style={{ backgroundColor: '#e2e8f0', color: '#334155' }}>
+                            {t.entryType}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`text-sm font-bold ${t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {t.type === TransactionType.INCOME ? '+' : '-'} R$ {t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          <span className={`text-sm font-bold ${getTransactionEntryType(t) === 'INCOME' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {getTransactionEntryType(t) === 'INCOME' ? '+' : '-'} R$ {t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right relative">

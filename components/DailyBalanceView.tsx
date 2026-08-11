@@ -1,7 +1,7 @@
 
 import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, TransactionType, DateRange, CreditCard, FinancialGroup, InitialBalance } from '../types';
-import { projectTransactions, getFinancialGroup } from '../finance';
+import { projectTransactions, getFinancialGroup, getTransactionEntryType } from '../finance';
 import { 
   ArrowRightLeft,
   ArrowDownLeft,
@@ -60,9 +60,9 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
   const allDailyTypes = [
-    { key: FinancialGroup.PERSONAL_INCOME, label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: 'INCOME' },
-    { key: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: 'EXPENSE' },
-    { key: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: 'E' },
+    { key: 'INCOME', label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: 'INCOME' },
+    { key: 'EXPENSE', label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: 'EXPENSE' },
+    { key: 'SAVINGS', label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: 'E' },
     { key: 'CARD', label: 'Gasto com cartão', color: 'text-violet-600', circle: 'bg-violet-600', icon: 'C' },
   ];
   const dailyTypes = liteMode ? allDailyTypes : allDailyTypes;
@@ -98,7 +98,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     const projected = projectTransactions(transactions, '0000-01-01', dateRange.end, cards);
     let runningBalance = initialBalance.amount + projected
       .filter(t => parseLocalDate(t.date) < start)
-      .reduce((acc, t) => t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0);
+      .reduce((acc, t) => getTransactionEntryType(t) === 'INCOME' ? acc + t.amount : acc - t.amount, 0);
 
     const report: any[] = [];
     const days: string[] = [];
@@ -111,15 +111,15 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
 
     days.forEach(dateStr => {
       const dayTs = projected.filter(t => t.date === dateStr);
-      const inc = dayTs.filter(t => t.type === TransactionType.INCOME).reduce((acc, t) => acc + t.amount, 0);
-      const exp = dayTs.filter(t => t.type === TransactionType.EXPENSE).reduce((acc, t) => acc + t.amount, 0);
+      const inc = dayTs.filter(t => getTransactionEntryType(t) === 'INCOME').reduce((acc, t) => acc + t.amount, 0);
+      const exp = dayTs.filter(t => getTransactionEntryType(t) === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0);
       runningBalance = runningBalance + inc - exp;
       report.push({
         date: dateStr,
         day: parseLocalDate(dateStr).getDate(),
         income: inc,
         expense: exp,
-        amounts: dailyTypes.reduce((acc, item) => { acc[item.key] = dayTs.filter(t => item.key === 'CARD' ? t.paymentMethod === 'CREDIT_CARD' : getFinancialGroup(t) === item.key).reduce((sum, t) => sum + t.amount, 0); return acc; }, {} as Record<string, number>),
+        amounts: dailyTypes.reduce((acc, item) => { acc[item.key] = dayTs.filter(t => item.key === 'CARD' ? getTransactionEntryType(t) === 'CARD' : getTransactionEntryType(t) === item.key).reduce((sum, t) => sum + t.amount, 0); return acc; }, {} as Record<string, number>),
         balance: runningBalance
       });
     });

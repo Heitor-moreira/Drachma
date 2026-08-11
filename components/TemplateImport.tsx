@@ -12,7 +12,7 @@ import {
   Loader2,
   AlertTriangle
 } from 'lucide-react';
-import { Transaction, TransactionType, Category } from '../types';
+import { Transaction } from '../types';
 
 interface Props {
   onImport: (transactions: Transaction[]) => void;
@@ -112,8 +112,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
               id: `imp-${Date.now()}-in-${index}`,
               description: `Importação: Entrada Dia ${dia}`,
               amount: entrada,
-              type: TransactionType.INCOME,
-              category: Category.OTHER,
+              entryType: 'INCOME',
               date: dateStr,
               comment: `Importado via template em ${new Date().toLocaleDateString()}`
             });
@@ -124,8 +123,7 @@ const TemplateImport: React.FC<Props> = ({ onImport, onClose }) => {
               id: `imp-${Date.now()}-out-${index}`,
               description: `Importação: Saída Dia ${dia}`,
               amount: saida,
-              type: TransactionType.EXPENSE,
-              category: Category.OTHER,
+              entryType: 'EXPENSE',
               date: dateStr,
               comment: `Importado via template em ${new Date().toLocaleDateString()}`
             });

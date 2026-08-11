@@ -35,8 +35,8 @@ import {
   , CalendarDays
   , ChartNoAxesCombined
 } from 'lucide-react';
-import { Transaction, TransactionType, Category, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup } from './types';
-import { getFinancialGroup } from './finance';
+import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup } from './types';
+import { getFinancialGroup, normalizeTransaction, serializeTransaction, getTransactionEntryType } from './finance';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';
@@ -149,7 +149,7 @@ const App: React.FC = () => {
     const savedSalaryInfo = localStorage.getItem(STORAGE_KEY_SALARY_INFO);
 
     if (savedTransactions) {
-      setTransactions(JSON.parse(savedTransactions));
+      setTransactions(JSON.parse(savedTransactions).map((t: Transaction) => normalizeTransaction(t)));
     }
     if (savedSubscriptions) setSubscriptions(JSON.parse(savedSubscriptions));
     if (savedInitial) setInitialBalance(JSON.parse(savedInitial));
@@ -174,7 +174,7 @@ const App: React.FC = () => {
   const availableTags = useMemo(() => Array.from(new Set(transactions.flatMap(t => t.tags || []))).sort((a, b) => a.localeCompare(b)), [transactions]);
 
   const exportAppData = () => {
-    const backup = { version: 1, exportedAt: new Date().toISOString(), transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards };
+    const backup = { version: 2, exportedAt: new Date().toISOString(), transactions: transactions.map(serializeTransaction), subscriptions, initialBalance, salaryInfo, dateRange, settings, cards };
     const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
     const link = document.createElement('a'); link.href = url; link.download = `drachma-backup-${formatLocalYYYYMMDD(new Date())}.json`; link.click(); URL.revokeObjectURL(url);
   };
@@ -183,7 +183,7 @@ const App: React.FC = () => {
     const reader = new FileReader();
     reader.onload = () => { try {
       const data = JSON.parse(String(reader.result)); if (!Array.isArray(data.transactions)) throw new Error('Arquivo inválido');
-      setTransactions(data.transactions); if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions); if (data.initialBalance) setInitialBalance(data.initialBalance); if (data.salaryInfo) setSalaryInfo(data.salaryInfo); if (data.dateRange) setDateRange(data.dateRange); if (data.settings) setSettings(data.settings); if (Array.isArray(data.cards)) setCards(data.cards);
+      setTransactions(data.transactions.map((t: Transaction) => normalizeTransaction(t))); if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions); if (data.initialBalance) setInitialBalance(data.initialBalance); if (data.salaryInfo) setSalaryInfo(data.salaryInfo); if (data.dateRange) setDateRange(data.dateRange); if (data.settings) setSettings(data.settings); if (Array.isArray(data.cards)) setCards(data.cards);
       setFeedbackMessage('Dados importados com sucesso!');
     } catch { setFeedbackMessage('Arquivo JSON inválido.'); } event.target.value = ''; window.setTimeout(() => setFeedbackMessage(''), 2400); };
     reader.readAsText(file);
@@ -239,7 +239,7 @@ const App: React.FC = () => {
 
   const totalBalance = useMemo(() => {
     const transactionSum = transactions.reduce((acc, t) => {
-      return t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount;
+      return getTransactionEntryType(t) === 'INCOME' ? acc + t.amount : acc - t.amount;
     }, 0);
     return initialBalance.amount + transactionSum;
   }, [transactions, initialBalance]);
@@ -251,8 +251,7 @@ const App: React.FC = () => {
       id: `adj-${Date.now()}`,
       description: 'Ajuste Manual de Saldo',
       amount: Math.abs(diff),
-      type: diff > 0 ? TransactionType.INCOME : TransactionType.EXPENSE,
-      category: Category.ADJUSTMENT,
+      entryType: diff > 0 ? 'INCOME' : 'EXPENSE',
       date: formatLocalYYYYMMDD(new Date()),
       comment: `Saldo ajustado para ${currencySymbol} ${newTotal.toLocaleString()}`
     };
