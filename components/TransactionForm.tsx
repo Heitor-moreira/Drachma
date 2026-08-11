@@ -1,11 +1,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Transaction, CreditCard as CreditCardModel } from '../types';
-import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, X, ChevronDown, Pencil } from 'lucide-react';
+import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, Trash2, X, ChevronDown, Pencil } from 'lucide-react';
 
 interface Props {
   onAdd: (transactions: Transaction[]) => void;
   onClose: () => void;
+  onDelete?: (id: string) => void;
   initialData?: Transaction | null;
   currencySymbol: string;
   cards?: CreditCardModel[];
@@ -27,7 +28,7 @@ const formatCurrency = (value: string, currencySymbol: string) => {
   return `${currencySymbol} ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup }) => {
+const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup }) => {
   const [description, setDescription] = useState(initialData?.description || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const amountInputRef = useRef<HTMLInputElement>(null);
@@ -283,6 +284,22 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         >
           {isSubmitting ? 'CARREGANDO…' : initialData ? 'SALVAR ALTERAÇÕES' : `ADICIONAR ${kindMeta.label.toUpperCase()}`}
         </button>
+        {initialData && onDelete && (
+          <button
+            type="button"
+            aria-label="Excluir lançamento"
+            title="Excluir lançamento"
+            onClick={() => {
+              if (window.confirm('Excluir este lançamento?')) {
+                onDelete(initialData.id);
+                onClose();
+              }
+            }}
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-lg transition-all active:scale-95 hover:bg-rose-700"
+          >
+            <Trash2 size={22} strokeWidth={2.5} />
+          </button>
+        )}
       </div>
     </form>
   );
