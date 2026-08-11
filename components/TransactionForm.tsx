@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Transaction, CreditCard as CreditCardModel } from '../types';
-import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, PiggyBank, X, ChevronDown, Pencil } from 'lucide-react';
+import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, X, ChevronDown, Pencil } from 'lucide-react';
 
 interface Props {
   onAdd: (transactions: Transaction[]) => void;
@@ -12,7 +12,6 @@ interface Props {
   availableTags?: string[];
   initialDate?: string;
   initialFinancialGroup?: 'CARD' | 'INCOME' | 'EXPENSE' | 'SAVINGS';
-  liteMode?: boolean;
 }
 
 // Helper to format date as YYYY-MM-DD in local time
@@ -28,7 +27,7 @@ const formatCurrency = (value: string, currencySymbol: string) => {
   return `${currencySymbol} ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup, liteMode = false }) => {
+const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup }) => {
   const [description, setDescription] = useState(initialData?.description || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const amountInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +53,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
     }
     setTagsText(value);
   };
-  const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: PiggyBank }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: CreditCard } }[entryKind];
+  const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: ArrowDownLeft }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: CreditCard } }[entryKind];
   const selectKind = (kind: EntryKind) => { setEntryKind(kind); };
   const KindIcon = kindMeta.icon;
   

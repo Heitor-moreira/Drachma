@@ -2,13 +2,14 @@ import { FinancialGroup, PaymentMethod, Transaction, TransactionType, CreditCard
 
 export const getTransactionEntryType = (transaction: Transaction): EntryType => {
   if (transaction.entryType) return transaction.entryType;
+  if (transaction.cardId) return 'CARD';
   if (transaction.paymentMethod === 'CREDIT_CARD') return 'CARD';
   if (transaction.financialGroup === FinancialGroup.SAVINGS) return 'SAVINGS';
   return transaction.type === TransactionType.INCOME ? 'INCOME' : 'EXPENSE';
 };
 
 export const normalizeTransaction = (transaction: Transaction): Transaction => {
-  const entryType = getTransactionEntryType(transaction);
+  const entryType = transaction.cardId ? 'CARD' : getTransactionEntryType(transaction);
   const { category, ...rest } = transaction as Transaction & { category?: unknown };
   return { ...rest, entryType };
 };
