@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
 import { Landmark, Edit2, Trash2, PieChart, ShieldCheck, Zap, Repeat } from 'lucide-react';
+import { getTransactionEntryType } from '../finance';
 
 interface Props {
   transactions: Transaction[];
@@ -15,7 +16,7 @@ const RecurringExpensesManager: React.FC<Props> = ({ transactions, baseSalary, o
   const recurringTs = useMemo(() => {
     // Filtra transações fixas/recorrentes e agrupa pela descrição mais recente
     const latestRecurring: Record<string, Transaction> = {};
-    transactions.filter(t => t.isFixed && t.type === TransactionType.EXPENSE).forEach(t => {
+    transactions.filter(t => t.isFixed && getTransactionEntryType(t) === 'EXPENSE').forEach(t => {
       if (!latestRecurring[t.description] || new Date(t.date) > new Date(latestRecurring[t.description].date)) {
         latestRecurring[t.description] = t;
       }
@@ -69,7 +70,7 @@ const RecurringExpensesManager: React.FC<Props> = ({ transactions, baseSalary, o
                  <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-xl flex items-center justify-center font-bold">RC</div>
                  <div>
                    <h5 className="font-bold text-slate-800 dark:text-dark-app-text-secondary">{t.description}</h5>
-                   <p className="text-xs font-bold uppercase text-slate-400 dark:text-dark-app-text-secondary tracking-widest">{t.category}</p>
+                   <p className="text-xs font-bold uppercase text-slate-400 dark:text-dark-app-text-secondary tracking-widest">{t.entryType}</p>
                  </div>
                </div>
                <div className="flex items-center gap-4">

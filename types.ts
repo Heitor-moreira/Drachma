@@ -4,6 +4,8 @@ export enum TransactionType {
   EXPENSE = 'EXPENSE'
 }
 
+export type EntryType = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'CARD';
+
 export enum FinancialGroup {
   PERSONAL_INCOME = 'PERSONAL_INCOME',
   REIMBURSEMENT = 'REIMBURSEMENT',
@@ -32,14 +34,12 @@ export interface Transaction {
   date: string;
   description: string;
   amount: number;
-  type: TransactionType;
-  category: Category;
+  entryType: EntryType;
   tags?: string[];
-  financialGroup?: FinancialGroup;
-  paymentMethod?: PaymentMethod;
+  type?: TransactionType; // legado
+  financialGroup?: FinancialGroup; // legado
+  paymentMethod?: PaymentMethod; // legado
   cardId?: string;
-  purchaseDate?: string;
-  dueDate?: string;
   comment: string;
   isFixed?: boolean; // Usado internamente para "Recorrente"
   isInstallment?: boolean;

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
-import { CreditCard, DateRange, FinancialGroup, Transaction } from '../types';
-import { getFinancialGroup, projectTransactions } from '../finance';
+import { CreditCard, DateRange, Transaction } from '../types';
+import { getTransactionEntryType, projectTransactions } from '../finance';
 
 interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; }
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -17,10 +17,10 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
     const projected = projectTransactions(transactions, formatDate(start), formatDate(end), cards);
     const sum = (predicate: (transaction: Transaction) => boolean) => projected.filter(predicate).reduce((total, transaction) => total + transaction.amount, 0);
     return {
-      income: sum(t => getFinancialGroup(t) === FinancialGroup.PERSONAL_INCOME),
-      expense: sum(t => getFinancialGroup(t) === FinancialGroup.PERSONAL_EXPENSE),
-      savings: sum(t => getFinancialGroup(t) === FinancialGroup.SAVINGS),
-      card: sum(t => t.paymentMethod === 'CREDIT_CARD'),
+      income: sum(t => getTransactionEntryType(t) === 'INCOME'),
+      expense: sum(t => getTransactionEntryType(t) === 'EXPENSE'),
+      savings: sum(t => getTransactionEntryType(t) === 'SAVINGS'),
+      card: sum(t => getTransactionEntryType(t) === 'CARD'),
     };
   }, [transactions, cards, dateRange]);
   const moveMonth = (delta: number) => { const next = new Date(start.getFullYear(), start.getMonth() + delta, 1, 12); setDateRange({ start: formatDate(next), end: formatDate(new Date(next.getFullYear(), next.getMonth() + 1, 0, 12)) }); };

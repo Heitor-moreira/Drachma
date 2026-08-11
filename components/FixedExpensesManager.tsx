@@ -1,6 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
+import { getTransactionEntryType } from '../finance';
 import { Landmark, Edit2, Trash2, PieChart, ShieldCheck, Zap } from 'lucide-react';
 
 interface Props {
@@ -14,7 +15,7 @@ const FixedExpensesManager: React.FC<Props> = ({ transactions, baseSalary, onEdi
   const fixedTs = useMemo(() => {
     // Filtra transações fixas e pega apenas a ocorrência mais recente de cada descrição para não duplicar no mensal
     const latestFixed: Record<string, Transaction> = {};
-    transactions.filter(t => t.isFixed && t.type === TransactionType.EXPENSE).forEach(t => {
+    transactions.filter(t => t.isFixed && getTransactionEntryType(t) === 'EXPENSE').forEach(t => {
       if (!latestFixed[t.description] || new Date(t.date) > new Date(latestFixed[t.description].date)) {
         latestFixed[t.description] = t;
       }
@@ -68,7 +69,7 @@ const FixedExpensesManager: React.FC<Props> = ({ transactions, baseSalary, onEdi
                  <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center font-bold">FX</div>
                  <div>
                    <h5 className="font-bold text-slate-800">{t.description}</h5>
-                   <p className="text-xs font-bold uppercase text-slate-400 tracking-widest">{t.category}</p>
+                   <p className="text-xs font-bold uppercase text-slate-400 tracking-widest">{t.entryType}</p>
                  </div>
                </div>
                <div className="flex items-center gap-4">

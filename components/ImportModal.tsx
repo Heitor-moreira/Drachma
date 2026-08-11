@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { X, Upload, FileText, CheckCircle2, AlertCircle, ChevronRight, HelpCircle, Table, Layers } from 'lucide-react';
-import { Transaction, TransactionType, Category } from '../types';
+import { Transaction } from '../types';
 import * as XLSX from 'xlsx';
 
 interface Props {
@@ -16,8 +16,6 @@ interface Mapping {
   amount: string;
   income: string;
   expense: string;
-  type: string;
-  category: string;
 }
 
 type ImportStep = 'upload' | 'sheets' | 'mapping';
@@ -35,9 +33,7 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
     description: '',
     amount: '',
     income: '',
-    expense: '',
-    type: '',
-    category: ''
+    expense: ''
   });
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -121,8 +117,6 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
       if (header.includes('valor') || header.includes('amount')) newMapping.amount = h;
       if (header.includes('entrada') || header.includes('income') || header.includes('receita')) newMapping.income = h;
       if (header.includes('saida') || header.includes('saída') || header.includes('expense') || header.includes('despesa')) newMapping.expense = h;
-      if (header.includes('tipo') || header.includes('type')) newMapping.type = h;
-      if (header.includes('cat')) newMapping.category = h;
     });
 
     setMapping(newMapping);
@@ -147,11 +141,6 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
         if (descColIdx === -1) return;
 
         const desc = String(row[descColIdx] || 'Sem descrição');
-        const catVal = mapping.category ? String(row[headers.indexOf(mapping.category)]) : '';
-        let category = Category.OTHER;
-        const foundCat = Object.values(Category).find(c => c.toLowerCase() === catVal.toLowerCase());
-        if (foundCat) category = foundCat;
-
         let date = new Date().toISOString().split('T')[0];
         if (mapping.date && row[headers.indexOf(mapping.date)]) {
           let rawDate = row[headers.indexOf(mapping.date)];
@@ -184,8 +173,8 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
               id: `in-${batchId}-${idx}`,
               description: desc,
               amount: inc,
-              type: TransactionType.INCOME,
-              category, date, comment: `Importado de ${sheetName}`, batchId, batchName: sheetName, importDate
+              entryType: 'INCOME',
+              date, comment: `Importado de ${sheetName}`, batchId, batchName: sheetName, importDate
             });
           }
           if (exp > 0) {
@@ -193,8 +182,8 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
               id: `out-${batchId}-${idx}`,
               description: desc,
               amount: exp,
-              type: TransactionType.EXPENSE,
-              category, date, comment: `Importado de ${sheetName}`, batchId, batchName: sheetName, importDate
+              entryType: 'EXPENSE',
+              date, comment: `Importado de ${sheetName}`, batchId, batchName: sheetName, importDate
             });
           }
         } else {
@@ -204,8 +193,8 @@ const ImportModal: React.FC<Props> = ({ onImport, onClose }) => {
               id: `val-${batchId}-${idx}`,
               description: desc,
               amount: Math.abs(amount),
-              type: amount > 0 ? TransactionType.INCOME : TransactionType.EXPENSE,
-              category, date, comment: `Importado de ${sheetName}`, batchId, batchName: sheetName, importDate
+              entryType: amount > 0 ? 'INCOME' : 'EXPENSE',
+              date, comment: `Importado de ${sheetName}`, batchId, batchName: sheetName, importDate
             });
           }
         }

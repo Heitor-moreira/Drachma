@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
 import { Trash2, Search, Filter, Calendar, Tag, CreditCard, Edit2 } from 'lucide-react';
-import { CATEGORY_COLORS } from '../constants';
+import { getTransactionEntryType } from '../finance';
 
 interface Props {
   transactions: Transaction[];
@@ -25,7 +25,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
     return transactions.filter(t => {
       const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
                             t.comment.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter = filterType === 'ALL' || t.type === filterType;
+      const matchesFilter = filterType === 'ALL' || getTransactionEntryType(t) === filterType;
       return matchesSearch && matchesFilter;
     });
   }, [transactions, searchTerm, filterType]);
@@ -81,7 +81,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
                 <div className="divide-y divide-slate-100">
                   {groupedByDate[date].map(t => (
                     <div key={t.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center gap-4 group">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${CATEGORY_COLORS[t.category]}15`, color: CATEGORY_COLORS[t.category] }}>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: getTransactionEntryType(t) === 'INCOME' ? '#d1fae5' : getTransactionEntryType(t) === 'SAVINGS' ? '#ecfccb' : getTransactionEntryType(t) === 'CARD' ? '#ede9fe' : '#fee2e2', color: getTransactionEntryType(t) === 'INCOME' ? '#059669' : getTransactionEntryType(t) === 'SAVINGS' ? '#65a30d' : getTransactionEntryType(t) === 'CARD' ? '#7c3aed' : '#e11d48' }}>
                         {t.isInstallment ? <CreditCard size={18}/> : <Tag size={18} />}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -92,15 +92,15 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
                               {t.installmentInfo.current}/{t.installmentInfo.total}
                             </span>
                           )}
-                          <span className="text-xs px-1.5 py-0.5 rounded-md font-bold uppercase tracking-tighter" style={{ backgroundColor: `${CATEGORY_COLORS[t.category]}20`, color: CATEGORY_COLORS[t.category] }}>
-                            {t.category}
+                          <span className="text-xs px-1.5 py-0.5 rounded-md font-bold uppercase tracking-tighter" style={{ backgroundColor: '#e2e8f0', color: '#334155' }}>
+                            {t.entryType}
                           </span>
                         </div>
                         {t.comment && <p className="text-xs text-slate-400 truncate">{t.comment}</p>}
                       </div>
                       <div className="text-right shrink-0">
-                        <p className={`font-bold ${t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-rose-600'}`}>
-                          {t.type === TransactionType.INCOME ? '+' : '-'} R$ {t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        <p className={`font-bold ${getTransactionEntryType(t) === 'INCOME' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {getTransactionEntryType(t) === 'INCOME' ? '+' : '-'} R$ {t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </p>
                       </div>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">

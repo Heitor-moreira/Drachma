@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { Transaction, SalaryInfo } from '../types';
+import { getTransactionEntryType } from '../finance';
 import { Sparkles, X, BrainCircuit, Loader2, Lightbulb, TrendingDown, Target } from 'lucide-react';
 
 interface Props {
@@ -31,8 +32,7 @@ const AiInsights: React.FC<Props> = ({ isOpen, transactions, salaryInfo, onClose
       const summary = transactions.slice(0, 50).map(t => ({
         desc: t.description,
         val: t.amount,
-        type: t.type,
-        cat: t.category,
+        type: getTransactionEntryType(t),
         fixed: t.isFixed,
         inst: t.isInstallment
       }));

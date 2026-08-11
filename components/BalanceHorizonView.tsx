@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDownLeft, ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, PiggyBank, Plus, X } from 'lucide-react';
-import { CreditCard, DateRange, FinancialGroup, InitialBalance, Transaction, TransactionType } from '../types';
-import { projectTransactions } from '../finance';
+import { CreditCard, DateRange, FinancialGroup, InitialBalance, Transaction } from '../types';
+import { getTransactionEntryType, projectTransactions } from '../finance';
 
 interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; initialBalance: InitialBalance; cards: CreditCard[]; currencySymbol: string; onBack: () => void; onAdd: (group: FinancialGroup | 'CARD', date: string) => void; onDayClick?: (date: string) => void; }
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
@@ -21,13 +21,13 @@ const BalanceHorizonView: React.FC<Props> = ({ transactions, dateRange, setDateR
     const first = new Date(currentYear - 5, 0, 1, 12);
     const last = new Date(currentYear + 6, 0, 0, 12);
     const projected = projectTransactions(transactions, '0000-01-01', formatDate(last), cards);
-    let balance = initialBalance.amount + projected.filter(t => parseDate(t.date) < first).reduce((sum, t) => sum + (t.type === TransactionType.INCOME ? t.amount : -t.amount), 0);
+    let balance = initialBalance.amount + projected.filter(t => parseDate(t.date) < first).reduce((sum, t) => sum + (getTransactionEntryType(t) === 'INCOME' ? t.amount : -t.amount), 0);
     return Array.from({ length: 11 * 12 }, (_, index) => {
       const month = new Date(first.getFullYear(), first.getMonth() + index, 1, 12);
       const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
       const rows = Array.from({ length: days }, (_, dayIndex) => {
         const date = formatDate(new Date(month.getFullYear(), month.getMonth(), dayIndex + 1, 12));
-        balance += projected.filter(t => t.date === date).reduce((sum, t) => sum + (t.type === TransactionType.INCOME ? t.amount : -t.amount), 0);
+        balance += projected.filter(t => t.date === date).reduce((sum, t) => sum + (getTransactionEntryType(t) === 'INCOME' ? t.amount : -t.amount), 0);
         return { day: dayIndex + 1, balance };
       });
       return { month, rows };

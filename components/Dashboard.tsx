@@ -13,8 +13,9 @@ import {
   Cell,
   Legend
 } from 'recharts';
-import { Transaction, TransactionType, Category } from '../types';
+import { Transaction } from '../types';
 import { CATEGORY_COLORS } from '../constants';
+import { getTransactionEntryType } from '../finance';
 import { TrendingUp, TrendingDown, Landmark, Percent, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Props {
@@ -160,9 +161,9 @@ const Dashboard: React.FC<Props> = ({ transactions, baseSalary, currencySymbol }
       return d >= start && d <= end;
     });
 
-    const income = filtered.filter(t => t.type === TransactionType.INCOME).reduce((acc, t) => acc + t.amount, 0);
-    const expenses = filtered.filter(t => t.type === TransactionType.EXPENSE).reduce((acc, t) => acc + t.amount, 0);
-    const reserved = filtered.filter(t => t.category === Category.RESERVE).reduce((acc, t) => acc + t.amount, 0);
+    const income = filtered.filter(t => getTransactionEntryType(t) === 'INCOME').reduce((acc, t) => acc + t.amount, 0);
+    const expenses = filtered.filter(t => getTransactionEntryType(t) === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0);
+    const reserved = filtered.filter(t => getTransactionEntryType(t) === 'SAVINGS').reduce((acc, t) => acc + t.amount, 0);
     const reservePercentage = income > 0 ? (reserved / income) * 100 : 0;
 
     return { income, expenses, reserved, reservePercentage };
@@ -172,7 +173,7 @@ const Dashboard: React.FC<Props> = ({ transactions, baseSalary, currencySymbol }
     const start = parseLocalDate(startDate);
     const end = parseLocalDate(endDate);
     const range: string[] = [];
-    let runningBalance = transactions.filter(t => parseLocalDate(t.date) < start).reduce((acc, t) => t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0);
+    let runningBalance = transactions.filter(t => parseLocalDate(t.date) < start).reduce((acc, t) => getTransactionEntryType(t) === 'INCOME' ? acc + t.amount : acc - t.amount, 0);
     const curr = new Date(start);
     while (curr <= end) {
       range.push(formatDateToISO(curr));
@@ -180,7 +181,7 @@ const Dashboard: React.FC<Props> = ({ transactions, baseSalary, currencySymbol }
     }
     return range.map(dateStr => {
       const dayTransactions = transactions.filter(t => t.date === dateStr);
-      const dayNet = dayTransactions.reduce((acc, t) => t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0);
+      const dayNet = dayTransactions.reduce((acc, t) => getTransactionEntryType(t) === 'INCOME' ? acc + t.amount : acc - t.amount, 0);
       runningBalance += dayNet;
       const d = parseLocalDate(dateStr);
       const day = String(d.getDate()).padStart(2, '0');
@@ -195,10 +196,10 @@ const Dashboard: React.FC<Props> = ({ transactions, baseSalary, currencySymbol }
     transactions
       .filter(t => {
         const d = parseLocalDate(t.date);
-        return t.type === TransactionType.EXPENSE && d >= start && d <= end;
+        return getTransactionEntryType(t) === 'EXPENSE' && d >= start && d <= end;
       })
       .forEach(t => { 
-        categoriesMap[t.category] = (categoriesMap[t.category] || 0) + t.amount; 
+        categoriesMap[t.entryType] = (categoriesMap[t.entryType] || 0) + t.amount; 
       });
     return Object.entries(categoriesMap).map(([name, value]) => ({ name, value }));
   }, [transactions, startDate, endDate]);

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Transaction, TransactionType, Category, CreditCard as CreditCardModel, FinancialGroup, PaymentMethod } from '../types';
+import { Transaction, CreditCard as CreditCardModel } from '../types';
 import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, PiggyBank, X, ChevronDown, Pencil } from 'lucide-react';
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
   cards?: CreditCardModel[];
   availableTags?: string[];
   initialDate?: string;
-  initialFinancialGroup?: FinancialGroup | 'CARD';
+  initialFinancialGroup?: 'CARD' | 'INCOME' | 'EXPENSE' | 'SAVINGS';
   liteMode?: boolean;
 }
 
@@ -33,19 +33,15 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const amountInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [type, setType] = useState<TransactionType>(initialData?.type || (initialFinancialGroup === FinancialGroup.PERSONAL_EXPENSE || initialFinancialGroup === FinancialGroup.SAVINGS ? TransactionType.EXPENSE : TransactionType.INCOME));
-  const [category, setCategory] = useState<Category>(initialData?.category || Category.FOOD);
   const [date, setDate] = useState(initialData?.date || initialDate || formatLocalYYYYMMDD(new Date()));
   const [committedTags, setCommittedTags] = useState<string[]>(initialData?.tags || []);
   const [tagsText, setTagsText] = useState('');
   const [isTagsFocused, setIsTagsFocused] = useState(false);
-  const [financialGroup, setFinancialGroup] = useState<FinancialGroup>(initialData?.financialGroup || (initialData?.type === TransactionType.EXPENSE ? FinancialGroup.PERSONAL_EXPENSE : FinancialGroup.PERSONAL_INCOME));
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initialData?.paymentMethod || (initialFinancialGroup === 'CARD' ? 'CREDIT_CARD' : 'PIX'));
-  const [cardId, setCardId] = useState(initialData?.cardId || '');
   type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'CARD';
-  const startingGroup = initialData?.financialGroup || initialFinancialGroup;
-  const initialKind: EntryKind = initialData?.paymentMethod === 'CREDIT_CARD' || startingGroup === 'CARD' ? 'CARD' : startingGroup === FinancialGroup.PERSONAL_INCOME ? 'INCOME' : startingGroup === FinancialGroup.PERSONAL_EXPENSE ? 'EXPENSE' : startingGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : initialData?.type === TransactionType.EXPENSE ? 'EXPENSE' : 'INCOME';
+  const startingGroup = initialData?.entryType || initialFinancialGroup;
+  const initialKind: EntryKind = initialData?.entryType || (startingGroup === 'CARD' ? 'CARD' : startingGroup === 'SAVINGS' ? 'SAVINGS' : startingGroup === 'EXPENSE' ? 'EXPENSE' : 'INCOME');
   const [entryKind, setEntryKind] = useState<EntryKind>(initialKind);
+  const [cardId, setCardId] = useState(initialData?.cardId || '');
   const currentTagQuery = tagsText.trim().toLowerCase();
   const suggestedTags = availableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);
   const allTags = Array.from(new Set([...committedTags, ...(tagsText.trim() ? [tagsText.trim()] : [])]));
@@ -59,7 +55,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
     setTagsText(value);
   };
   const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: PiggyBank }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: CreditCard } }[entryKind];
-  const selectKind = (kind: EntryKind) => { setEntryKind(kind); setType(kind === 'INCOME' ? TransactionType.INCOME : TransactionType.EXPENSE); setFinancialGroup(kind === 'INCOME' ? FinancialGroup.PERSONAL_INCOME : kind === 'SAVINGS' ? FinancialGroup.SAVINGS : FinancialGroup.PERSONAL_EXPENSE); setPaymentMethod(kind === 'CARD' ? 'CREDIT_CARD' : 'PIX'); };
+  const selectKind = (kind: EntryKind) => { setEntryKind(kind); };
   const KindIcon = kindMeta.icon;
   
   // Regra específica: Observações nunca devem vir pré-preenchidas
@@ -84,11 +80,6 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
     setIsSubmitting(true);
 
     const valAmount = parseFloat(amount);
-    const normalizedFinancialGroup = entryKind === 'SAVINGS'
-      ? FinancialGroup.SAVINGS
-      : type === TransactionType.INCOME
-        ? FinancialGroup.PERSONAL_INCOME
-        : FinancialGroup.PERSONAL_EXPENSE;
     const purchaseId = initialData?.installmentInfo?.purchaseId || Math.random().toString(36).substr(2, 9);
     const newTransactions: Transaction[] = [];
     
@@ -102,13 +93,12 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         ...initialData, 
         description, 
         amount: valAmount, 
-        type, 
-        category, 
+        entryType: entryKind,
         date, 
-        comment, // Salva o novo comentário (ou vazio)
-        isFixed: type === TransactionType.EXPENSE ? isRecurring : false,
-        tags: allTags, financialGroup: normalizedFinancialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
-        purchaseDate: paymentMethod === 'CREDIT_CARD' ? date : undefined
+        comment, 
+        isFixed: entryKind !== 'INCOME' ? isRecurring : false,
+        tags: allTags,
+        cardId: entryKind === 'CARD' ? cardId : undefined
       }]), 220);
       window.setTimeout(onClose, 260);
       return;
@@ -118,7 +108,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
     let totalToCreate = 1;
     let interval = 1;
     
-    if (type === TransactionType.EXPENSE) {
+    if (entryKind !== 'INCOME') {
       if (isInstallment) {
         totalToCreate = installmentCount;
         interval = 1;
@@ -140,15 +130,14 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
         id: Math.random().toString(36).substr(2, 9),
         description: isInstallment ? `${description} (${i + 1}/${installmentCount})` : description,
         amount: valAmount,
-        type,
-        category,
-        tags: allTags, financialGroup: normalizedFinancialGroup, paymentMethod, cardId: paymentMethod === 'CREDIT_CARD' ? cardId : undefined,
-        purchaseDate: paymentMethod === 'CREDIT_CARD' ? formattedDate : undefined,
+        entryType: entryKind,
+        tags: allTags,
+        cardId: entryKind === 'CARD' ? cardId : undefined,
         date: formattedDate,
         comment: comment.trim(),
-        isFixed: type === TransactionType.EXPENSE ? isRecurring : false,
-        isInstallment: type === TransactionType.EXPENSE && isInstallment,
-        installmentInfo: (type === TransactionType.EXPENSE && isInstallment) ? { 
+        isFixed: entryKind !== 'INCOME' ? isRecurring : false,
+        isInstallment: entryKind !== 'INCOME' && isInstallment,
+        installmentInfo: (entryKind !== 'INCOME' && isInstallment) ? { 
           current: i + 1, 
           total: installmentCount, 
           purchaseId 
@@ -165,7 +154,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-dark-app-border pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
       <div className="relative flex min-h-[68px] w-full cursor-pointer items-center justify-between py-3" aria-label="Selecionar tipo de lançamento"><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-2xl font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`text-lg font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={18} className={kindMeta.color} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
 
-      {type === TransactionType.EXPENSE && paymentMethod === 'CREDIT_CARD' && <div className="relative flex min-h-[68px] items-center gap-3 py-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={isInstallment ? String(installmentCount) : 'NONE'} onChange={e => { const value = e.target.value; setIsInstallment(value !== 'NONE'); if (value !== 'NONE') { setInstallmentCount(Number(value)); setIsRecurring(false); setRecurrenceOption('NONE'); } }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary bg-transparent border-0 outline-none"><option value="NONE">Não parcela</option>{Array.from({ length: 11 }, (_, index) => <option key={index + 2} value={index + 2}>{index + 2} parcelas</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>}
+      {entryKind === 'CARD' && <div className="relative flex min-h-[68px] items-center gap-3 py-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={isInstallment ? String(installmentCount) : 'NONE'} onChange={e => { const value = e.target.value; setIsInstallment(value !== 'NONE'); if (value !== 'NONE') { setInstallmentCount(Number(value)); setIsRecurring(false); setRecurrenceOption('NONE'); } }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary bg-transparent border-0 outline-none"><option value="NONE">Não parcela</option>{Array.from({ length: 11 }, (_, index) => <option key={index + 2} value={index + 2}>{index + 2} parcelas</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>}
 
       <div className="min-h-[68px] py-3">
         <div>
@@ -187,7 +176,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, initialData, currenc
       <div className="flex min-h-[68px] items-center gap-3 py-3"><Repeat size={20} className="shrink-0 text-slate-500" /><div className="relative min-w-0 flex-1"><select value={recurrenceOption} onChange={e => { const value = e.target.value; setRecurrenceOption(value); setIsRecurring(value !== 'NONE'); setRecurringInterval(value === 'MONTHLY' ? 1 : 1); }} className="w-full appearance-none bg-transparent pr-8 text-lg font-bold text-slate-700 outline-none dark:text-dark-app-text-secondary"><option value="NONE">Não repete</option><option value="DAILY">Diária</option><option value="WEEKLY">Semanal</option><option value="MONTHLY">Mensal</option><option value="YEARLY">Anual</option></select><ChevronDown size={18} className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-slate-500" /></div></div>
 
       {/* Opções Avançadas (Apenas para Despesas) */}
-      {false && type === TransactionType.EXPENSE && paymentMethod === 'CREDIT_CARD' && (
+      {false && entryKind !== 'INCOME' && (
         <div className="bg-slate-50 dark:bg-dark-app-surface-secondary/50 p-4 rounded-2xl border border-slate-200 dark:border-dark-app-border space-y-4 animate-in fade-in duration-300">
           
           {/* Recorrência */}
