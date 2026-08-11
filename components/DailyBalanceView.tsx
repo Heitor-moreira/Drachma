@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Transaction, DateRange, CreditCard, FinancialGroup, InitialBalance } from '../types';
+import { Transaction, DateRange, CreditCard, EntryType, InitialBalance } from '../types';
 import { projectTransactions, getTransactionEntryType } from '../finance';
 import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, Grid3X3, Grid2X2 } from 'lucide-react';
 
@@ -12,7 +12,7 @@ interface Props {
   onDelete: (id: string) => void;
   currencySymbol: string;
   cards?: CreditCard[];
-  onDayClick?: (date: string, group: FinancialGroup | 'CARD') => void;
+  onDayClick?: (date: string, group: EntryType) => void;
   compactHeader?: boolean;
   onOpenHorizon?: () => void;
 }
@@ -129,10 +129,10 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
           {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-dark-app-border dark:bg-dark-app-surface-secondary/70 dark:text-dark-app-text-secondary text-sm">{day.day}</td>}
           <td className="p-2 border-b border-slate-200 dark:border-dark-app-border">
             <div className="flex min-w-0 items-center justify-between gap-2">
-              <button type="button" onClick={() => onDayClick?.(day.date, item.key as FinancialGroup)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>
+              <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>
                 {item.icon === 'INCOME' ? <ArrowDownLeft size={18} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={18} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : <span>C</span>}
               </button>
-              <button type="button" onClick={() => onDayClick?.(day.date, item.key as FinancialGroup)} className="min-w-0 flex-1 truncate bg-transparent text-right text-base font-normal text-slate-700 dark:text-dark-app-text-secondary whitespace-nowrap">
+              <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} className="min-w-0 flex-1 truncate bg-transparent text-right text-base font-normal text-slate-700 dark:text-dark-app-text-secondary whitespace-nowrap">
                 {currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </button>
             </div>

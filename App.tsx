@@ -35,7 +35,7 @@ import {
   , CalendarDays
   , ChartNoAxesCombined
 } from 'lucide-react';
-import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup } from './types';
+import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
 import { getFinancialGroup, normalizeTransaction, serializeTransaction, getTransactionEntryType } from './finance';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
@@ -112,7 +112,7 @@ const App: React.FC = () => {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTransactionDate, setNewTransactionDate] = useState<string | undefined>();
-  const [newTransactionGroup, setNewTransactionGroup] = useState<(FinancialGroup | 'CARD') | undefined>(undefined);
+  const [newTransactionGroup, setNewTransactionGroup] = useState<(FinancialGroup | EntryType) | undefined>(undefined);
   const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -215,7 +215,7 @@ const App: React.FC = () => {
     setTransactions(prev => prev.filter(t => t.id !== id));
   };
 
-  const openNewTransaction = (group?: FinancialGroup | 'CARD', date?: string) => {
+  const openNewTransaction = (group?: FinancialGroup | EntryType, date?: string) => {
     setEditingTransaction(null);
     if (date) {
       setNewTransactionDate(date);
@@ -502,7 +502,7 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[120] flex items-center justify-center bg-white dark:bg-dark-app-surface">
             <div className="h-full min-h-screen w-full overflow-hidden bg-white dark:bg-dark-app-surface flex flex-col animate-in fade-in duration-200">
               <div className="h-full overflow-y-auto p-6 md:px-12 md:py-8">
-                <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]!) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null); setNewTransactionDate(undefined); setNewTransactionGroup(undefined)}} initialData={editingTransaction} initialDate={newTransactionDate} initialFinancialGroup={newTransactionGroup === 'CARD' ? 'CARD' : newTransactionGroup === FinancialGroup.PERSONAL_INCOME || newTransactionGroup === FinancialGroup.REIMBURSEMENT ? 'INCOME' : newTransactionGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : newTransactionGroup ? 'EXPENSE' : undefined} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
+                <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]!) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null); setNewTransactionDate(undefined); setNewTransactionGroup(undefined)}} initialData={editingTransaction} initialDate={newTransactionDate} initialFinancialGroup={newTransactionGroup === FinancialGroup.PERSONAL_INCOME || newTransactionGroup === FinancialGroup.REIMBURSEMENT ? 'INCOME' : newTransactionGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : newTransactionGroup === FinancialGroup.PERSONAL_EXPENSE || newTransactionGroup === FinancialGroup.ADVANCE_TO_OTHERS ? 'EXPENSE' : newTransactionGroup} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
               </div>
             </div>
           </div>
