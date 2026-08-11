@@ -13,7 +13,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
-import { Transaction } from '../types';
+import { Category, Transaction } from '../types';
 import { CATEGORY_COLORS } from '../constants';
 import { getTransactionEntryType } from '../finance';
 import { TrendingUp, TrendingDown, Landmark, Percent, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
