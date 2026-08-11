@@ -53,7 +53,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
           <h3 className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">Economizado</h3>
           <div className="mt-2 flex items-center gap-2">
             {symbol('E', 'bg-lime-500')}
-            <div className="h-3 w-32 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${savingsPercentage}%` }} /></div>
+            <div className="h-3 w-36 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${savingsPercentage}%` }} /></div>
             {symbol(<ArrowDownLeft size={14} strokeWidth={3} />, 'bg-emerald-500')}
           </div>
         </div>
