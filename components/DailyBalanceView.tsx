@@ -102,7 +102,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     days.forEach(dateStr => {
       const dayTs = projected.filter(t => t.date === dateStr);
       const inc = dayTs.filter(t => getTransactionEntryType(t) === 'INCOME').reduce((acc, t) => acc + t.amount, 0);
-      const exp = dayTs.filter(t => getTransactionEntryType(t) === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0);
+      const exp = dayTs.filter(t => getTransactionEntryType(t) !== 'INCOME').reduce((acc, t) => acc + t.amount, 0);
       runningBalance = runningBalance + inc - exp;
       report.push({
         date: dateStr,
@@ -118,7 +118,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     });
 
     return report;
-  }, [transactions, dateRange, cards]);
+  }, [transactions, dateRange, initialBalance, cards]);
 
   const renderedRows: React.ReactNode[] = [];
   filteredAndSortedReport.forEach(day => {
