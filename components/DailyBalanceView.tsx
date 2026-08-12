@@ -126,7 +126,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     visibleTypes.forEach((item, index) => {
       renderedRows.push(
         <tr key={`${day.date}-${item.key}`} className="group">
-          {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-dark-app-border dark:bg-dark-app-surface-secondary/70 dark:text-dark-app-text-secondary text-sm">{day.day}</td>}
+          {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-dark-app-border dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary text-sm">{day.day}</td>}
           <td className="p-2 border-b border-slate-200 dark:border-dark-app-border">
             <div className="flex min-w-0 items-center justify-between gap-2">
               <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>
@@ -144,7 +144,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   });
 
   return (
-    <div className="touch-pan-y space-y-0 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="touch-pan-y flex h-full min-h-0 flex-col space-y-0 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="border-b border-slate-100 dark:border-dark-app-border transition-colors">
         <div className="relative flex min-h-[76px] flex-nowrap items-center gap-1 overflow-visible bg-white px-4 py-4 dark:bg-dark-app-surface">
           <div className="relative shrink-0" tabIndex={-1} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPeriodPickerOpen(false); }}>
@@ -159,8 +159,8 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
           <button aria-label="Abrir horizonte de saldos" onClick={onOpenHorizon} className="shrink-0 rounded-lg p-1 text-amber-300 hover:bg-amber-50 dark:hover:bg-slate-800"><Grid3X3 className="h-6 w-6" /></button>
         </div>
       </div>
-      <div className="bg-white dark:bg-dark-app-surface-secondary shadow-sm overflow-hidden">
-        <div className="overflow-x-hidden max-h-[calc(100dvh-7.5rem)] custom-scrollbar">
+      <div className="min-h-0 flex-1 bg-white shadow-sm dark:bg-dark-app-surface-secondary">
+        <div className="h-full overflow-x-hidden overflow-y-auto custom-scrollbar">
           <table className="w-full table-fixed border-collapse ">
             <thead className="border-b border-slate-200 dark:border-dark-app-border">
               <tr className="bg-white dark:bg-dark-app-surface-secondary">
