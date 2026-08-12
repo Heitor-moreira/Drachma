@@ -48,6 +48,7 @@ import RecurringExpensesManager from './components/RecurringExpensesManager';
 import CardManager from './components/CardManager';
 import BalanceHorizonView from './components/BalanceHorizonView';
 import TotalsView from './components/TotalsView';
+import SavedAnnualView from './components/SavedAnnualView';
 import DayTransactionsView from './components/DayTransactionsView';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
@@ -74,8 +75,8 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dailyBalance' | 'balanceHorizon' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
-  const [activeTab, setActiveTab] = useState<TabType | 'dayTransactions'>('dailyBalance');
+  type TabType = 'dailyBalance' | 'balanceHorizon' | 'dayTransactions' | 'savedAnnual' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
+  const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [selectedDay, setSelectedDay] = useState(formatLocalYYYYMMDD(new Date()));
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
@@ -256,6 +257,8 @@ const App: React.FC = () => {
   const tabLabels: Record<TabType, string> = {
     dailyBalance: 'Extrato Diário',
     balanceHorizon: 'Horizonte de Saldos',
+    dayTransactions: 'Lançamentos do Dia',
+    savedAnnual: 'Economizado',
     totals: 'Totais',
     categorySpending: 'Gastos por Categoria',
     installments: 'Compras Parceladas',
@@ -362,7 +365,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
+        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'savedAnnual' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
               <div className="border-b border-slate-200 pb-6 dark:border-dark-app-border"><h2 className="text-3xl font-bold text-slate-900 dark:text-dark-app-text-primary">{settings.userName}</h2><p className="mt-1 text-sm text-slate-500 dark:text-dark-app-text-secondary">Drachma — Finanças descomplicadas</p><div className="mt-4 flex items-center justify-between gap-3"><span className="inline-flex items-center gap-2 rounded-full bg-lime-200 px-3 py-1.5 text-sm font-bold text-lime-900"><span>✓</span> Assinatura ativa</span><span className="text-xs font-medium text-slate-400 dark:text-dark-app-text-secondary">Versão {packageJson.version}</span></div></div>
@@ -384,7 +387,8 @@ const App: React.FC = () => {
           {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} onDayClick={(date, group) => openNewTransaction(group, date)} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
           {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={(group, date) => openNewTransaction(group, date)} onDayClick={(date) => { setSelectedDay(date); setActiveTab('dayTransactions'); }} />}
           {activeTab === 'dayTransactions' && <DayTransactionsView date={selectedDay} transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('balanceHorizon')} onAdd={(date) => openNewTransaction(undefined, date)} onEdit={setEditingTransaction} />}
-          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
+          {activeTab === 'savedAnnual' && <SavedAnnualView transactions={transactions} cards={cards} currencySymbol={currencySymbol} initialYear={new Date(dateRange.start).getFullYear()} onBack={() => setActiveTab('totals')} />}
+          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} onOpenHorizon={() => setActiveTab('balanceHorizon')} onOpenSavedAnnual={() => setActiveTab('savedAnnual')} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
