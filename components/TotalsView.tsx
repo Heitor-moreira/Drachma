@@ -3,12 +3,12 @@ import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, G
 import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../finance';
 
-interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; }
+interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, onOpenHorizon, onOpenSavedAnnual }) => {
+const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, onOpenHorizon, onOpenSavedAnnual, onOpenMonthlyTransactions }) => {
   const fallbackStart = new Date();
   const start = Number.isNaN(Date.parse(dateRange.start)) ? new Date(fallbackStart.getFullYear(), fallbackStart.getMonth(), 1, 12) : parseDate(dateRange.start);
   const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
@@ -70,13 +70,13 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
       </button>
       <div className="h-4 shrink-0 border-y border-white !border-y-white bg-white dark:!border-y-dark-app-surface dark:bg-dark-app-surface" aria-hidden="true" />
       <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-normal text-slate-500 dark:text-dark-app-text-secondary">Movimentações do mês</h2></div>
-      {movementTypes.map(item => <div key={item.key} className="flex items-center justify-between gap-4 px-6 py-4">
+      {movementTypes.map(item => <button type="button" key={item.key} onClick={() => onOpenMonthlyTransactions(item.key)} className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left">
         <div className="flex min-w-0 items-center gap-3">
           {symbol(item.icon, item.color)}
           <span className="truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{item.label}</span>
         </div>
         <span className="shrink-0 text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{money(item.value)}</span>
-      </div>)}
+      </button>)}
     </div>
   </section>;
 };
