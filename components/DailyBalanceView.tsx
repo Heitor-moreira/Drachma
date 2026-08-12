@@ -126,7 +126,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     visibleTypes.forEach((item, index) => {
       renderedRows.push(
         <tr key={`${day.date}-${item.key}`} className="group">
-          {index === 0 && <td rowSpan={visibleTypes.length} className="align-top p-2 pt-3 border-b border-slate-200 bg-slate-100/70 text-center font-normal text-slate-700 dark:border-dark-app-border dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary text-sm">{day.day}</td>}
+          {index === 0 && <td rowSpan={visibleTypes.length} className={`align-top p-2 pt-3 border-b border-slate-200 text-center font-normal text-sm ${day.date === formatLocalYYYYMMDD(new Date()) ? 'bg-slate-900 text-white dark:bg-slate-900 dark:text-white' : 'bg-slate-100/70 text-slate-700 dark:border-dark-app-border dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary'}`}>{day.day}</td>}
           <td className="p-2 border-b border-slate-200 dark:border-dark-app-border">
             <div className="flex min-w-0 items-center justify-between gap-2">
               <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>
