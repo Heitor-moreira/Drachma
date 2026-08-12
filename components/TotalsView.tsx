@@ -3,12 +3,12 @@ import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, G
 import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../finance';
 
-interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; }
+interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; }
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, onOpenHorizon }) => {
+const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, onOpenHorizon, onOpenSavedAnnual }) => {
   const fallbackStart = new Date();
   const start = Number.isNaN(Date.parse(dateRange.start)) ? new Date(fallbackStart.getFullYear(), fallbackStart.getMonth(), 1, 12) : parseDate(dateRange.start);
   const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
@@ -54,7 +54,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
           <p className="text-sm font-normal text-slate-500 dark:text-dark-app-text-secondary">{performance >= 0 ? 'Sobrou dinheiro' : 'Faltou dinheiro'}</p>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-4 px-6 py-5">
+      <button type="button" onClick={onOpenSavedAnnual} className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left">
         <div className="min-w-0">
           <h3 className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">Economizado</h3>
           <div className="mt-2 flex items-center gap-2">
@@ -67,7 +67,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
           <p className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{savingsPercentage.toFixed(0)}%</p>
           <p className="text-sm font-normal text-slate-500 dark:text-dark-app-text-secondary">Dentro da meta</p>
         </div>
-      </div>
+      </button>
       <div className="h-4 shrink-0 border-y border-white !border-y-white bg-white dark:!border-y-dark-app-surface dark:bg-dark-app-surface" aria-hidden="true" />
       <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-normal text-slate-500 dark:text-dark-app-text-secondary">Movimentações do mês</h2></div>
       {movementTypes.map(item => <div key={item.key} className="flex items-center justify-between gap-4 px-6 py-4">
