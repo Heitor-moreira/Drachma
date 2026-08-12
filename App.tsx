@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import packageJson from './package.json';
 import { 
   CreditCard, 
   TrendingUp, 
@@ -107,7 +108,7 @@ const App: React.FC = () => {
     if (saved) return JSON.parse(saved);
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    return { start: formatLocalYYYYMMDD(start), end: formatLocalYYYYMMDD(now) };
+    return { start: formatLocalYYYYMMDD(start), end: formatLocalYYYYMMDD(new Date(now.getFullYear(), now.getMonth() + 1, 0)) };
   });
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -364,7 +365,7 @@ const App: React.FC = () => {
         <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="space-y-5">
-              <div className="border-b border-slate-200 pb-6 dark:border-dark-app-border"><h2 className="text-3xl font-bold text-slate-900 dark:text-dark-app-text-primary">{settings.userName}</h2><p className="mt-1 text-sm text-slate-500 dark:text-dark-app-text-secondary">Drachma — Finanças descomplicadas</p><span className="mt-4 inline-flex items-center gap-2 rounded-full bg-lime-200 px-3 py-1.5 text-sm font-bold text-lime-900"><span>✓</span> Assinatura ativa</span></div>
+              <div className="border-b border-slate-200 pb-6 dark:border-dark-app-border"><h2 className="text-3xl font-bold text-slate-900 dark:text-dark-app-text-primary">{settings.userName}</h2><p className="mt-1 text-sm text-slate-500 dark:text-dark-app-text-secondary">Drachma — Finanças descomplicadas</p><div className="mt-4 flex items-center justify-between gap-3"><span className="inline-flex items-center gap-2 rounded-full bg-lime-200 px-3 py-1.5 text-sm font-bold text-lime-900"><span>✓</span> Assinatura ativa</span><span className="text-xs font-medium text-slate-400 dark:text-dark-app-text-secondary">Versão {packageJson.version}</span></div></div>
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-dark-app-border dark:bg-dark-app-surface-secondary">
                 <button onClick={() => setIsProfileOpen(true)} className="flex w-full items-center gap-4 border-b border-slate-200 px-5 py-5 text-left text-lg font-normal text-slate-800 dark:border-dark-app-border dark:text-dark-app-text-primary"><User size={22} /> Editar perfil <ChevronRight className="ml-auto text-slate-300" size={20} /></button>
                 <button onClick={() => setActiveTab('dailyBalance')} className="flex w-full items-center gap-4 border-b border-slate-200 px-5 py-5 text-left text-lg font-normal text-slate-800 dark:border-dark-app-border dark:text-dark-app-text-primary"><History size={22} /> Previsão de diário <ChevronRight className="ml-auto text-slate-300" size={20} /></button>

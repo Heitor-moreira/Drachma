@@ -267,39 +267,18 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       </div>
 
       {/* Botões de Ação */}
-      <div className="mt-auto flex gap-3 pt-6">
+      <div className="mt-auto flex flex-wrap gap-3 pt-6">
         {initialData && (
-          <button 
-            type="button" 
-            onClick={onClose}
-            className="flex-1 bg-slate-200 dark:bg-dark-app-surface-secondary text-slate-600 dark:text-dark-app-text-secondary font-bold py-4 rounded-2xl transition-all active:scale-95"
-          >
-            CANCELAR
-          </button>
+          <button type="button" aria-label="Excluir lançamento" title="Excluir lançamento" onClick={() => { if (window.confirm('Excluir este lançamento?')) { onDelete?.(initialData.id); onClose(); } }} className="flex min-h-14 min-w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-600 px-4 text-white shadow-lg transition-all active:scale-95 hover:bg-rose-700"><Trash2 size={22} strokeWidth={2.5} /></button>
         )}
+        {initialData && <button type="button" onClick={onClose} className="min-h-14 flex-1 rounded-2xl bg-slate-200 px-4 py-4 font-bold text-slate-600 transition-all active:scale-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">Cancelar</button>}
         <button 
           type="submit" 
           disabled={isSubmitting}
-          className={`flex-[2] ${kindMeta.button} text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 ${isSubmitting ? 'animate-pulse translate-y-3 opacity-0 duration-200' : ''}`}
+          className={`min-h-14 flex-[2] rounded-2xl px-4 py-4 ${kindMeta.button} text-white font-bold shadow-lg transition-all active:scale-95 ${isSubmitting ? 'animate-pulse translate-y-3 opacity-0 duration-200' : ''}`}
         >
-          {isSubmitting ? 'CARREGANDO…' : initialData ? 'SALVAR ALTERAÇÕES' : `ADICIONAR ${kindMeta.label.toUpperCase()}`}
+          {isSubmitting ? 'CARREGANDO…' : initialData ? 'Salvar' : `ADICIONAR ${kindMeta.label.toUpperCase()}`}
         </button>
-        {initialData && onDelete && (
-          <button
-            type="button"
-            aria-label="Excluir lançamento"
-            title="Excluir lançamento"
-            onClick={() => {
-              if (window.confirm('Excluir este lançamento?')) {
-                onDelete(initialData.id);
-                onClose();
-              }
-            }}
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-lg transition-all active:scale-95 hover:bg-rose-700"
-          >
-            <Trash2 size={22} strokeWidth={2.5} />
-          </button>
-        )}
       </div>
     </form>
   );
