@@ -65,7 +65,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         </div>
         <div className="shrink-0 text-right">
           <p className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{savingsPercentage.toFixed(0)}%</p>
-          <p className="text-sm font-normal text-slate-500 dark:text-dark-app-text-secondary">Dentro da meta</p>
+          <p className="text-sm font-normal text-slate-500 dark:text-dark-app-text-secondary">{totals.savings === 0 ? 'Nada guardado' : 'Dentro da meta'}</p>
         </div>
       </button>
       <div className="h-4 shrink-0 border-y border-white !border-y-white bg-white dark:!border-y-dark-app-surface dark:bg-dark-app-surface" aria-hidden="true" />
