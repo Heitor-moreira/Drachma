@@ -42,6 +42,9 @@ export interface Transaction {
   cardId?: string;
   comment: string;
   isFixed?: boolean; // Usado internamente para "Recorrente"
+  recurrenceFrequency?: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  recurrenceEndMode?: 'INFINITE' | 'COUNT';
+  recurrenceCount?: number;
   isInstallment?: boolean;
   installmentInfo?: {
     current: number;

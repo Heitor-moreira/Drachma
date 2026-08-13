@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Transaction, CreditCard as CreditCardModel } from '../types';
-import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, Trash2, X, ChevronDown, Pencil } from 'lucide-react';
+import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, Trash2, X, ChevronDown, Pencil, RotateCcw } from 'lucide-react';
 
 interface Props {
   onAdd: (transactions: Transaction[]) => void;
@@ -28,13 +28,18 @@ const formatCurrency = (value: string, currencySymbol: string) => {
   return `${currencySymbol} ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
+const normalizeTag = (value: string) => value.trim().toUpperCase();
+
+type RecurrenceFrequency = 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+type RecurrenceEndMode = 'INFINITE' | 'COUNT';
+
 const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup }) => {
   const [description, setDescription] = useState(initialData?.description || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const amountInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [date, setDate] = useState(initialData?.date || initialDate || formatLocalYYYYMMDD(new Date()));
-  const [committedTags, setCommittedTags] = useState<string[]>(initialData?.tags || []);
+  const [committedTags, setCommittedTags] = useState<string[]>(initialData?.tags?.map(normalizeTag) || []);
   const [tagsText, setTagsText] = useState('');
   const [isTagsFocused, setIsTagsFocused] = useState(false);
   type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'CARD';
@@ -43,16 +48,17 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   const [entryKind, setEntryKind] = useState<EntryKind>(initialKind);
   const [cardId, setCardId] = useState(initialData?.cardId || '');
   const currentTagQuery = tagsText.trim().toLowerCase();
-  const suggestedTags = availableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);
-  const allTags = Array.from(new Set([...committedTags, ...(tagsText.trim() ? [tagsText.trim()] : [])]));
+  const normalizedAvailableTags = availableTags.map(normalizeTag);
+  const suggestedTags = normalizedAvailableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);
+  const allTags = Array.from(new Set([...committedTags, ...(tagsText.trim() ? [normalizeTag(tagsText)] : [])]));
   const handleTagInput = (value: string) => {
     if (/\s$/.test(value)) {
-      const tag = value.trim();
+      const tag = normalizeTag(value);
       if (tag && !committedTags.includes(tag)) setCommittedTags(prev => [...prev, tag]);
       setTagsText('');
       return;
     }
-    setTagsText(value);
+    setTagsText(value.toUpperCase());
   };
   const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: ArrowDownLeft }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: CreditCard } }[entryKind];
   const selectKind = (kind: EntryKind) => { setEntryKind(kind); };
@@ -65,10 +71,13 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   const [isInstallment, setIsInstallment] = useState(initialData?.isInstallment || false);
   const [installmentCount, setInstallmentCount] = useState(initialData?.installmentInfo?.total || 1);
   
-  // Recorrência (Simplificada conforme solicitado)
-  const [isRecurring, setIsRecurring] = useState(initialData?.isFixed || false);
-  const [recurringInterval, setRecurringInterval] = useState(1); // Sempre inicia com 1
-  const [recurrenceOption, setRecurrenceOption] = useState(initialData?.isFixed ? 'MONTHLY' : 'NONE');
+  const [isRepeatMenuOpen, setIsRepeatMenuOpen] = useState(false);
+  const [isEndMenuOpen, setIsEndMenuOpen] = useState(false);
+  const [recurrenceFrequency, setRecurrenceFrequency] = useState<RecurrenceFrequency>(initialData?.recurrenceFrequency || (initialData?.isFixed ? 'MONTHLY' : 'NONE'));
+  const [recurrenceEndMode, setRecurrenceEndMode] = useState<RecurrenceEndMode>(initialData?.recurrenceEndMode || 'INFINITE');
+  const [recurrenceCount, setRecurrenceCount] = useState(initialData?.recurrenceCount || 1);
+  const recurrenceTitle = recurrenceFrequency === 'NONE' ? 'Não repete' : 'Repetições';
+  const recurrenceFrequencyLabel = recurrenceFrequency === 'DAILY' ? 'Repete todo dia' : recurrenceFrequency === 'WEEKLY' ? 'Repete toda semana' : recurrenceFrequency === 'MONTHLY' ? 'Repete todo mês' : recurrenceFrequency === 'YEARLY' ? 'Repete todo ano' : 'Não repete';
 
   useEffect(() => {
     if (!initialData && !window.matchMedia('(pointer: coarse)').matches) amountInputRef.current?.focus({ preventScroll: true });
@@ -96,7 +105,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
         entryType: entryKind,
         date, 
         comment, 
-        isFixed: entryKind !== 'INCOME' ? isRecurring : false,
+        isFixed: entryKind !== 'INCOME' ? recurrenceFrequency !== 'NONE' : false,
+        recurrenceFrequency: entryKind !== 'INCOME' ? recurrenceFrequency : 'NONE',
+        recurrenceEndMode: entryKind !== 'INCOME' ? recurrenceEndMode : 'INFINITE',
+        recurrenceCount: entryKind !== 'INCOME' && recurrenceEndMode === 'COUNT' ? recurrenceCount : undefined,
         tags: allTags,
         cardId: entryKind === 'CARD' ? cardId : undefined
       }]), 220);
@@ -112,10 +124,9 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       if (isInstallment) {
         totalToCreate = installmentCount;
         interval = 1;
-      } else if (isRecurring) {
-        // Agora cria apenas o lançamento inicial marcado como recorrente
-        totalToCreate = 1; 
-        interval = recurringInterval;
+      } else if (recurrenceFrequency !== 'NONE') {
+        totalToCreate = 1;
+        interval = 1;
       }
     }
 
@@ -135,7 +146,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
         cardId: entryKind === 'CARD' ? cardId : undefined,
         date: formattedDate,
         comment: comment.trim(),
-        isFixed: entryKind !== 'INCOME' ? isRecurring : false,
+        isFixed: entryKind !== 'INCOME' ? recurrenceFrequency !== 'NONE' : false,
+        recurrenceFrequency: entryKind !== 'INCOME' ? recurrenceFrequency : 'NONE',
+        recurrenceEndMode: entryKind !== 'INCOME' ? recurrenceEndMode : 'INFINITE',
+        recurrenceCount: entryKind !== 'INCOME' && recurrenceEndMode === 'COUNT' ? recurrenceCount : undefined,
         isInstallment: entryKind !== 'INCOME' && isInstallment,
         installmentInfo: (entryKind !== 'INCOME' && isInstallment) ? { 
           current: i + 1, 
@@ -154,7 +168,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-dark-app-border pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-3xl font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
       <div className="relative flex min-h-[68px] w-full cursor-pointer items-center justify-between py-3" aria-label="Selecionar tipo de lançamento"><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-2xl font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`text-lg font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={18} className={kindMeta.color} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
 
-      {entryKind === 'CARD' && <div className="relative flex min-h-[68px] items-center gap-3 py-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={isInstallment ? String(installmentCount) : 'NONE'} onChange={e => { const value = e.target.value; setIsInstallment(value !== 'NONE'); if (value !== 'NONE') { setInstallmentCount(Number(value)); setIsRecurring(false); setRecurrenceOption('NONE'); } }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary bg-transparent border-0 outline-none"><option value="NONE">Não parcela</option>{Array.from({ length: 11 }, (_, index) => <option key={index + 2} value={index + 2}>{index + 2} parcelas</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>}
+      {entryKind === 'CARD' && <div className="relative flex min-h-[68px] items-center gap-3 py-3"><CreditCard size={20} className="text-slate-500 shrink-0" /><select value={isInstallment ? String(installmentCount) : 'NONE'} onChange={e => { const value = e.target.value; setIsInstallment(value !== 'NONE'); if (value !== 'NONE') setInstallmentCount(Number(value)); }} className="w-auto max-w-full appearance-none pr-8 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary bg-transparent border-0 outline-none"><option value="NONE">Não parcela</option>{Array.from({ length: 11 }, (_, index) => <option key={index + 2} value={index + 2}>{index + 2} parcelas</option>)}</select><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>}
 
       <div className="min-h-[68px] py-3">
         <div>
@@ -173,79 +187,96 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
         <div className="relative flex min-h-11 items-center justify-between"><div className="flex items-center gap-3"><Calendar size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">Data</label></div><span className="mr-7 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{date.split('-').reverse().join('/')}</span><input aria-label="Data do lançamento" type="date" value={date} onChange={e => setDate(e.target.value)} className="absolute right-0 top-0 h-full w-44 cursor-pointer opacity-0" /><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
       </div>
 
-      <div className="flex min-h-[68px] items-center gap-3 py-3"><Repeat size={20} className="shrink-0 text-slate-500" /><div className="relative min-w-0 flex-1"><select value={recurrenceOption} onChange={e => { const value = e.target.value; setRecurrenceOption(value); setIsRecurring(value !== 'NONE'); setRecurringInterval(value === 'MONTHLY' ? 1 : 1); }} className="w-full appearance-none bg-transparent pr-8 text-lg font-bold text-slate-700 outline-none dark:text-dark-app-text-secondary"><option value="NONE">Não repete</option><option value="DAILY">Diária</option><option value="WEEKLY">Semanal</option><option value="MONTHLY">Mensal</option><option value="YEARLY">Anual</option></select><ChevronDown size={18} className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-slate-500" /></div></div>
-
-      {/* Opções Avançadas (Apenas para Despesas) */}
-      {false && entryKind !== 'INCOME' && (
-        <div className="bg-slate-50 dark:bg-dark-app-surface-secondary/50 p-4 rounded-2xl border border-slate-200 dark:border-dark-app-border space-y-4 animate-in fade-in duration-300">
-          
-          {/* Recorrência */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-dark-app-text-secondary cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={isRecurring} 
-                  onChange={e => {
-                    setIsRecurring(e.target.checked);
-                    if (e.target.checked) setIsInstallment(false);
-                  }} 
-                  className="w-4 h-4 rounded text-theme focus:ring-theme dark:bg-dark-app-surface-secondary dark:border-dark-app-border" 
-                />
-                <span className="flex items-center gap-2"><Calendar size={18} className="text-slate-500" />{isRecurring ? 'Mensal' : 'Não repete'}</span>
-              </label>
-              <Repeat size={18} className={isRecurring ? 'text-theme' : 'text-slate-300 dark:text-dark-app-text-secondary'} />
+      <div className="relative py-3">
+        <button type="button" onClick={() => { setIsRepeatMenuOpen(prev => !prev); setIsEndMenuOpen(false); }} className="flex min-h-[68px] w-full items-center gap-3 text-left">
+          <Repeat size={20} className="shrink-0 text-slate-500" />
+          <span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceTitle}</span>
+          <ChevronDown size={18} className="pointer-events-none text-slate-500" />
+          <span className="ml-auto" />
+        </button>
+        {isRepeatMenuOpen && (
+          <div className="fixed inset-0 z-40 flex items-end bg-slate-900/40 backdrop-blur-sm">
+            <div className="w-full overflow-hidden rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
+              <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-dark-app-border">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Repetir</h2>
+                <button onClick={() => setIsRepeatMenuOpen(false)} aria-label="Fechar" className="rounded-xl p-2 text-slate-500"><X size={28} /></button>
+              </div>
+              {[
+                ['DAILY', 'Todo dia'],
+                ['WEEKLY', 'Toda semana'],
+                ['MONTHLY', 'Todo mês'],
+                ['YEARLY', 'Todo ano'],
+                ['NONE', 'Não repetir'],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onMouseDown={e => e.preventDefault()}
+                onClick={() => {
+                  setRecurrenceFrequency(value as RecurrenceFrequency);
+                  setIsRepeatMenuOpen(false);
+                  if (value !== 'NONE') {
+                    setRecurrenceEndMode('INFINITE');
+                    setRecurrenceCount(1);
+                  }
+                }}
+                  className="flex w-full items-center justify-between border-b border-slate-100 px-6 py-5 text-left dark:border-dark-app-border"
+                >
+                  <span className="text-base font-bold text-slate-900 dark:text-dark-app-text-primary">{label}</span>
+                  <ChevronDown size={18} className="text-slate-400 opacity-0" />
+                </button>
+              ))}
             </div>
-            {isRecurring && (
-              <div className="pl-6 animate-in slide-in-from-top-1">
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 dark:text-dark-app-text-secondary uppercase mb-1">Meses</label>
-                  <input 
-                    type="number" 
-                    min="1" 
-                    max="12" 
-                    value={recurringInterval} 
-                    onChange={e => setRecurringInterval(parseInt(e.target.value) || 1)} 
-                    className="w-full px-3 py-2 bg-white dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-lg outline-none dark:text-dark-app-text-primary font-bold" 
-                  />
+          </div>
+        )}
+      </div>
+
+      {recurrenceFrequency !== 'NONE' && (
+        <div className="relative py-3">
+          <button type="button" onClick={() => setIsEndMenuOpen(prev => !prev)} className="flex min-h-[68px] w-full items-center gap-3 text-left">
+            <RotateCcw size={20} className="shrink-0 text-slate-500" />
+            <span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">Repetições</span>
+            <ChevronDown size={18} className="pointer-events-none text-slate-500" />
+            {recurrenceEndMode === 'COUNT' ? (
+              <div className="ml-auto flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2 dark:border-dark-app-border dark:bg-dark-app-surface-secondary">
+                <button type="button" aria-label="Diminuir repetições" onMouseDown={e => e.preventDefault()} onClick={() => setRecurrenceCount(prev => Math.max(1, prev - 1))} className="text-2xl font-bold leading-none text-slate-700 dark:text-dark-app-text-primary">-</button>
+                <span className="min-w-8 text-center text-lg font-bold text-slate-700 dark:text-dark-app-text-primary">{recurrenceCount}</span>
+                <button type="button" aria-label="Aumentar repetições" onMouseDown={e => e.preventDefault()} onClick={() => setRecurrenceCount(prev => prev + 1)} className="text-2xl font-bold leading-none text-slate-700 dark:text-dark-app-text-primary">+</button>
+              </div>
+            ) : (
+              <span className="ml-auto text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">A perder de vista</span>
+            )}
+          </button>
+          {isEndMenuOpen && (
+            <div className="fixed inset-0 z-40 flex items-end bg-slate-900/40 backdrop-blur-sm">
+              <div className="w-full overflow-hidden rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
+                <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-dark-app-border">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Até quando</h2>
+                  <button onClick={() => setIsEndMenuOpen(false)} aria-label="Fechar" className="rounded-xl p-2 text-slate-500"><X size={28} /></button>
                 </div>
+                {[
+                  ['INFINITE', 'A perder de vista'],
+                  ['COUNT', 'Definir número de vezes'],
+                ].map(([value, label]) => (
+                  <div key={value} className="border-b border-slate-100 px-6 py-5 dark:border-dark-app-border">
+                    <button
+                      type="button"
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => {
+                        setRecurrenceEndMode(value as RecurrenceEndMode);
+                        if (value === 'COUNT') setRecurrenceCount(prev => Math.max(1, prev));
+                        setIsEndMenuOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between text-left"
+                    >
+                      <span className="text-base font-bold text-slate-900 dark:text-dark-app-text-primary">{label}</span>
+                      <ChevronDown size={18} className="text-slate-400 opacity-0" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-
-          <div className="h-px bg-slate-200 dark:bg-dark-app-surface-secondary"></div>
-
-          {/* Parcelamento */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-dark-app-text-secondary cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={isInstallment} 
-                  onChange={e => {
-                    setIsInstallment(e.target.checked);
-                    if (e.target.checked) setIsRecurring(false);
-                  }} 
-                  className="w-4 h-4 rounded text-theme focus:ring-theme dark:bg-dark-app-surface-secondary dark:border-dark-app-border" 
-                />
-                Parcelamento
-              </label>
-              <CreditCard size={18} className={isInstallment ? 'text-theme' : 'text-slate-300 dark:text-dark-app-text-secondary'} />
             </div>
-            {isInstallment && (
-              <div className="pl-6 animate-in slide-in-from-top-1">
-                <label className="block text-xs font-bold text-slate-400 dark:text-dark-app-text-secondary uppercase mb-1">Número de Parcelas</label>
-                <input 
-                  type="number" 
-                  min="1" 
-                  max="120" 
-                  value={installmentCount} 
-                  onChange={e => setInstallmentCount(parseInt(e.target.value) || 1)} 
-                  className="w-full px-3 py-2 bg-white dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-lg outline-none dark:text-dark-app-text-primary font-bold" 
-                />
-              </div>
-            )}
-          </div>
+          )}
         </div>
       )}
 
