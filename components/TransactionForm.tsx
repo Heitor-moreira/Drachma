@@ -165,11 +165,11 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border">
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-dark-app-border pb-4"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-[32px] font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
-      <div className="relative flex min-h-20 w-full cursor-pointer items-center justify-between py-5" aria-label="Selecionar tipo de lançamento"><div className="flex min-w-0 items-center gap-4"><div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-2xl font-bold">E</span> : <KindIcon size={24} strokeWidth={3} />}</div><span className={`truncate text-[25px] font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={24} className={`shrink-0 ${kindMeta.color}`} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
+    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border [&>div]:!h-[85px] [&>div:first-child]:!h-[60px] [&>div:nth-child(2)]:transition-transform [&>div:nth-child(2)]:duration-150 [&>div:nth-child(2)]:active:scale-[0.99] [&>div:nth-child(6)>div>div]:-my-5 [&>div:nth-child(6)>div>div]:self-stretch">
+      <div className="flex items-center justify-between border-b border-slate-100 px-6 pb-4 dark:border-dark-app-border md:px-12"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-[32px] font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
+      <div className="relative flex min-h-20 w-full cursor-pointer items-center justify-between px-6 py-5 md:px-12" aria-label="Selecionar tipo de lançamento"><div className="flex min-w-0 items-center gap-4"><div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-2xl font-bold">E</span> : <KindIcon size={24} strokeWidth={3} />}</div><span className={`truncate text-[25px] font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={24} className={`shrink-0 ${kindMeta.color}`} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
 
-      <div className="min-h-20 py-5">
+      <div className="min-h-20 px-6 py-5 md:px-12">
         <div>
           <div className="flex items-center gap-3"><Pencil size={24} className="shrink-0 text-slate-500" /><input
             type="text" 
@@ -182,11 +182,11 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       </div>
 
       {/* Data */}
-      <div className="min-h-20 py-5">
+      <div className="min-h-20 px-6 py-5 md:px-12">
         <div className="relative flex min-h-11 items-center justify-between"><div className="flex items-center gap-4"><Calendar size={24} className="shrink-0 text-slate-500" /><label className="text-[25px] font-bold text-slate-700 dark:text-dark-app-text-secondary">Data</label></div><span className="mr-8 truncate text-[25px] font-bold text-slate-700 dark:text-dark-app-text-secondary">{date.split('-').reverse().join('/')}</span><input aria-label="Data do lançamento" type="date" value={date} onChange={e => setDate(e.target.value)} className="absolute right-0 top-0 h-full w-44 cursor-pointer opacity-0" /><ChevronDown size={24} className="pointer-events-none absolute right-1 text-slate-500" /></div>
       </div>
 
-      <div className="relative min-h-20 py-5">
+      <div className="relative min-h-20 px-6 py-5 md:px-12">
         <button type="button" onClick={() => { setIsRepeatMenuOpen(prev => !prev); setIsEndMenuOpen(false); }} className="flex min-h-11 w-full min-w-0 items-center gap-3 text-left">
           <Repeat size={24} className="shrink-0 text-slate-500" />
           <span className="truncate text-[25px] font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceLineLabel}</span>
@@ -194,8 +194,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
           <span className="ml-auto" />
         </button>
         {isRepeatMenuOpen && (
-          <div className="fixed inset-0 z-40 flex items-end bg-slate-900/40 backdrop-blur-sm">
-            <div className="w-full overflow-hidden rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
+          <div className="fixed inset-0 z-40 flex flex-col items-stretch justify-end bg-slate-900/40 pb-4 backdrop-blur-sm">
+            <div className="h-auto max-h-[70vh] w-full shrink-0 overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-dark-app-border">
                 <h2 className="text-[25px] font-bold text-slate-900 dark:text-dark-app-text-primary">Repetir</h2>
                 <button onClick={() => setIsRepeatMenuOpen(false)} aria-label="Fechar" className="rounded-xl p-2 text-slate-500"><X size={28} /></button>
@@ -231,7 +231,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       </div>
 
       {recurrenceFrequency !== 'NONE' && (
-        <div className="relative min-h-20 py-5">
+        <div className="relative min-h-20 px-6 py-5 md:px-12">
           <div className="flex min-h-11 items-center gap-4">
             <RotateCcw size={24} className="shrink-0 text-slate-500" />
             <button type="button" onClick={() => setIsEndMenuOpen(prev => !prev)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -247,8 +247,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
             ) : null}
           </div>
           {isEndMenuOpen && (
-            <div className="fixed inset-0 z-40 flex items-end bg-slate-900/40 backdrop-blur-sm">
-              <div className="w-full overflow-hidden rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
+            <div className="fixed inset-0 z-40 flex flex-col items-stretch justify-end bg-slate-900/40 pb-4 backdrop-blur-sm">
+              <div className="h-auto max-h-[70vh] w-full shrink-0 overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
                 <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-dark-app-border">
                   <h2 className="text-[25px] font-bold text-slate-900 dark:text-dark-app-text-primary">Até quando</h2>
                   <button onClick={() => setIsEndMenuOpen(false)} aria-label="Fechar" className="rounded-xl p-2 text-slate-500"><X size={28} /></button>
@@ -280,8 +280,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       )}
 
       {/* Tags */}
-      <div className="relative min-h-20 py-5">
-          <div className="flex items-center gap-4"><Tag size={24} className="shrink-0 text-slate-500" /><label className="text-[25px] font-bold text-slate-700 dark:text-dark-app-text-secondary">Tags</label><div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => item !== tag))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.target.value)} placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''} className="min-w-0 flex-1 px-0 py-2 text-base bg-transparent border-0 outline-none dark:text-dark-app-text-primary" style={{ fontSize: '16px' }} /></div></div>
+      <div className="relative min-h-20 px-6 py-5 md:px-12">
+          <div className="flex items-center gap-4"><Tag size={24} className="shrink-0 text-slate-500" /><label className="text-[25px] font-bold text-slate-700 dark:text-dark-app-text-secondary">Tags</label><div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => item !== tag))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.target.value)} placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''} className="min-w-0 flex-1 self-center px-0 py-0 text-base leading-normal bg-transparent border-0 outline-none dark:text-dark-app-text-primary" style={{ fontSize: '16px' }} /></div></div>
         {isTagsFocused && suggestedTags.length > 0 && <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-slate-200 dark:border-dark-app-border bg-white dark:bg-dark-app-surface-secondary shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tag} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => [...prev, tag]); setTagsText(''); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-dark-app-text-secondary">{tag}</button>)}</div>}
       </div>
       {/* Observações mantidas apenas no modelo, fora do modal básico */}
@@ -297,7 +297,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       </div>
 
       {/* Botões de Ação */}
-      <div className="mt-auto flex flex-wrap gap-3 pt-6">
+      <div className="mt-auto flex flex-wrap gap-3 px-6 pt-6 md:px-12">
         {initialData && (
           <button type="button" aria-label="Excluir lançamento" title="Excluir lançamento" onClick={() => { if (window.confirm('Excluir este lançamento?')) { onDelete?.(initialData.id); onClose(); } }} className="flex min-h-14 min-w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-600 px-4 text-white shadow-lg transition-all active:scale-95 hover:bg-rose-700"><Trash2 size={22} strokeWidth={2.5} /></button>
         )}
