@@ -76,8 +76,9 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   const [recurrenceFrequency, setRecurrenceFrequency] = useState<RecurrenceFrequency>(initialData?.recurrenceFrequency || (initialData?.isFixed ? 'MONTHLY' : 'NONE'));
   const [recurrenceEndMode, setRecurrenceEndMode] = useState<RecurrenceEndMode>(initialData?.recurrenceEndMode || 'INFINITE');
   const [recurrenceCount, setRecurrenceCount] = useState(initialData?.recurrenceCount || 1);
-  const recurrenceTitle = recurrenceFrequency === 'NONE' ? 'Não repete' : 'Repetições';
   const recurrenceFrequencyLabel = recurrenceFrequency === 'DAILY' ? 'Repete todo dia' : recurrenceFrequency === 'WEEKLY' ? 'Repete toda semana' : recurrenceFrequency === 'MONTHLY' ? 'Repete todo mês' : recurrenceFrequency === 'YEARLY' ? 'Repete todo ano' : 'Não repete';
+  const recurrenceLineLabel = recurrenceFrequency === 'NONE' ? 'Não repete' : recurrenceFrequencyLabel;
+  const recurrenceEndLineLabel = recurrenceEndMode === 'COUNT' ? 'Repetições' : 'A perder de vista';
 
   useEffect(() => {
     if (!initialData && !window.matchMedia('(pointer: coarse)').matches) amountInputRef.current?.focus({ preventScroll: true });
@@ -187,10 +188,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
         <div className="relative flex min-h-11 items-center justify-between"><div className="flex items-center gap-3"><Calendar size={20} className="text-slate-500" /><label className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">Data</label></div><span className="mr-7 text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{date.split('-').reverse().join('/')}</span><input aria-label="Data do lançamento" type="date" value={date} onChange={e => setDate(e.target.value)} className="absolute right-0 top-0 h-full w-44 cursor-pointer opacity-0" /><ChevronDown size={18} className="pointer-events-none absolute right-1 text-slate-500" /></div>
       </div>
 
-      <div className="relative py-3">
-        <button type="button" onClick={() => { setIsRepeatMenuOpen(prev => !prev); setIsEndMenuOpen(false); }} className="flex min-h-[68px] w-full items-center gap-3 text-left">
+      <div className="relative min-h-[68px] py-3">
+        <button type="button" onClick={() => { setIsRepeatMenuOpen(prev => !prev); setIsEndMenuOpen(false); }} className="flex w-full items-center gap-3 text-left">
           <Repeat size={20} className="shrink-0 text-slate-500" />
-          <span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceTitle}</span>
+          <span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceLineLabel}</span>
           <ChevronDown size={18} className="pointer-events-none text-slate-500" />
           <span className="ml-auto" />
         </button>
@@ -232,21 +233,21 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       </div>
 
       {recurrenceFrequency !== 'NONE' && (
-        <div className="relative py-3">
-          <button type="button" onClick={() => setIsEndMenuOpen(prev => !prev)} className="flex min-h-[68px] w-full items-center gap-3 text-left">
+        <div className="relative min-h-[68px] py-3">
+          <div className="flex min-h-11 items-center gap-3">
             <RotateCcw size={20} className="shrink-0 text-slate-500" />
-            <span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">Repetições</span>
-            <ChevronDown size={18} className="pointer-events-none text-slate-500" />
+            <button type="button" onClick={() => setIsEndMenuOpen(prev => !prev)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+              <span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceEndLineLabel}</span>
+              <ChevronDown size={18} className="pointer-events-none shrink-0 text-slate-500" />
+            </button>
             {recurrenceEndMode === 'COUNT' ? (
-              <div className="ml-auto flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2 dark:border-dark-app-border dark:bg-dark-app-surface-secondary">
+              <div className="ml-auto flex items-center gap-6">
                 <button type="button" aria-label="Diminuir repetições" onMouseDown={e => e.preventDefault()} onClick={() => setRecurrenceCount(prev => Math.max(1, prev - 1))} className="text-2xl font-bold leading-none text-slate-700 dark:text-dark-app-text-primary">-</button>
                 <span className="min-w-8 text-center text-lg font-bold text-slate-700 dark:text-dark-app-text-primary">{recurrenceCount}</span>
                 <button type="button" aria-label="Aumentar repetições" onMouseDown={e => e.preventDefault()} onClick={() => setRecurrenceCount(prev => prev + 1)} className="text-2xl font-bold leading-none text-slate-700 dark:text-dark-app-text-primary">+</button>
               </div>
-            ) : (
-              <span className="ml-auto text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">A perder de vista</span>
-            )}
-          </button>
+            ) : null}
+          </div>
           {isEndMenuOpen && (
             <div className="fixed inset-0 z-40 flex items-end bg-slate-900/40 backdrop-blur-sm">
               <div className="w-full overflow-hidden rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
@@ -262,12 +263,12 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
                     <button
                       type="button"
                       onMouseDown={e => e.preventDefault()}
-                      onClick={() => {
-                        setRecurrenceEndMode(value as RecurrenceEndMode);
-                        if (value === 'COUNT') setRecurrenceCount(prev => Math.max(1, prev));
-                        setIsEndMenuOpen(false);
-                      }}
-                      className="flex w-full items-center justify-between text-left"
+                  onClick={() => {
+                    setRecurrenceEndMode(value as RecurrenceEndMode);
+                    if (value === 'COUNT') setRecurrenceCount(prev => Math.max(1, prev));
+                    setIsEndMenuOpen(false);
+                  }}
+                  className="flex w-full items-center justify-between text-left"
                     >
                       <span className="text-base font-bold text-slate-900 dark:text-dark-app-text-primary">{label}</span>
                       <ChevronDown size={18} className="text-slate-400 opacity-0" />
