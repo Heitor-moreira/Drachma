@@ -139,6 +139,12 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (!feedbackMessage) return;
+    const timer = window.setTimeout(() => setFeedbackMessage(''), 5000);
+    return () => window.clearTimeout(timer);
+  }, [feedbackMessage]);
+
+  useEffect(() => {
     const savedTransactions = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
     const savedSubscriptions = localStorage.getItem(STORAGE_KEY_SUBSCRIPTIONS);
     const savedInitial = localStorage.getItem(STORAGE_KEY_INITIAL_BALANCE);
@@ -181,14 +187,14 @@ const App: React.FC = () => {
       const data = JSON.parse(String(reader.result)); if (!Array.isArray(data.transactions)) throw new Error('Arquivo inválido');
       setTransactions(data.transactions.map((t: Transaction) => normalizeTransaction(t))); if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions); if (data.initialBalance) setInitialBalance(data.initialBalance); if (data.salaryInfo) setSalaryInfo(data.salaryInfo); if (data.dateRange) setDateRange(data.dateRange); if (data.settings) setSettings(data.settings); if (Array.isArray(data.cards)) setCards(data.cards);
       setFeedbackMessage('Dados importados com sucesso!');
-    } catch { setFeedbackMessage('Arquivo JSON inválido.'); } event.target.value = ''; window.setTimeout(() => setFeedbackMessage(''), 2400); };
+    } catch { setFeedbackMessage('Arquivo JSON inválido.'); } event.target.value = ''; };
     reader.readAsText(file);
   };
   const clearImportedData = () => {
     if (!window.confirm('Excluir os dados carregados e todos os lançamentos salvos?')) return;
     setTransactions([]); setSubscriptions([]); setInitialBalance({ amount: 0, date: formatLocalYYYYMMDD(new Date()) }); setSalaryInfo({ gross: 0, discounts: [] }); setCards([]);
     [STORAGE_KEY_TRANSACTIONS, STORAGE_KEY_SUBSCRIPTIONS, STORAGE_KEY_INITIAL_BALANCE, STORAGE_KEY_SALARY_INFO, STORAGE_KEY_DATE_RANGE, STORAGE_KEY_SETTINGS, STORAGE_KEY_CARDS].forEach(key => localStorage.removeItem(key));
-    setFeedbackMessage('Dados excluídos.'); window.setTimeout(() => setFeedbackMessage(''), 2400);
+    setFeedbackMessage('Dados excluídos.');
   };
 
   const calculatedNetSalary = useMemo(() => {
@@ -206,7 +212,6 @@ const App: React.FC = () => {
   const addTransactions = (newTs: Transaction[]) => {
     setTransactions(prev => [...newTs, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     setFeedbackMessage('Movimentação adicionada!');
-    window.setTimeout(() => setFeedbackMessage(''), 2400);
   };
 
   const updateTransaction = (updated: Transaction) => {
