@@ -36,7 +36,7 @@ import {
   , ChartNoAxesCombined
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
-import { getFinancialGroup, normalizeTransaction, serializeTransaction, getTransactionEntryType } from './finance';
+import { getFinancialGroup, normalizeTransaction, serializeTransaction, getTransactionEntryType, getRecurrenceDate } from './finance';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';
@@ -82,6 +82,7 @@ const App: React.FC = () => {
   const [isInitialFlashActive, setIsInitialFlashActive] = useState(true);
   const [isBalanceSummaryOpen, setIsBalanceSummaryOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [pendingRecurringDelete, setPendingRecurringDelete] = useState<{ sourceId: string; occurrenceDate: string } | null>(null);
   
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -214,7 +215,33 @@ const App: React.FC = () => {
   };
 
   const deleteTransaction = (id: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== id));
+    const source = transactions.find(t => id === t.id || id.startsWith(`${t.id}-projection-`));
+    if (!source) return;
+    const projectionMatch = id.match(/-projection-(\d+)$/);
+    const occurrenceIndex = projectionMatch ? Number(projectionMatch[1]) : 0;
+    const occurrenceDate = occurrenceIndex === 0
+      ? source.date
+      : getRecurrenceDate(source.date, source.recurrenceFrequency || 'MONTHLY', occurrenceIndex);
+    const isRecurring = (source.recurrenceFrequency && source.recurrenceFrequency !== 'NONE') || source.isFixed;
+
+    if (!isRecurring) {
+      if (window.confirm('Excluir este lançamento?')) setTransactions(prev => prev.filter(t => t.id !== source.id));
+      return;
+    }
+
+    setPendingRecurringDelete({ sourceId: source.id, occurrenceDate });
+  };
+
+  const confirmRecurringDelete = (scope: 'one' | 'all') => {
+    if (!pendingRecurringDelete) return;
+    if (scope === 'all') {
+      setTransactions(prev => prev.filter(t => t.id !== pendingRecurringDelete.sourceId));
+    } else {
+      setTransactions(prev => prev.map(t => t.id === pendingRecurringDelete.sourceId
+        ? { ...t, recurrenceExcludedDates: Array.from(new Set([...(t.recurrenceExcludedDates || []), pendingRecurringDelete.occurrenceDate])) }
+        : t));
+    }
+    setPendingRecurringDelete(null);
   };
 
   const openNewTransaction = (group?: FinancialGroup | EntryType, date?: string) => {
@@ -503,6 +530,20 @@ const App: React.FC = () => {
                   className="text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary text-center bg-transparent border-b-2 border-transparent focus:border-theme outline-none"
                 />
                 <button onClick={() => setIsProfileOpen(false)} className="w-full bg-theme text-white font-bold py-3 rounded-xl hover:bg-theme-dark">Fechar</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {pendingRecurringDelete && (
+          <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+            <div role="dialog" aria-modal="true" aria-labelledby="recurring-delete-title" className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-dark-app-surface">
+              <h3 id="recurring-delete-title" className="text-xl font-bold text-slate-900 dark:text-dark-app-text-primary">Excluir lançamento recorrente?</h3>
+              <p className="mt-2 text-sm text-slate-500 dark:text-dark-app-text-secondary">Escolha o que deseja remover.</p>
+              <div className="mt-6 grid gap-3">
+                <button type="button" onClick={() => confirmRecurringDelete('one')} className="min-h-12 rounded-2xl bg-rose-100 px-4 py-3 text-left font-bold text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">Excluir apenas este lançamento</button>
+                <button type="button" onClick={() => confirmRecurringDelete('all')} className="min-h-12 rounded-2xl bg-rose-600 px-4 py-3 text-left font-bold text-white hover:bg-rose-700">Excluir toda a repetição</button>
+                <button type="button" onClick={() => setPendingRecurringDelete(null)} className="min-h-12 rounded-2xl bg-slate-100 px-4 py-3 font-bold text-slate-600 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">Cancelar</button>
               </div>
             </div>
           </div>

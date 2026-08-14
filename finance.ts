@@ -42,6 +42,18 @@ const addMonthsKeepingDay = (dateString: string, months: number) => {
   return formatDate(result);
 };
 
+export const getRecurrenceDate = (dateString: string, frequency: NonNullable<Transaction['recurrenceFrequency']>, interval: number) => {
+  const [y, m, d] = dateString.split('-').map(Number);
+  const base = new Date(y, m - 1, d, 12);
+
+  if (frequency === 'DAILY') base.setDate(base.getDate() + interval);
+  else if (frequency === 'WEEKLY') base.setDate(base.getDate() + interval * 7);
+  else if (frequency === 'YEARLY') base.setFullYear(base.getFullYear() + interval);
+  else return addMonthsKeepingDay(dateString, interval);
+
+  return formatDate(base);
+};
+
 export const getCardDueDate = (purchaseDate: string, dueDay: number) => {
   const [y, m, d] = purchaseDate.split('-').map(Number);
   const dueMonth = d <= dueDay ? m - 1 : m;
@@ -61,15 +73,24 @@ export const projectTransactions = (transactions: Transaction[], start: string, 
   const result: Transaction[] = [];
   for (const transaction of transactions) {
     const baseDate = transaction.date;
-    const interval = transaction.isFixed ? 1 : 0;
-    let cursor = baseDate;
+    const frequency = transaction.recurrenceFrequency || (transaction.isFixed ? 'MONTHLY' : 'NONE');
+    const isRecurring = frequency !== 'NONE';
+    const totalOccurrences = transaction.recurrenceEndMode === 'COUNT'
+      // recurrenceCount representa repetições após o lançamento original.
+      ? Math.max(0, transaction.recurrenceCount || 0) + 1
+      : Number.POSITIVE_INFINITY;
     let index = 0;
-    while (cursor <= end && index < 120) {
+    while (index < totalOccurrences && index < 120) {
+      const cursor = index === 0 ? baseDate : getRecurrenceDate(baseDate, frequency, index);
+      if (cursor > end) break;
+      if (transaction.recurrenceExcludedDates?.includes(cursor)) {
+        index++;
+        continue;
+      }
       const projected = index === 0 ? transaction : { ...transaction, id: `${transaction.id}-projection-${index}`, date: cursor };
       const impactDate = getCashImpactDate(projected, cards);
       if (impactDate >= start && impactDate <= end) result.push({ ...projected, date: impactDate });
-      if (!interval) break;
-      cursor = addMonthsKeepingDay(baseDate, index + 1);
+      if (!isRecurring) break;
       index++;
     }
   }
