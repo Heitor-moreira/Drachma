@@ -45,6 +45,7 @@ export interface Transaction {
   recurrenceFrequency?: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   recurrenceEndMode?: 'INFINITE' | 'COUNT';
   recurrenceCount?: number;
+  recurrenceExcludedDates?: string[];
   isInstallment?: boolean;
   installmentInfo?: {
     current: number;
