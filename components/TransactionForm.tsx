@@ -28,7 +28,9 @@ const formatCurrency = (value: string, currencySymbol: string) => {
   return `${currencySymbol} ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const normalizeTag = (value: string) => value.trim().toUpperCase();
+const normalizeTag = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
+const tagKey = (value: string) => normalizeTag(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
+const uniqueTags = (tags: string[]) => Array.from(new Map(tags.map(tag => [tagKey(tag), normalizeTag(tag).replace(/\s+/g, ' ')])).values());
 
 type RecurrenceFrequency = 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 type RecurrenceEndMode = 'INFINITE' | 'COUNT';
@@ -39,7 +41,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   const amountInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [date, setDate] = useState(initialData?.date || initialDate || formatLocalYYYYMMDD(new Date()));
-  const [committedTags, setCommittedTags] = useState<string[]>(initialData?.tags?.map(normalizeTag) || []);
+  const [committedTags, setCommittedTags] = useState<string[]>(uniqueTags(initialData?.tags || []));
   const [tagsText, setTagsText] = useState('');
   const [isTagsFocused, setIsTagsFocused] = useState(false);
   type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'CARD';
@@ -47,18 +49,28 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   const initialKind: EntryKind = initialData?.entryType || (startingGroup === 'CARD' ? 'CARD' : startingGroup === 'SAVINGS' ? 'SAVINGS' : startingGroup === 'EXPENSE' ? 'EXPENSE' : 'INCOME');
   const [entryKind, setEntryKind] = useState<EntryKind>(initialKind);
   const [cardId, setCardId] = useState(initialData?.cardId || '');
-  const currentTagQuery = tagsText.trim().toLowerCase();
-  const normalizedAvailableTags = availableTags.map(normalizeTag);
-  const suggestedTags = normalizedAvailableTags.filter(tag => !committedTags.includes(tag) && (!currentTagQuery || tag.toLowerCase().includes(currentTagQuery))).slice(0, 8);
-  const allTags = Array.from(new Set([...committedTags, ...(tagsText.trim() ? [normalizeTag(tagsText)] : [])]));
+  const currentTagQuery = tagKey(tagsText);
+  const normalizedAvailableTags = uniqueTags(availableTags);
+  const suggestedTags = normalizedAvailableTags
+    .filter(tag => !committedTags.some(committedTag => tagKey(committedTag) === tagKey(tag)))
+    .filter(tag => !currentTagQuery || tagKey(tag).includes(currentTagQuery))
+    .sort((a, b) => {
+      const aKey = tagKey(a);
+      const bKey = tagKey(b);
+      const aPrefix = aKey.startsWith(currentTagQuery) ? 0 : 1;
+      const bPrefix = bKey.startsWith(currentTagQuery) ? 0 : 1;
+      return aPrefix - bPrefix || aKey.localeCompare(bKey);
+    })
+    .slice(0, 3);
+  const allTags = uniqueTags([...committedTags, ...(tagsText.trim() ? [tagsText] : [])]);
   const handleTagInput = (value: string) => {
     if (/\s$/.test(value)) {
       const tag = normalizeTag(value);
-      if (tag && !committedTags.includes(tag)) setCommittedTags(prev => [...prev, tag]);
+      if (tag && !committedTags.some(committedTag => tagKey(committedTag) === tagKey(tag))) setCommittedTags(prev => uniqueTags([...prev, tag]));
       setTagsText('');
       return;
     }
-    setTagsText(value.toUpperCase());
+    setTagsText(value.toLowerCase());
   };
   const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: ArrowDownLeft }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: CreditCard } }[entryKind];
   const selectKind = (kind: EntryKind) => { setEntryKind(kind); };
@@ -165,17 +177,17 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border [&>div]:!h-[80px] [&>div:first-child]:!h-[88px] [&>div:nth-child(6)>div>div]:-my-5 [&>div:nth-child(6)>div>div]:self-stretch">
+    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border [&>div]:!h-[80px]">
       <div className="flex items-center justify-between border-b border-slate-100 px-6 pb-4 dark:border-dark-app-border md:px-12"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-[32px] font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
       <div className="relative flex min-h-20 w-full cursor-pointer items-center justify-between px-6 py-5 md:px-12" aria-label="Selecionar tipo de lançamento"><div className="flex min-w-0 items-center gap-4"><div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-[21px] font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`truncate text-[21px] font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={21} className={`shrink-0 ${kindMeta.color}`} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
 
       <div className="min-h-20 px-6 py-5 md:px-12">
         <div>
-          <div className="flex items-center gap-3"><Pencil size={24} className="shrink-0 text-slate-500" /><input
-            type="text" 
+          <div className="flex items-center gap-3"><Pencil size={24} className="shrink-0 text-slate-500" /><textarea
+            rows={1}
             value={description} 
             onChange={e => setDescription(e.target.value)} 
-            className="w-full px-0 py-2 text-[20px] bg-transparent border-0 outline-none focus:ring-0 dark:text-dark-app-text-primary"
+            className="w-full min-w-0 resize-none overflow-hidden break-words px-0 py-2 text-[20px] leading-tight bg-transparent border-0 outline-none focus:ring-0 dark:text-dark-app-text-primary"
             placeholder="Descrição" 
           /></div>
         </div>
@@ -231,15 +243,15 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       </div>
 
       {recurrenceFrequency !== 'NONE' && (
-        <div className="relative min-h-20 px-6 py-5 md:px-12">
-          <div className="flex min-h-11 items-center gap-4">
+        <div className="relative flex min-h-20 items-center px-6 md:px-12">
+          <div className="flex h-full w-full items-center gap-4">
             <RotateCcw size={24} className="shrink-0 text-slate-500" />
             <button type="button" onClick={() => setIsEndMenuOpen(prev => !prev)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
               <span className="truncate text-[20px] font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceEndLineLabel}</span>
               <ChevronDown size={24} className="pointer-events-none shrink-0 text-slate-500" />
             </button>
             {recurrenceEndMode === 'COUNT' ? (
-              <div className="ml-auto flex shrink-0 items-center gap-4 border-l border-slate-200 pl-4 dark:border-dark-app-border sm:gap-6 sm:pl-6">
+              <div className="ml-auto flex shrink-0 self-stretch items-center gap-4 border-l border-slate-200 pl-4 dark:border-dark-app-border sm:gap-6 sm:pl-6">
                 <button type="button" aria-label="Diminuir repetições" onMouseDown={e => e.preventDefault()} onClick={() => setRecurrenceCount(prev => Math.max(1, prev - 1))} className="text-[20px] font-bold leading-none text-slate-700 dark:text-dark-app-text-primary">-</button>
                 <span className="min-w-8 text-center text-[20px] font-bold text-slate-700 dark:text-dark-app-text-primary">{recurrenceCount}</span>
                 <button type="button" aria-label="Aumentar repetições" onMouseDown={e => e.preventDefault()} onClick={() => setRecurrenceCount(prev => prev + 1)} className="text-[20px] font-bold leading-none text-slate-700 dark:text-dark-app-text-primary">+</button>
@@ -281,8 +293,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
 
       {/* Tags */}
       <div className="relative min-h-20 px-6 py-5 md:px-12">
-          <div className="flex items-center gap-4"><Tag size={24} className="shrink-0 text-slate-500" /><label className="text-[20px] font-bold text-slate-700 dark:text-dark-app-text-secondary">Tags</label><div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => item !== tag))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.target.value)} placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''} className="min-w-0 flex-1 self-center px-0 py-0 text-base leading-normal bg-transparent border-0 outline-none dark:text-dark-app-text-primary" style={{ fontSize: '16px' }} /></div></div>
-        {isTagsFocused && suggestedTags.length > 0 && <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-slate-200 dark:border-dark-app-border bg-white dark:bg-dark-app-surface-secondary shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tag} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => [...prev, tag]); setTagsText(''); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-dark-app-text-secondary">{tag}</button>)}</div>}
+          <div className="flex items-center gap-4"><Tag size={24} className="shrink-0 text-slate-500" /><label className="text-[20px] font-bold text-slate-700 dark:text-dark-app-text-secondary">Tags</label><div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => tagKey(item) !== tagKey(tag)))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.currentTarget.value)} placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''} className="min-w-0 flex-1 self-center px-0 py-0 text-base leading-normal bg-transparent border-0 outline-none dark:text-dark-app-text-primary" style={{ fontSize: '16px' }} /></div></div>
+        {isTagsFocused && currentTagQuery && suggestedTags.length > 0 && <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-slate-200 dark:border-dark-app-border bg-white dark:bg-dark-app-surface-secondary shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tagKey(tag)} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => uniqueTags([...prev, tag])); setTagsText(''); setIsTagsFocused(false); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-dark-app-text-secondary">{tag}</button>)}</div>}
       </div>
       {/* Observações mantidas apenas no modelo, fora do modal básico */}
       <div className="hidden">
