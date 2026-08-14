@@ -96,6 +96,15 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
     if (!initialData && !window.matchMedia('(pointer: coarse)').matches) amountInputRef.current?.focus({ preventScroll: true });
   }, [initialData]);
 
+  useEffect(() => {
+    if (!isTagsFocused) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsTagsFocused(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isTagsFocused]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || isSubmitting) return;
@@ -292,9 +301,32 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       )}
 
       {/* Tags */}
-      <div className="relative min-h-20 px-6 py-5 md:px-12">
-          <div className="flex items-center gap-4"><Tag size={24} className="shrink-0 text-slate-500" /><label className="text-[20px] font-bold text-slate-700 dark:text-dark-app-text-secondary">Tags</label><div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">{committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => tagKey(item) !== tagKey(tag)))} style={{ backgroundColor: kindMeta.pill }} className={`px-2.5 py-1 rounded-full text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}<input value={tagsText} onFocus={() => setIsTagsFocused(true)} onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)} onChange={e => handleTagInput(e.currentTarget.value)} placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''} className="min-w-0 flex-1 self-center px-0 py-0 text-base leading-normal bg-transparent border-0 outline-none dark:text-dark-app-text-primary" style={{ fontSize: '16px' }} /></div></div>
-        {isTagsFocused && currentTagQuery && suggestedTags.length > 0 && <div className="absolute z-20 left-0 right-0 mt-1 rounded-xl border border-slate-200 dark:border-dark-app-border bg-white dark:bg-dark-app-surface-secondary shadow-lg overflow-hidden">{suggestedTags.map(tag => <button key={tagKey(tag)} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => uniqueTags([...prev, tag])); setTagsText(''); setIsTagsFocused(false); }} className="block w-full px-3 py-2 text-left text-xs hover:bg-theme/10 dark:text-dark-app-text-secondary">{tag}</button>)}</div>}
+      <div className="min-h-20 px-6 py-5 md:px-12">
+        <div className="flex items-center gap-4">
+          <Tag size={24} className="shrink-0 text-slate-500" />
+          <label className="text-[20px] font-bold text-slate-700 dark:text-dark-app-text-secondary">Tags</label>
+          <div className="relative min-w-0 flex-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              {committedTags.map(tag => <button key={tag} type="button" onClick={() => setCommittedTags(prev => prev.filter(item => tagKey(item) !== tagKey(tag)))} style={{ backgroundColor: kindMeta.pill }} className={`rounded-full px-2.5 py-1 text-xs font-bold ${kindMeta.color}`}>{tag}</button>)}
+              <input
+                value={tagsText}
+                onFocus={() => setIsTagsFocused(true)}
+                onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)}
+                onChange={e => handleTagInput(e.currentTarget.value)}
+                placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''}
+                className="min-w-0 flex-1 self-center bg-transparent px-0 py-0 text-base leading-normal outline-none dark:text-dark-app-text-primary"
+                style={{ fontSize: '16px' }}
+                aria-label="Adicionar tags"
+                aria-autocomplete="list"
+                aria-expanded={isTagsFocused && currentTagQuery.length > 0 && suggestedTags.length > 0}
+                onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); setIsTagsFocused(false); } }}
+              />
+            </div>
+            {isTagsFocused && currentTagQuery && suggestedTags.length > 0 && <div className="absolute left-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-3rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-dark-app-border dark:bg-dark-app-surface-secondary" role="listbox" aria-label="Sugestões de tags">
+              {suggestedTags.map(tag => <button key={tagKey(tag)} type="button" role="option" onMouseDown={e => e.preventDefault()} onClick={() => { setCommittedTags(prev => uniqueTags([...prev, tag])); setTagsText(''); setIsTagsFocused(false); }} className="block min-h-11 w-full px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-theme/10 focus:bg-theme/10 focus:outline-none dark:text-dark-app-text-secondary">{tag}</button>)}
+            </div>}
+          </div>
+        </div>
       </div>
       {/* Observações mantidas apenas no modelo, fora do modal básico */}
       <div className="hidden">
