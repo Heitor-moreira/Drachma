@@ -36,7 +36,9 @@ import {
   , ChartNoAxesCombined
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
-import { getFinancialGroup, normalizeTransaction, serializeTransaction, getTransactionEntryType, getRecurrenceDate } from './finance';
+import { getFinancialGroup, normalizeTransaction, getTransactionEntryType, getRecurrenceDate, formatLocalDate } from './finance';
+import { createSnapshot, normalizeSnapshot } from './appStorage';
+import { useAppPersistence } from './hooks/useAppPersistence';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';
@@ -68,10 +70,7 @@ const CURRENCIES: Record<CurrencyCode, { symbol: string; name: string }> = {
 };
 
 const formatLocalYYYYMMDD = (date: Date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+  return formatLocalDate(date);
 };
 
 const App: React.FC = () => {
@@ -88,15 +87,11 @@ const App: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [baseSalary, setBaseSalary] = useState<number>(0);
   const [salaryInfo, setSalaryInfo] = useState<SalaryInfo>({ gross: 0, discounts: [] });
-  const [cards, setCards] = useState<CreditCardModel[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_CARDS);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cards, setCards] = useState<CreditCardModel[]>([]);
   const [initialBalance, setInitialBalance] = useState<InitialBalance>({ amount: 0, date: formatLocalYYYYMMDD(new Date()) });
   
   const [settings, setSettings] = useState<UserSettings>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_SETTINGS);
-    return saved ? JSON.parse(saved) : {
+    return {
       currency: 'BRL',
       aiEnabled: true,
       userName: 'Usuário Drachma',
@@ -106,8 +101,6 @@ const App: React.FC = () => {
   });
 
   const [dateRange, setDateRange] = useState<DateRange>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_DATE_RANGE);
-    if (saved) return JSON.parse(saved);
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     return { start: formatLocalYYYYMMDD(start), end: formatLocalYYYYMMDD(new Date(now.getFullYear(), now.getMonth() + 1, 0)) };
@@ -144,39 +137,17 @@ const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [feedbackMessage]);
 
-  useEffect(() => {
-    const savedTransactions = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
-    const savedSubscriptions = localStorage.getItem(STORAGE_KEY_SUBSCRIPTIONS);
-    const savedInitial = localStorage.getItem(STORAGE_KEY_INITIAL_BALANCE);
-    const savedSalaryInfo = localStorage.getItem(STORAGE_KEY_SALARY_INFO);
-
-    if (savedTransactions) {
-      setTransactions(JSON.parse(savedTransactions).map((t: Transaction) => normalizeTransaction(t)));
-    }
-    if (savedSubscriptions) setSubscriptions(JSON.parse(savedSubscriptions));
-    if (savedInitial) setInitialBalance(JSON.parse(savedInitial));
-    if (savedSalaryInfo) setSalaryInfo(JSON.parse(savedSalaryInfo));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(transactions));
-  }, [transactions]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_SUBSCRIPTIONS, JSON.stringify(subscriptions));
-    localStorage.setItem(STORAGE_KEY_INITIAL_BALANCE, JSON.stringify(initialBalance));
-    localStorage.setItem(STORAGE_KEY_SALARY_INFO, JSON.stringify(salaryInfo));
-    localStorage.setItem(STORAGE_KEY_DATE_RANGE, JSON.stringify(dateRange));
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
-    localStorage.setItem(STORAGE_KEY_CARDS, JSON.stringify(cards));
-  }, [subscriptions, initialBalance, salaryInfo, dateRange, settings, cards]);
+  useAppPersistence(
+    { transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards },
+    { setTransactions: value => setTransactions(value.map(normalizeTransaction)), setSubscriptions, setInitialBalance, setSalaryInfo, setDateRange, setSettings, setCards }
+  );
 
   const currencySymbol = CURRENCIES[settings.currency].symbol;
 
   const availableTags = useMemo(() => Array.from(new Set(transactions.flatMap(t => t.tags || []))).sort((a, b) => a.localeCompare(b)), [transactions]);
 
   const exportAppData = () => {
-    const backup = { version: 2, exportedAt: new Date().toISOString(), transactions: transactions.map(serializeTransaction), subscriptions, initialBalance, salaryInfo, dateRange, settings, cards };
+    const backup = { ...createSnapshot({ transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards }), exportedAt: new Date().toISOString() };
     const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
     const link = document.createElement('a'); link.href = url; link.download = `drachma-backup-${formatLocalYYYYMMDD(new Date())}.json`; link.click(); URL.revokeObjectURL(url);
   };
@@ -184,8 +155,8 @@ const App: React.FC = () => {
     const file = event.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = () => { try {
-      const data = JSON.parse(String(reader.result)); if (!Array.isArray(data.transactions)) throw new Error('Arquivo inválido');
-      setTransactions(data.transactions.map((t: Transaction) => normalizeTransaction(t))); if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions); if (data.initialBalance) setInitialBalance(data.initialBalance); if (data.salaryInfo) setSalaryInfo(data.salaryInfo); if (data.dateRange) setDateRange(data.dateRange); if (data.settings) setSettings(data.settings); if (Array.isArray(data.cards)) setCards(data.cards);
+      const data = normalizeSnapshot(JSON.parse(String(reader.result)));
+      setTransactions(data.transactions!.map((t: Transaction) => normalizeTransaction(t))); if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions); if (data.initialBalance) setInitialBalance(data.initialBalance); if (data.salaryInfo) setSalaryInfo(data.salaryInfo); if (data.dateRange) setDateRange(data.dateRange); if (data.settings) setSettings(data.settings); if (Array.isArray(data.cards)) setCards(data.cards);
       setFeedbackMessage('Dados importados com sucesso!');
     } catch { setFeedbackMessage('Arquivo JSON inválido.'); } event.target.value = ''; };
     reader.readAsText(file);
