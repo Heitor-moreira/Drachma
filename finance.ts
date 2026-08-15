@@ -27,7 +27,7 @@ export const getFinancialGroup = (transaction: Transaction): FinancialGroup => {
   return FinancialGroup.PERSONAL_EXPENSE;
 };
 
-const formatDate = (date: Date) => {
+export const formatLocalDate = (date: Date) => {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
@@ -39,7 +39,7 @@ const addMonthsKeepingDay = (dateString: string, months: number) => {
   const result = new Date(y, m - 1 + months, 1, 12);
   const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
   result.setDate(Math.min(d, lastDay));
-  return formatDate(result);
+  return formatLocalDate(result);
 };
 
 export const getRecurrenceDate = (dateString: string, frequency: NonNullable<Transaction['recurrenceFrequency']>, interval: number) => {
@@ -51,7 +51,7 @@ export const getRecurrenceDate = (dateString: string, frequency: NonNullable<Tra
   else if (frequency === 'YEARLY') base.setFullYear(base.getFullYear() + interval);
   else return addMonthsKeepingDay(dateString, interval);
 
-  return formatDate(base);
+  return formatLocalDate(base);
 };
 
 export const getCardDueDate = (purchaseDate: string, dueDay: number) => {
@@ -60,7 +60,7 @@ export const getCardDueDate = (purchaseDate: string, dueDay: number) => {
   const due = new Date(y, dueMonth, 1, 12);
   const lastDay = new Date(due.getFullYear(), due.getMonth() + 1, 0).getDate();
   due.setDate(Math.min(dueDay, lastDay));
-  return formatDate(due);
+  return formatLocalDate(due);
 };
 
 export const getCashImpactDate = (transaction: Transaction, cards: CreditCard[]) => {
@@ -69,7 +69,14 @@ export const getCashImpactDate = (transaction: Transaction, cards: CreditCard[])
   return card ? transaction.date : transaction.date;
 };
 
+const projectionCache = new WeakMap<Transaction[], Map<string, Transaction[]>>();
+
 export const projectTransactions = (transactions: Transaction[], start: string, end: string, cards: CreditCard[] = []) => {
+  const cacheKey = `${start}|${end}|${cards.map(card => `${card.id}:${card.dueDay || ''}`).join(',')}`;
+  const transactionCache = projectionCache.get(transactions) || new Map<string, Transaction[]>();
+  const cached = transactionCache.get(cacheKey);
+  if (cached) return cached;
+
   const result: Transaction[] = [];
   for (const transaction of transactions) {
     const baseDate = transaction.date;
@@ -94,6 +101,8 @@ export const projectTransactions = (transactions: Transaction[], start: string, 
       index++;
     }
   }
+  transactionCache.set(cacheKey, result);
+  projectionCache.set(transactions, transactionCache);
   return result;
 };
 
