@@ -28,9 +28,20 @@ const formatCurrency = (value: string, currencySymbol: string) => {
   return `${currencySymbol} ${number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const normalizeTag = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
+export const normalizeTag = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
 const tagKey = (value: string) => normalizeTag(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ');
-const uniqueTags = (tags: string[]) => Array.from(new Map(tags.map(tag => [tagKey(tag), normalizeTag(tag).replace(/\s+/g, ' ')])).values());
+export const uniqueTags = (tags: string[]) => {
+  const result: string[] = [];
+  tags.forEach(tag => {
+    const normalized = normalizeTag(tag);
+    if (normalized && !result.some(existing => tagKey(existing) === tagKey(normalized))) result.push(normalized);
+  });
+  return result;
+};
+export const commitTag = (tags: string[], value: string) => {
+  const normalized = normalizeTag(value);
+  return normalized ? uniqueTags([...tags, normalized]) : uniqueTags(tags);
+};
 
 type RecurrenceFrequency = 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 type RecurrenceEndMode = 'INFINITE' | 'COUNT';
@@ -44,6 +55,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   const [committedTags, setCommittedTags] = useState<string[]>(uniqueTags(initialData?.tags || []));
   const [tagsText, setTagsText] = useState('');
   const [isTagsFocused, setIsTagsFocused] = useState(false);
+  const isTagComposingRef = useRef(false);
   type EntryKind = 'INCOME' | 'EXPENSE' | 'SAVINGS' | 'CARD';
   const startingGroup = initialData?.entryType || initialFinancialGroup;
   const initialKind: EntryKind = initialData?.entryType || (startingGroup === 'CARD' ? 'CARD' : startingGroup === 'SAVINGS' ? 'SAVINGS' : startingGroup === 'EXPENSE' ? 'EXPENSE' : 'INCOME');
@@ -63,14 +75,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
     })
     .slice(0, 3);
   const allTags = uniqueTags([...committedTags, ...(tagsText.trim() ? [tagsText] : [])]);
-  const handleTagInput = (value: string) => {
-    if (/\s$/.test(value)) {
-      const tag = normalizeTag(value);
-      if (tag && !committedTags.some(committedTag => tagKey(committedTag) === tagKey(tag))) setCommittedTags(prev => uniqueTags([...prev, tag]));
-      setTagsText('');
-      return;
-    }
-    setTagsText(value.toLowerCase());
+  const handleTagInput = (value: string) => setTagsText(value);
+  const commitCurrentTag = () => {
+    setCommittedTags(prev => commitTag(prev, tagsText));
+    setTagsText('');
   };
   const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: ArrowDownLeft }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: CreditCard } }[entryKind];
   const selectKind = (kind: EntryKind) => { setEntryKind(kind); };
@@ -313,13 +321,18 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
                 onFocus={() => setIsTagsFocused(true)}
                 onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)}
                 onChange={e => handleTagInput(e.currentTarget.value)}
-                placeholder={committedTags.length === 0 ? 'Adicionar tags' : ''}
+                placeholder={committedTags.length === 0 ? 'Digite uma tag e pressione Enter' : ''}
                 className="min-w-0 flex-1 self-center bg-transparent px-0 py-0 text-base leading-normal outline-none dark:text-dark-app-text-primary"
                 style={{ fontSize: '16px' }}
                 aria-label="Adicionar tags"
                 aria-autocomplete="list"
                 aria-expanded={isTagsFocused && currentTagQuery.length > 0 && suggestedTags.length > 0}
-                onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); setIsTagsFocused(false); } }}
+                onCompositionStart={() => { isTagComposingRef.current = true; }}
+                onCompositionEnd={e => { isTagComposingRef.current = false; setTagsText(e.currentTarget.value); }}
+                onKeyDown={e => {
+                  if (e.key === 'Escape') { e.preventDefault(); setIsTagsFocused(false); }
+                  if (e.key === 'Enter' && !isTagComposingRef.current) { e.preventDefault(); commitCurrentTag(); }
+                }}
               />
             </div>
             {isTagsFocused && currentTagQuery && suggestedTags.length > 0 && <div className="absolute left-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-3rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-dark-app-border dark:bg-dark-app-surface-secondary" role="listbox" aria-label="Sugestões de tags">
