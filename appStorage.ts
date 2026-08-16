@@ -4,6 +4,13 @@ import { normalizeTransaction, serializeTransaction } from './finance';
 export const APP_STORAGE_VERSION = 2;
 export const APP_STORAGE_KEY = 'drachma_app_state';
 
+export type DataEventType = 'SAVE' | 'IMPORT' | 'DELETE';
+
+export interface DataEvent {
+  type: DataEventType;
+  timestamp: string;
+}
+
 export interface AppStateSnapshot {
   version: number;
   transactions: Transaction[];
@@ -13,6 +20,7 @@ export interface AppStateSnapshot {
   dateRange: DateRange;
   settings: UserSettings;
   cards: CreditCard[];
+  lastDataEvent?: DataEvent;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -22,6 +30,11 @@ export const createSnapshot = (state: Omit<AppStateSnapshot, 'version'>): AppSta
   ...state,
   transactions: state.transactions.map(serializeTransaction).map(normalizeTransaction)
 });
+
+export const getLatestDataEvent = (current: DataEvent | undefined, next: DataEvent): DataEvent => {
+  if (!current || new Date(next.timestamp).getTime() >= new Date(current.timestamp).getTime()) return next;
+  return current;
+};
 
 export const validateSnapshot = (value: unknown): value is Partial<AppStateSnapshot> => {
   if (!isObject(value) || !Array.isArray(value.transactions)) return false;

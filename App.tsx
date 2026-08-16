@@ -31,13 +31,14 @@ import {
   , HelpCircle
   , Upload
   , Download
+  , Save
   , XCircle
   , CalendarDays
   , ChartNoAxesCombined
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
 import { getFinancialGroup, normalizeTransaction, getTransactionEntryType, getRecurrenceDate, formatLocalDate } from './finance';
-import { createSnapshot, normalizeSnapshot } from './appStorage';
+import { createSnapshot, DataEvent, normalizeSnapshot } from './appStorage';
 import { useAppPersistence } from './hooks/useAppPersistence';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
@@ -115,6 +116,7 @@ const App: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const importFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -138,10 +140,27 @@ const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [feedbackMessage]);
 
-  useAppPersistence(
+  const { lastDataEvent, saveNow, recordDataEvent } = useAppPersistence(
     { transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards },
     { setTransactions: value => setTransactions(value.map(normalizeTransaction)), setSubscriptions, setInitialBalance, setSalaryInfo, setDateRange, setSettings, setCards }
   );
+
+  const formatDataEvent = (event: DataEvent | undefined) => {
+    if (!event) return 'Nenhuma atualização registrada';
+    const date = new Date(event.timestamp);
+    const label = event.type === 'IMPORT' ? 'Dados importados com sucesso' : event.type === 'DELETE' ? 'Dados excluídos com sucesso' : 'Dados salvos com sucesso';
+    return `${label} às ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
+  const handleSave = () => {
+    setSaveState('saving');
+    try {
+      saveNow();
+      setSaveState('saved');
+    } catch {
+      setSaveState('error');
+    }
+  };
 
   const currencySymbol = CURRENCIES[settings.currency].symbol;
 
@@ -158,6 +177,8 @@ const App: React.FC = () => {
     reader.onload = () => { try {
       const data = normalizeSnapshot(JSON.parse(String(reader.result)));
       setTransactions(data.transactions!.map((t: Transaction) => normalizeTransaction(t))); if (Array.isArray(data.subscriptions)) setSubscriptions(data.subscriptions); if (data.initialBalance) setInitialBalance(data.initialBalance); if (data.salaryInfo) setSalaryInfo(data.salaryInfo); if (data.dateRange) setDateRange(data.dateRange); if (data.settings) setSettings(data.settings); if (Array.isArray(data.cards)) setCards(data.cards);
+      recordDataEvent({ type: 'IMPORT', timestamp: new Date().toISOString() });
+      setSaveState('idle');
       setFeedbackMessage('Dados importados com sucesso!');
     } catch { setFeedbackMessage('Arquivo JSON inválido.'); } event.target.value = ''; };
     reader.readAsText(file);
@@ -166,6 +187,8 @@ const App: React.FC = () => {
     if (!window.confirm('Excluir os dados carregados e todos os lançamentos salvos?')) return;
     setTransactions([]); setSubscriptions([]); setInitialBalance({ amount: 0, date: formatLocalYYYYMMDD(new Date()) }); setSalaryInfo({ gross: 0, discounts: [] }); setCards([]);
     [STORAGE_KEY_TRANSACTIONS, STORAGE_KEY_SUBSCRIPTIONS, STORAGE_KEY_INITIAL_BALANCE, STORAGE_KEY_SALARY_INFO, STORAGE_KEY_DATE_RANGE, STORAGE_KEY_SETTINGS, STORAGE_KEY_CARDS].forEach(key => localStorage.removeItem(key));
+    recordDataEvent({ type: 'DELETE', timestamp: new Date().toISOString() });
+    setSaveState('idle');
     setFeedbackMessage('Dados excluídos.');
   };
 
@@ -384,20 +407,25 @@ const App: React.FC = () => {
             <section className="-mx-4 -mt-4 min-h-full bg-app-background dark:bg-dark-app-background md:-mx-8 md:-mt-8">
               <div className="border-b border-app-border bg-app-surface px-6 pb-7 pt-8 dark:border-dark-app-border dark:bg-dark-app-surface">
                 <h2 className="text-2xl font-bold text-app-text-primary dark:text-dark-app-text-primary">{settings.userName}</h2>
-                <span className="app-saldo-positive mt-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold"><span aria-hidden="true">✓</span> Assinatura ativa</span>
               </div>
               <div className="overflow-hidden bg-app-surface dark:bg-dark-app-surface">
                 <button onClick={() => setIsProfileOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><User size={24} strokeWidth={1.8} /> Editar perfil <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
-                <button onClick={() => setActiveTab('dailyBalance')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><History size={24} strokeWidth={1.8} /> Previsão de diário <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setActiveTab('recentTransactions')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><History size={24} strokeWidth={1.8} /> Lançamentos recentes <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Settings size={24} strokeWidth={1.8} /> Configurações <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setFeedbackMessage('Sugestões poderão ser enviadas em breve.')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><MessageSquare size={24} strokeWidth={1.8} /> Mandar sugestões <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex min-h-20 w-full items-center gap-4 px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><HelpCircle size={24} strokeWidth={1.8} /> Ajuda <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
               </div>
-              <div className="flex items-center justify-center gap-3 pt-4">
-                <button onClick={exportAppData} aria-label="Exportar dados em JSON" title="Exportar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary"><Upload size={17} /></button>
-                <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" title="Importar JSON" className="rounded-full bg-slate-100 p-2.5 text-slate-600 hover:bg-slate-200 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary"><Download size={17} /></button>
-                <button onClick={clearImportedData} aria-label="Excluir dados carregados" title="Excluir dados carregados" className="rounded-full bg-rose-100 p-2.5 text-rose-500 hover:bg-rose-200"><XCircle size={17} /></button>
+              <div className="border-t border-app-border px-6 pb-8 pt-6 dark:border-dark-app-border">
+                <h3 className="text-base font-bold text-app-text-primary dark:text-dark-app-text-primary">Dados</h3>
+                <p className={`mt-2 text-sm ${saveState === 'error' ? 'text-rose-600' : lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
+                  {saveState === 'saving' ? 'Salvando...' : saveState === 'error' ? 'Falha ao salvar' : formatDataEvent(lastDataEvent)}
+                </p>
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  <button onClick={handleSave} className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-theme px-2 text-xs font-bold text-white transition-colors hover:brightness-95"><Save size={15} /> Salvar</button>
+                  <button onClick={exportAppData} aria-label="Exportar dados em JSON" className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-app-surface-secondary px-2 text-xs font-bold text-app-text-primary hover:brightness-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary"><Upload size={15} /> Exportar</button>
+                  <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-app-surface-secondary px-2 text-xs font-bold text-app-text-primary hover:brightness-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary"><Download size={15} /> Importar</button>
+                  <button onClick={clearImportedData} aria-label="Excluir dados carregados" className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-rose-100 px-2 text-xs font-bold text-rose-700 hover:bg-rose-200"><XCircle size={15} /> Excluir</button>
+                </div>
                 <input ref={importFileRef} type="file" accept="application/json,.json" onChange={importAppData} className="hidden" />
               </div>
             </section>
