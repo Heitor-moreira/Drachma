@@ -52,6 +52,7 @@ import TotalsView from './components/TotalsView';
 import SavedAnnualView from './components/SavedAnnualView';
 import DayTransactionsView from './components/DayTransactionsView';
 import MonthlyTransactionsView from './components/MonthlyTransactionsView';
+import RecentTransactionsView from './components/RecentTransactionsView';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'drachma_subscriptions';
@@ -74,7 +75,7 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dailyBalance' | 'balanceHorizon' | 'dayTransactions' | 'savedAnnual' | 'monthlyTransactions' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
+  type TabType = 'dailyBalance' | 'balanceHorizon' | 'dayTransactions' | 'savedAnnual' | 'monthlyTransactions' | 'recentTransactions' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
   const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [selectedDay, setSelectedDay] = useState(formatLocalYYYYMMDD(new Date()));
   const [isReportsOpen, setIsReportsOpen] = useState(false);
@@ -271,6 +272,7 @@ const App: React.FC = () => {
     dayTransactions: 'Lançamentos do Dia',
     savedAnnual: 'Economizado',
     monthlyTransactions: 'Movimentações do mês',
+    recentTransactions: 'Lançamentos recentes',
     totals: 'Totais',
     categorySpending: 'Gastos por Categoria',
     installments: 'Compras Parceladas',
@@ -377,7 +379,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'savedAnnual' || activeTab === 'monthlyTransactions' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
+        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'savedAnnual' || activeTab === 'monthlyTransactions' || activeTab === 'recentTransactions' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="-mx-4 -mt-4 min-h-full bg-app-background dark:bg-dark-app-background md:-mx-8 md:-mt-8">
               <div className="border-b border-app-border bg-app-surface px-6 pb-7 pt-8 dark:border-dark-app-border dark:bg-dark-app-surface">
@@ -387,6 +389,7 @@ const App: React.FC = () => {
               <div className="overflow-hidden bg-app-surface dark:bg-dark-app-surface">
                 <button onClick={() => setIsProfileOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><User size={24} strokeWidth={1.8} /> Editar perfil <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setActiveTab('dailyBalance')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><History size={24} strokeWidth={1.8} /> Previsão de diário <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
+                <button onClick={() => setActiveTab('recentTransactions')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><History size={24} strokeWidth={1.8} /> Lançamentos recentes <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Settings size={24} strokeWidth={1.8} /> Configurações <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setFeedbackMessage('Sugestões poderão ser enviadas em breve.')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><MessageSquare size={24} strokeWidth={1.8} /> Mandar sugestões <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex min-h-20 w-full items-center gap-4 px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><HelpCircle size={24} strokeWidth={1.8} /> Ajuda <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
@@ -403,6 +406,7 @@ const App: React.FC = () => {
           {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={(group, date) => openNewTransaction(group, date)} onDayClick={(date) => { setSelectedDay(date); setActiveTab('dayTransactions'); }} />}
           {activeTab === 'dayTransactions' && <DayTransactionsView date={selectedDay} transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('balanceHorizon')} onAdd={(date) => openNewTransaction(undefined, date)} onEdit={setEditingTransaction} />}
           {activeTab === 'monthlyTransactions' && <MonthlyTransactionsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} initialType={(newTransactionGroup as EntryType) || 'EXPENSE'} onBack={() => setActiveTab('totals')} onAdd={(date) => openNewTransaction(undefined, date)} onEdit={setEditingTransaction} />}
+          {activeTab === 'recentTransactions' && <RecentTransactionsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'savedAnnual' && <SavedAnnualView transactions={transactions} cards={cards} currencySymbol={currencySymbol} initialYear={new Date(dateRange.start).getFullYear()} onBack={() => setActiveTab('totals')} />}
           {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} onOpenHorizon={() => setActiveTab('balanceHorizon')} onOpenSavedAnnual={() => setActiveTab('savedAnnual')} onOpenMonthlyTransactions={(type) => { setNewTransactionGroup(type); setActiveTab('monthlyTransactions'); }} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
