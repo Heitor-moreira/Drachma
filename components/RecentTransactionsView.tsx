@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDownLeft, ArrowLeft, ArrowUpRight, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Repeat, CreditCard as CreditCardIcon } from 'lucide-react';
+import { ArrowDownLeft, ArrowLeft, ArrowUpRight, CalendarDays, ChevronDown, ChevronRight, Repeat, CreditCard as CreditCardIcon } from 'lucide-react';
 import { CreditCard, EntryType, Transaction } from '../types';
 import { filterRecentTransactions } from '../recentTransactions';
 
@@ -29,14 +29,8 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>('ALL');
-  const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
   const filteredTransactions = useMemo(() => filterRecentTransactions(transactions, cards, year, month, typeFilter), [transactions, cards, year, month, typeFilter]);
   const selectedType = types.find(type => type.key === typeFilter);
-  const moveMonth = (delta: number) => {
-    const next = new Date(year, month + delta, 1);
-    setYear(next.getFullYear());
-    setMonth(next.getMonth());
-  };
 
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
     <header className="border-b border-slate-100 px-4 py-4 dark:border-dark-app-border">
@@ -46,12 +40,10 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
         <span className="w-10" aria-hidden="true" />
       </div>
       <div className="mt-3 flex items-center gap-4">
-        <div className="relative flex min-w-0 flex-1 items-center gap-1 rounded-full border border-slate-200 px-2 py-1 dark:border-dark-app-border" onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPeriodPickerOpen(false); }}>
-          <button type="button" onClick={() => moveMonth(-1)} aria-label="Mês anterior" className="shrink-0 rounded-lg p-1"><ChevronLeft size={19} /></button>
-          <span className="min-w-0 flex-1 truncate text-center text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{MONTHS[month]}/{year}</span>
-          <button type="button" onClick={() => moveMonth(1)} aria-label="Próximo mês" className="shrink-0 rounded-lg p-1"><ChevronRight size={19} /></button>
-          <button type="button" aria-label="Selecionar mês e ano" onClick={() => setIsPeriodPickerOpen(value => !value)} className="shrink-0 rounded-lg p-1 text-slate-900 hover:bg-slate-100 dark:text-dark-app-text-primary dark:hover:bg-slate-700"><CalendarDays size={19} /></button>
-          {isPeriodPickerOpen && <div className="absolute left-0 top-11 z-20 flex gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-dark-app-border dark:bg-dark-app-surface"><select aria-label="Mês" value={month} onChange={event => setMonth(Number(event.target.value))} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary dark:[color-scheme:dark]">{MONTHS.map((monthName, index) => <option key={monthName} value={index}>{monthName}</option>)}</select><select aria-label="Ano" value={year} onChange={event => setYear(Number(event.target.value))} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => now.getFullYear() - 5 + index).map(optionYear => <option key={optionYear} value={optionYear}>{optionYear}</option>)}</select></div>}
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 px-3 py-2 dark:border-dark-app-border">
+          <CalendarDays size={19} className="shrink-0 text-slate-500 dark:text-dark-app-text-secondary" aria-hidden="true" />
+          <div className="relative min-w-0 flex-1"><select aria-label="Filtrar por mês" value={month} onChange={event => setMonth(Number(event.target.value))} className="w-full appearance-none bg-transparent pr-5 text-base font-bold text-slate-800 outline-none dark:text-dark-app-text-primary dark:[color-scheme:dark]">{MONTHS.map((monthName, index) => <option key={monthName} value={index}>{monthName}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-dark-app-text-secondary" /></div>
+          <div className="relative min-w-0 flex-1"><select aria-label="Filtrar por ano" value={year} onChange={event => setYear(Number(event.target.value))} className="w-full appearance-none bg-transparent pr-5 text-base font-bold text-slate-800 outline-none dark:text-dark-app-text-primary dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => now.getFullYear() - 5 + index).map(optionYear => <option key={optionYear} value={optionYear}>{optionYear}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-dark-app-text-secondary" /></div>
         </div>
         <div className="relative flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 px-3 py-2 dark:border-dark-app-border">
         <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${selectedType?.color || 'border-2 border-slate-400'} text-white`}>{selectedType?.icon}</span>
