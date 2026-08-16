@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { readJson, readSnapshot, writeSnapshot } from '../appStorage';
+import { useEffect, useRef, useState } from 'react';
+import { DataEvent, getLatestDataEvent, readJson, readSnapshot, writeSnapshot } from '../appStorage';
 import { InitialBalance, SalaryInfo, Subscription, Transaction, UserSettings, DateRange, CreditCard } from '../types';
 
 const LEGACY_KEYS = {
@@ -34,8 +34,11 @@ interface AppPersistenceSetters {
 
 export const useAppPersistence = (state: AppPersistenceState, setters: AppPersistenceSetters) => {
   const [loaded, setLoaded] = useState(false);
+  const [lastDataEvent, setLastDataEvent] = useState<DataEvent | undefined>();
+  const pendingEventRef = useRef<DataEvent | undefined>(undefined);
   useEffect(() => {
     const snapshot = readSnapshot();
+    setLastDataEvent(snapshot?.lastDataEvent);
     const transactions = snapshot?.transactions || readJson(LEGACY_KEYS.transactions);
     const subscriptions = snapshot?.subscriptions || readJson(LEGACY_KEYS.subscriptions);
     const initialBalance = snapshot?.initialBalance || readJson(LEGACY_KEYS.initialBalance);
@@ -58,7 +61,28 @@ export const useAppPersistence = (state: AppPersistenceState, setters: AppPersis
 
   useEffect(() => {
     if (!loaded) return;
-    const timer = window.setTimeout(() => writeSnapshot(state), 150);
+    const timer = window.setTimeout(() => {
+      const candidate = pendingEventRef.current || { type: 'SAVE' as const, timestamp: new Date().toISOString() };
+      const event = getLatestDataEvent(lastDataEvent, candidate);
+      pendingEventRef.current = undefined;
+      writeSnapshot({ ...state, lastDataEvent: event });
+      setLastDataEvent(event);
+    }, 150);
     return () => window.clearTimeout(timer);
-  }, [state, loaded]);
+  }, [state.transactions, state.subscriptions, state.initialBalance, state.salaryInfo, state.dateRange, state.settings, state.cards, loaded]);
+
+  const saveNow = () => {
+    const event = getLatestDataEvent(lastDataEvent, { type: 'SAVE', timestamp: new Date().toISOString() });
+    writeSnapshot({ ...state, lastDataEvent: event });
+    setLastDataEvent(event);
+  };
+
+  const recordDataEvent = (event: DataEvent) => {
+    const latestEvent = getLatestDataEvent(lastDataEvent, event);
+    pendingEventRef.current = latestEvent;
+    writeSnapshot({ ...state, lastDataEvent: latestEvent });
+    setLastDataEvent(latestEvent);
+  };
+
+  return { lastDataEvent, saveNow, recordDataEvent };
 };
