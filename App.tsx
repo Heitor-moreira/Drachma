@@ -37,7 +37,9 @@ import {
   , ChartNoAxesCombined
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
+import packageJson from './package.json';
 import { getFinancialGroup, normalizeTransaction, getTransactionEntryType, getRecurrenceDate, formatLocalDate } from './finance';
+import { buildFeedbackMailto, getDeviceLabel } from './feedback';
 import { createSnapshot, DataEvent, normalizeSnapshot } from './appStorage';
 import { useAppPersistence } from './hooks/useAppPersistence';
 import CategorySpending from './components/CategorySpending';
@@ -102,6 +104,7 @@ const App: React.FC = () => {
       theme: 'light'
     };
   });
+  const feedbackMailto = buildFeedbackMailto(packageJson.version, typeof navigator !== 'undefined' ? getDeviceLabel(navigator.userAgent) : 'Dispositivo desconhecido');
 
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     const now = new Date();
@@ -414,7 +417,7 @@ const App: React.FC = () => {
                 <button onClick={() => setIsProfileOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><User size={24} strokeWidth={1.8} /> Editar perfil <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setActiveTab('recentTransactions')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><History size={24} strokeWidth={1.8} /> Lançamentos recentes <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Settings size={24} strokeWidth={1.8} /> Configurações <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
-                <button onClick={() => setFeedbackMessage('Sugestões poderão ser enviadas em breve.')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><MessageSquare size={24} strokeWidth={1.8} /> Mandar sugestões <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
+                <a href={feedbackMailto} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><MessageSquare size={24} strokeWidth={1.8} /> Mandar sugestões <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></a>
                 <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex min-h-20 w-full items-center gap-4 px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><HelpCircle size={24} strokeWidth={1.8} /> Ajuda <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
               </div>
               <div className="border-t border-app-border px-6 pb-8 pt-6 dark:border-dark-app-border">
