@@ -422,7 +422,7 @@ const App: React.FC = () => {
               </div>
               <div className="border-t border-app-border px-6 pb-8 pt-6 dark:border-dark-app-border">
                 <h3 className="text-base font-bold text-app-text-primary dark:text-dark-app-text-primary">Dados</h3>
-                <p className={`mt-2 text-sm ${saveState === 'error' ? 'text-rose-600' : lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
+                <p className={`mt-2 text-sm ${saveState === 'error' || lastDataEvent?.type === 'DELETE' ? 'text-rose-600' : lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
                   {saveState === 'saving' ? 'Salvando...' : saveState === 'error' ? 'Falha ao salvar' : formatDataEvent(lastDataEvent)}
                 </p>
                 <div className="mt-3 grid grid-cols-4 gap-2">

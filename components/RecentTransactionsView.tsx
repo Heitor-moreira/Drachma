@@ -34,16 +34,16 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
 
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
     <header className="border-b border-slate-100 px-4 py-4 dark:border-dark-app-border">
-      <div className="flex items-center justify-between gap-3">
-        <button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-xl p-2 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Lançamentos recentes</h1>
-        <span className="w-10" aria-hidden="true" />
+      <div className="flex items-center justify-between gap-1">
+        <button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-xl p-1.5 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button>
+        <h1 className="min-w-0 flex-1 whitespace-nowrap text-center text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Lançamentos recentes</h1>
+        <span className="w-9" aria-hidden="true" />
       </div>
-      <div className="mt-3 flex items-center gap-4">
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 px-3 py-2 dark:border-dark-app-border">
+      <div className="mt-3 flex items-center gap-2">
+        <div className="flex min-w-0 flex-[1.15] items-center gap-2 rounded-full border border-slate-200 px-3 py-2 dark:border-dark-app-border">
           <CalendarDays size={19} className="shrink-0 text-slate-500 dark:text-dark-app-text-secondary" aria-hidden="true" />
           <div className="relative min-w-0 flex-1"><select aria-label="Filtrar por mês" value={month} onChange={event => setMonth(Number(event.target.value))} className="w-full appearance-none bg-transparent pr-5 text-base font-bold text-slate-800 outline-none dark:text-dark-app-text-primary dark:[color-scheme:dark]">{MONTHS.map((monthName, index) => <option key={monthName} value={index}>{monthName}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-dark-app-text-secondary" /></div>
-          <div className="relative min-w-0 flex-1"><select aria-label="Filtrar por ano" value={year} onChange={event => setYear(Number(event.target.value))} className="w-full appearance-none bg-transparent pr-5 text-base font-bold text-slate-800 outline-none dark:text-dark-app-text-primary dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => now.getFullYear() - 5 + index).map(optionYear => <option key={optionYear} value={optionYear}>{optionYear}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-dark-app-text-secondary" /></div>
+          <div className="relative min-w-[4.5rem] flex-1"><select aria-label="Filtrar por ano" value={year} onChange={event => setYear(Number(event.target.value))} className="w-full appearance-none whitespace-nowrap bg-transparent pr-5 text-base font-bold text-slate-800 outline-none dark:text-dark-app-text-primary dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => now.getFullYear() - 5 + index).map(optionYear => <option key={optionYear} value={optionYear}>{optionYear}</option>)}</select><ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-dark-app-text-secondary" /></div>
         </div>
         <div className="relative flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 px-3 py-2 dark:border-dark-app-border">
         <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${selectedType?.color || 'border-2 border-slate-400'} text-white`}>{selectedType?.icon}</span>
