@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 Skills/
+!.codex/
+!.codex/skills/
+!.codex/skills/**
 *.local
 
 # Editor directories and files
@@ -24,3 +27,25 @@ Skills/
 *.sln
 *.sw?
 .vercel
+
+# Local AI/editor configuration and machine-specific MCP paths
+.claude/
+.codebuddy/
+.gemini/
+.kiro/
+.opencode/
+.qoder/
+.cursorrules
+.windsurfrules
+CLAUDE.md
+CODEBUDDY.md
+GEMINI.md
+QODER.md
+.mcp.json
+opencode.jsonc
+
+# Local financial data and migrated backups
+drachma-dezembro-2025.migrado.json
+
+# Added by code-review-graph
+.code-review-graph/
