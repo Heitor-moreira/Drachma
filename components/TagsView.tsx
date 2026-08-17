@@ -1,0 +1,36 @@
+import React, { useMemo, useRef, useState } from 'react';
+import { ArrowDownLeft, ArrowLeft, ArrowUpRight, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, CreditCard as CreditCardIcon, Repeat } from 'lucide-react';
+import { CreditCard, EntryType, Transaction } from '../types';
+import { filterTaggedTransactions, uniqueTransactionTags } from '../taggedTransactions';
+import { getTransactionEntryType } from '../finance';
+
+interface Props { transactions: Transaction[]; cards: CreditCard[]; currencySymbol: string; onBack: () => void; onEdit: (transaction: Transaction) => void; }
+const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const types: Array<{ key: EntryType; label: string; color: string; icon: React.ReactNode }> = [
+  { key: 'INCOME', label: 'Entrada', color: 'bg-emerald-500', icon: <ArrowDownLeft size={16} /> },
+  { key: 'EXPENSE', label: 'Saída', color: 'bg-rose-500', icon: <ArrowUpRight size={16} /> },
+  { key: 'SAVINGS', label: 'Economia', color: 'bg-lime-500', icon: <span className="font-bold">E</span> },
+  { key: 'CARD', label: 'Gasto com cartão', color: 'bg-violet-600', icon: <CreditCardIcon size={15} /> },
+];
+const displayDate = (value: string) => value.split('-').reverse().join('/');
+
+const TagsView: React.FC<Props> = ({ transactions, cards, currencySymbol, onBack, onEdit }) => {
+  const now = new Date(); const [year, setYear] = useState(now.getFullYear()); const [month, setMonth] = useState(now.getMonth());
+  const [type, setType] = useState<EntryType | 'ALL'>('ALL'); const [tag, setTag] = useState('ALL');
+  const swipeStartX = useRef<number | null>(null); const swipeStartY = useRef<number | null>(null);
+  const moveMonth = (delta: number) => { const date = new Date(year, month + delta, 1, 12); setYear(date.getFullYear()); setMonth(date.getMonth()); };
+  const selectedType = types.find(item => item.key === type);
+  const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => { const touch = event.touches[0]; swipeStartX.current = touch?.clientX ?? null; swipeStartY.current = touch?.clientY ?? null; };
+  const handleTouchEnd = (event: React.TouchEvent<HTMLElement>) => { if (swipeStartX.current === null) return; const touch = event.changedTouches[0]; const dx = (touch?.clientX ?? swipeStartX.current) - swipeStartX.current; const dy = (touch?.clientY ?? swipeStartY.current ?? 0) - (swipeStartY.current ?? 0); swipeStartX.current = null; swipeStartY.current = null; if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) moveMonth(dx < 0 ? 1 : -1); };
+  const tags = useMemo(() => uniqueTransactionTags(transactions), [transactions]);
+  const filtered = useMemo(() => filterTaggedTransactions(transactions, cards, year, month, type, tag), [transactions, cards, year, month, type, tag]);
+  return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <header className="border-b border-slate-100 px-4 py-4 dark:border-dark-app-border"><div className="flex items-center justify-between gap-3"><button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-xl p-2 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button><h1 className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Tags</h1><span className="w-10" /></div>
+      <div className="mt-3 flex items-center justify-center gap-1"><button type="button" aria-label="Mês anterior" onClick={() => moveMonth(-1)} className="rounded-xl p-2"><ChevronLeft size={26} /></button><span className="min-w-32 text-center text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">{String(month + 1).padStart(2, '0')} · {MONTHS[month]}/{String(year).slice(-2)}</span><button type="button" aria-label="Próximo mês" onClick={() => moveMonth(1)} className="rounded-xl p-2"><ChevronRight size={26} /></button></div>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="relative flex min-w-0 items-center gap-2 rounded-full border border-slate-200 px-3 py-2 dark:border-dark-app-border"><span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${selectedType?.color || 'border-2 border-slate-400'} text-white`}>{selectedType?.icon || <span className="text-xs">T</span>}</span><select aria-label="Filtrar por tipo" value={type} onChange={e => setType(e.target.value as EntryType | 'ALL')} className="min-w-0 w-full appearance-none bg-transparent pr-5 text-base outline-none dark:text-dark-app-text-primary"><option value="ALL">Todos</option>{types.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</select><ChevronDown className="pointer-events-none absolute right-3 h-4 w-4 text-slate-500" /></div>
+      <select aria-label="Filtrar por tag" value={tag} onChange={e => setTag(e.target.value)} className="min-w-0 rounded-full border border-slate-200 bg-transparent px-3 py-2 text-base outline-none dark:border-dark-app-border dark:bg-dark-app-surface dark:text-dark-app-text-primary dark:[color-scheme:dark]"><option value="ALL">Todas</option>{tags.map(item => <option key={item} value={item}>{item}</option>)}</select></div>
+    </header><div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">{filtered.map(transaction => { const entry = getTransactionEntryType(transaction); const item = types.find(t => t.key === entry) || types[1]; const income = entry === 'INCOME'; const metadata = [transaction.recurrenceFrequency && transaction.recurrenceFrequency !== 'NONE' ? 'Recorrente' : '', transaction.isInstallment && transaction.installmentInfo ? `Parcela ${transaction.installmentInfo.current}/${transaction.installmentInfo.total}` : ''].filter(Boolean); return <button type="button" key={transaction.id} onClick={() => onEdit(transaction)} className="flex w-full items-start gap-3 px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-dark-app-surface-secondary"><span className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${item.color} text-white`}>{item.icon}</span><span className="min-w-0 flex-1"><strong className="block truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{transaction.description || item.label}</strong><span className="mt-1 block text-sm text-slate-500 dark:text-dark-app-text-secondary">{displayDate(transaction.date)} · {item.label} {metadata.map(m => <span key={m} className="ml-2 inline-flex items-center gap-1"><Repeat size={12} />{m}</span>)}</span><span className="mt-2 flex flex-wrap gap-1">{transaction.tags?.map(t => <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs dark:bg-dark-app-surface-secondary">#{t.replace(/^#/, '')}</span>)}</span></span><span className={`shrink-0 text-base font-bold ${income ? 'text-emerald-600' : 'text-rose-600'}`}>{income ? '+' : '-'} {currencySymbol} {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<ChevronRight className="ml-auto mt-1 h-4 w-4" /></span></button>})}{!filtered.length && <p className="p-10 text-center text-sm italic text-slate-500 dark:text-dark-app-text-secondary">Nenhum lançamento com tag encontrado para os filtros selecionados.</p>}</div>
+  </section>;
+};
+export default TagsView;
