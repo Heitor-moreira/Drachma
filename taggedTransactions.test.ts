@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { filterTaggedTransactions } from './taggedTransactions';
+import { filterTaggedTransactions, normalizeTag } from './taggedTransactions';
 
 const base = { amount: 10, comment: '', entryType: 'EXPENSE' as const };
 
 describe('filterTaggedTransactions', () => {
+  it('normalizes displayed tag names to lowercase without the hash prefix', () => {
+    expect(normalizeTag('#INVESTIMENTO')).toBe('investimento');
+  });
+
   it('combines period, type and normalized tag and excludes untagged entries', () => {
     const result = filterTaggedTransactions([
       { ...base, id: 'match', date: '2026-08-20', description: 'Mercado', tags: [' Alimentação '] },
