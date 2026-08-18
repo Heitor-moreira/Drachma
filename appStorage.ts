@@ -5,10 +5,12 @@ export const APP_STORAGE_VERSION = 2;
 export const APP_STORAGE_KEY = 'drachma_app_state';
 
 export type DataEventType = 'SAVE' | 'IMPORT' | 'DELETE';
+export type SaveOrigin = 'manual' | 'automatic';
 
 export interface DataEvent {
   type: DataEventType;
   timestamp: string;
+  saveOrigin?: SaveOrigin;
 }
 
 export interface AppStateSnapshot {

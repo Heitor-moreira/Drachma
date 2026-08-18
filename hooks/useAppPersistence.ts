@@ -35,6 +35,8 @@ interface AppPersistenceSetters {
 export const useAppPersistence = (state: AppPersistenceState, setters: AppPersistenceSetters) => {
   const [loaded, setLoaded] = useState(false);
   const [lastDataEvent, setLastDataEvent] = useState<DataEvent | undefined>();
+  const [isDirty, setIsDirty] = useState(false);
+  const savedStateRef = useRef<string | undefined>(undefined);
   const pendingEventRef = useRef<DataEvent | undefined>(undefined);
   useEffect(() => {
     const snapshot = readSnapshot();
@@ -61,8 +63,18 @@ export const useAppPersistence = (state: AppPersistenceState, setters: AppPersis
 
   useEffect(() => {
     if (!loaded) return;
+    const serializedState = JSON.stringify(state);
+    if (!savedStateRef.current) {
+      savedStateRef.current = serializedState;
+      return;
+    }
+    setIsDirty(serializedState !== savedStateRef.current);
+  }, [state, loaded]);
+
+  useEffect(() => {
+    if (!loaded) return;
     const timer = window.setTimeout(() => {
-      const candidate = pendingEventRef.current || { type: 'SAVE' as const, timestamp: new Date().toISOString() };
+      const candidate = pendingEventRef.current || { type: 'SAVE' as const, saveOrigin: 'automatic' as const, timestamp: new Date().toISOString() };
       const event = getLatestDataEvent(lastDataEvent, candidate);
       pendingEventRef.current = undefined;
       writeSnapshot({ ...state, lastDataEvent: event });
@@ -72,9 +84,11 @@ export const useAppPersistence = (state: AppPersistenceState, setters: AppPersis
   }, [state.transactions, state.subscriptions, state.initialBalance, state.salaryInfo, state.dateRange, state.settings, state.cards, loaded]);
 
   const saveNow = () => {
-    const event = getLatestDataEvent(lastDataEvent, { type: 'SAVE', timestamp: new Date().toISOString() });
+    const event = getLatestDataEvent(lastDataEvent, { type: 'SAVE', saveOrigin: 'manual', timestamp: new Date().toISOString() });
     writeSnapshot({ ...state, lastDataEvent: event });
     setLastDataEvent(event);
+    savedStateRef.current = JSON.stringify(state);
+    setIsDirty(false);
   };
 
   const recordDataEvent = (event: DataEvent) => {
@@ -84,5 +98,5 @@ export const useAppPersistence = (state: AppPersistenceState, setters: AppPersis
     setLastDataEvent(latestEvent);
   };
 
-  return { lastDataEvent, saveNow, recordDataEvent };
+  return { lastDataEvent, saveNow, recordDataEvent, isDirty };
 };
