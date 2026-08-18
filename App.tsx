@@ -121,6 +121,8 @@ const App: React.FC = () => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [isDeleteDataModalOpen, setIsDeleteDataModalOpen] = useState(false);
+  const [isRecentDataEvent, setIsRecentDataEvent] = useState(false);
   const importFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -140,19 +142,34 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!feedbackMessage) return;
-    const timer = window.setTimeout(() => setFeedbackMessage(''), 5000);
+    const timer = window.setTimeout(() => setFeedbackMessage(''), 3000);
     return () => window.clearTimeout(timer);
   }, [feedbackMessage]);
 
-  const { lastDataEvent, saveNow, recordDataEvent } = useAppPersistence(
+  const { lastDataEvent, saveNow, recordDataEvent, isDirty } = useAppPersistence(
     { transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards },
     { setTransactions: value => setTransactions(value.map(normalizeTransaction)), setSubscriptions, setInitialBalance, setSalaryInfo, setDateRange, setSettings, setCards }
   );
 
+  useEffect(() => {
+    if (!lastDataEvent) {
+      setIsRecentDataEvent(false);
+      return;
+    }
+    const remaining = 5000 - (Date.now() - new Date(lastDataEvent.timestamp).getTime());
+    if (remaining <= 0) {
+      setIsRecentDataEvent(false);
+      return;
+    }
+    setIsRecentDataEvent(true);
+    const timer = window.setTimeout(() => setIsRecentDataEvent(false), remaining);
+    return () => window.clearTimeout(timer);
+  }, [lastDataEvent]);
+
   const formatDataEvent = (event: DataEvent | undefined) => {
     if (!event) return 'Nenhuma atualização registrada';
     const date = new Date(event.timestamp);
-    const label = event.type === 'IMPORT' ? 'Dados importados com sucesso' : event.type === 'DELETE' ? 'Dados excluídos com sucesso' : 'Dados salvos com sucesso';
+    const label = event.type === 'IMPORT' ? 'Dados importados com sucesso' : event.type === 'DELETE' ? 'Dados excluídos com sucesso' : `Último salvamento ${event.saveOrigin === 'manual' ? 'manual' : 'automático'}`;
     return `${label} às ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
   };
 
@@ -188,12 +205,12 @@ const App: React.FC = () => {
     reader.readAsText(file);
   };
   const clearImportedData = () => {
-    if (!window.confirm('Excluir os dados carregados e todos os lançamentos salvos?')) return;
     setTransactions([]); setSubscriptions([]); setInitialBalance({ amount: 0, date: formatLocalYYYYMMDD(new Date()) }); setSalaryInfo({ gross: 0, discounts: [] }); setCards([]);
     [STORAGE_KEY_TRANSACTIONS, STORAGE_KEY_SUBSCRIPTIONS, STORAGE_KEY_INITIAL_BALANCE, STORAGE_KEY_SALARY_INFO, STORAGE_KEY_DATE_RANGE, STORAGE_KEY_SETTINGS, STORAGE_KEY_CARDS].forEach(key => localStorage.removeItem(key));
     recordDataEvent({ type: 'DELETE', timestamp: new Date().toISOString() });
     setSaveState('idle');
     setFeedbackMessage('Dados excluídos.');
+    setIsDeleteDataModalOpen(false);
   };
 
   const calculatedNetSalary = useMemo(() => {
@@ -422,14 +439,24 @@ const App: React.FC = () => {
               </div>
               <div className="border-t border-app-border px-6 pb-8 pt-6 dark:border-dark-app-border">
                 <h3 className="text-base font-bold text-app-text-primary dark:text-dark-app-text-primary">Dados</h3>
-                <p className={`mt-2 text-sm ${saveState === 'error' || lastDataEvent?.type === 'DELETE' ? 'text-rose-600' : lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
+                <p className={`mt-2 text-sm ${saveState === 'error' || lastDataEvent?.type === 'DELETE' ? 'text-rose-600' : isRecentDataEvent && lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
                   {saveState === 'saving' ? 'Salvando...' : saveState === 'error' ? 'Falha ao salvar' : formatDataEvent(lastDataEvent)}
                 </p>
-                <div className="mt-3 grid grid-cols-4 gap-2">
-                  <button onClick={handleSave} className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-theme px-2 text-xs font-bold text-white transition-colors hover:brightness-95"><Save size={15} /> Salvar</button>
-                  <button onClick={exportAppData} aria-label="Exportar dados em JSON" className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-app-surface-secondary px-2 text-xs font-bold text-app-text-primary hover:brightness-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary"><Upload size={15} /> Exportar</button>
-                  <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-app-surface-secondary px-2 text-xs font-bold text-app-text-primary hover:brightness-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary"><Download size={15} /> Importar</button>
-                  <button onClick={clearImportedData} aria-label="Excluir dados carregados" className="flex min-h-10 items-center justify-center gap-1 rounded-xl bg-rose-100 px-2 text-xs font-bold text-rose-700 hover:bg-rose-200"><XCircle size={15} /> Excluir</button>
+                <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-4">
+                  <div className="space-y-1">
+                    <button onClick={handleSave} disabled={!isDirty || saveState === 'saving'} className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-theme px-2 text-xs font-bold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:bg-app-surface-secondary disabled:text-app-text-secondary dark:disabled:bg-dark-app-surface-secondary dark:disabled:text-dark-app-text-secondary"><Save size={15} /> Salvar</button>
+                  </div>
+                  <div className="space-y-1">
+                    <button onClick={exportAppData} aria-label="Exportar dados em JSON" className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-app-surface-secondary px-2 text-xs font-bold text-app-text-primary hover:brightness-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary"><Upload size={15} /> Exportar</button>
+                    <p className="text-center text-xs text-app-text-secondary dark:text-dark-app-text-secondary">Backup em JSON</p>
+                  </div>
+                  <div className="space-y-1">
+                    <button onClick={() => importFileRef.current?.click()} aria-label="Importar dados JSON" className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-app-surface-secondary px-2 text-xs font-bold text-app-text-primary hover:brightness-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary"><Download size={15} /> Importar</button>
+                    <p className="text-center text-xs text-app-text-secondary dark:text-dark-app-text-secondary">Restaurar de arquivo</p>
+                  </div>
+                  <div className="space-y-1 border-l border-app-border pl-3 dark:border-dark-app-border">
+                    <button onClick={() => setIsDeleteDataModalOpen(true)} aria-label="Excluir dados carregados" className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl border border-rose-600 bg-transparent px-2 text-xs font-bold text-rose-600 transition-colors hover:bg-rose-600 hover:text-white active:bg-rose-600 dark:border-rose-500 dark:text-rose-500 dark:hover:bg-rose-500 dark:hover:text-white"><XCircle size={15} /> Excluir</button>
+                  </div>
                 </div>
                 <input ref={importFileRef} type="file" accept="application/json,.json" onChange={importAppData} className="hidden" />
               </div>
@@ -552,6 +579,19 @@ const App: React.FC = () => {
                   className="text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary text-center bg-transparent border-b-2 border-transparent focus:border-theme outline-none"
                 />
                 <button onClick={() => setIsProfileOpen(false)} className="w-full bg-theme text-white font-bold py-3 rounded-xl hover:bg-theme-dark">Fechar</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isDeleteDataModalOpen && (
+          <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+            <div role="dialog" aria-modal="true" aria-labelledby="data-delete-title" className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-dark-app-surface">
+              <h3 id="data-delete-title" className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Tem certeza que deseja excluir?</h3>
+              <p className="mt-3 text-base text-slate-600 dark:text-dark-app-text-secondary">Essa ação não pode ser desfeita.</p>
+              <div className="mt-6 flex gap-3">
+                <button type="button" onClick={() => setIsDeleteDataModalOpen(false)} className="min-h-12 flex-1 rounded-2xl bg-slate-100 px-4 py-3 font-bold text-slate-600 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">Cancelar</button>
+                <button type="button" onClick={clearImportedData} className="min-h-12 flex-1 rounded-2xl bg-rose-600 px-4 py-3 font-bold text-white hover:bg-rose-700">Excluir</button>
               </div>
             </div>
           </div>
