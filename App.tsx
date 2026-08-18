@@ -42,6 +42,7 @@ import { getFinancialGroup, normalizeTransaction, getTransactionEntryType, getRe
 import { buildFeedbackMailto, getDeviceLabel } from './feedback';
 import { createSnapshot, DataEvent, normalizeSnapshot } from './appStorage';
 import { useAppPersistence } from './hooks/useAppPersistence';
+import { fetchAppVersion, getVersionId, isNewVersion, VERSION_STORAGE_KEY, type AppVersion } from './version';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';
@@ -123,6 +124,8 @@ const App: React.FC = () => {
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [isDeleteDataModalOpen, setIsDeleteDataModalOpen] = useState(false);
   const [isRecentDataEvent, setIsRecentDataEvent] = useState(false);
+  const [availableVersion, setAvailableVersion] = useState<AppVersion | null>(null);
+  const versionCheckInFlightRef = useRef(false);
   const importFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -150,6 +153,39 @@ const App: React.FC = () => {
     { transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards },
     { setTransactions: value => setTransactions(value.map(normalizeTransaction)), setSubscriptions, setInitialBalance, setSalaryInfo, setDateRange, setSettings, setCards }
   );
+
+  const checkForAppUpdate = async () => {
+    if (versionCheckInFlightRef.current) return;
+    versionCheckInFlightRef.current = true;
+    try {
+      const remoteVersion = await fetchAppVersion();
+      const knownVersionId = localStorage.getItem(VERSION_STORAGE_KEY);
+      if (!knownVersionId) {
+        localStorage.setItem(VERSION_STORAGE_KEY, getVersionId(remoteVersion));
+      } else if (isNewVersion(remoteVersion, knownVersionId)) {
+        setAvailableVersion(remoteVersion);
+      }
+    } catch {
+      // A version check must never prevent the app from working offline.
+    } finally {
+      versionCheckInFlightRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    void checkForAppUpdate();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void checkForAppUpdate();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
+  const updateApp = () => {
+    if (!availableVersion || isDirty) return;
+    localStorage.setItem(VERSION_STORAGE_KEY, getVersionId(availableVersion));
+    window.location.reload();
+  };
 
   useEffect(() => {
     if (!lastDataEvent) {
@@ -477,6 +513,14 @@ const App: React.FC = () => {
           {activeTab === 'subscriptions' && <SubscriptionCalculator subscriptions={subscriptions} setSubscriptions={setSubscriptions} baseSalary={baseSalary} currencySymbol={currencySymbol} />}
           {activeTab === 'cards' && <CardManager cards={cards} onChange={setCards} currencySymbol={currencySymbol} />}
         </div>
+
+        {availableVersion && <div role="alert" className="fixed bottom-[8.5rem] left-1/2 z-[130] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-theme/30 bg-white p-4 shadow-xl dark:bg-dark-app-surface">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-bold text-app-text-primary dark:text-dark-app-text-primary">Nova versão disponível</p>
+            <button type="button" onClick={updateApp} disabled={isDirty} className="min-h-10 shrink-0 rounded-xl bg-theme px-4 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-app-surface-secondary disabled:text-app-text-secondary dark:disabled:bg-dark-app-surface-secondary dark:disabled:text-dark-app-text-secondary">Atualizar</button>
+          </div>
+          {isDirty && <p className="mt-2 text-sm text-app-text-secondary dark:text-dark-app-text-secondary">Salve as alterações pendentes para atualizar.</p>}
+        </div>}
 
         {feedbackMessage && activeTab !== 'balanceHorizon' && <div className="fixed bottom-[5.75rem] left-1/2 z-[130] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">{feedbackMessage}</div>}
 
