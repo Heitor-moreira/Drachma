@@ -147,7 +147,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   return (
     <div className="touch-pan-y flex h-full min-h-0 flex-col space-y-0 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="border-b border-slate-100 dark:border-dark-app-border transition-colors">
-        <div className="relative flex min-h-[76px] flex-nowrap items-center gap-1 overflow-visible bg-white px-4 py-4 dark:bg-dark-app-surface">
+        <div className="relative flex h-[76px] shrink-0 flex-nowrap items-center gap-1 overflow-visible bg-white px-4 py-4 dark:bg-dark-app-surface">
           <button aria-label="Ir para o mês atual" onClick={goToCurrentMonth} className="shrink-0 rounded-lg p-1 text-slate-900 hover:bg-slate-100 dark:text-dark-app-text-primary dark:hover:bg-slate-700"><CalendarDays className="h-6 w-6" strokeWidth={2.5} /></button>
           <div className="mx-auto flex items-center gap-0.5">
             <button aria-label="Mês anterior" onClick={() => moveMonth(-1)} className="shrink-0 p-1"><ChevronLeft className="w-6 h-6" /></button>
