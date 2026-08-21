@@ -33,7 +33,7 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
   const selectedType = types.find(type => type.key === typeFilter);
 
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
-    <header className="border-b border-slate-100 px-4 py-4 dark:border-dark-app-border">
+    <header className="h-[160px] shrink-0 border-b border-slate-100 px-4 py-4 dark:border-dark-app-border">
       <div className="flex items-center justify-between gap-1">
         <button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-xl p-1.5 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button>
         <h1 className="min-w-0 flex-1 whitespace-nowrap text-center text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Lançamentos recentes</h1>
