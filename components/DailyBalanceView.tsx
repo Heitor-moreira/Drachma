@@ -1,7 +1,8 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, DateRange, CreditCard, EntryType, InitialBalance } from '../types';
 import { projectTransactions, getTransactionEntryType } from '../finance';
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, Grid3X3, Grid2X2 } from 'lucide-react';
+import { getCurrentMonthRange } from '../currentPeriod';
+import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, Grid3X3 } from 'lucide-react';
 
 interface Props {
   transactions: Transaction[];
@@ -35,7 +36,6 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   const [isNarrowViewport, setIsNarrowViewport] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 430);
   const useCompactHeader = compactHeader || isNarrowViewport;
   const [typeFilter, setTypeFilter] = useState('ALL');
-  const [isPeriodPickerOpen, setIsPeriodPickerOpen] = useState(false);
   const swipeStartX = useRef<number | null>(null);
   const swipeStartY = useRef<number | null>(null);
 
@@ -60,6 +60,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     const end = formatLocalYYYYMMDD(new Date(date.getFullYear(), date.getMonth() + 1, 0));
     setDateRange({ start, end });
   };
+  const goToCurrentMonth = () => setDateRange(getCurrentMonthRange());
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     swipeStartX.current = event.touches[0]?.clientX ?? null;
@@ -147,10 +148,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     <div className="touch-pan-y flex h-full min-h-0 flex-col space-y-0 transition-colors duration-300" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="border-b border-slate-100 dark:border-dark-app-border transition-colors">
         <div className="relative flex min-h-[76px] flex-nowrap items-center gap-1 overflow-visible bg-white px-4 py-4 dark:bg-dark-app-surface">
-          <div className="relative shrink-0" tabIndex={-1} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPeriodPickerOpen(false); }}>
-            <button aria-label="Selecionar mês e ano" onClick={() => setIsPeriodPickerOpen(value => !value)} className="shrink-0 rounded-lg p-1 text-slate-900 hover:bg-slate-100 dark:text-dark-app-text-primary dark:hover:bg-slate-700"><CalendarDays className="h-6 w-6" strokeWidth={2.5} /></button>
-            {isPeriodPickerOpen && <div className="absolute left-0 top-10 z-20 flex gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-dark-app-border dark:bg-dark-app-surface"><select aria-label="Mês" value={parseLocalDate(dateRange.start).getMonth()} onChange={e => { const d = parseLocalDate(dateRange.start); const month = Number(e.target.value); setDateRange({ start: formatLocalYYYYMMDD(new Date(d.getFullYear(), month, 1)), end: formatLocalYYYYMMDD(new Date(d.getFullYear(), month + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary dark:[color-scheme:dark]">{MONTHS.map((month, index) => <option key={month} value={index}>{month}</option>)}</select><select aria-label="Ano" value={parseLocalDate(dateRange.start).getFullYear()} onChange={e => { const year = Number(e.target.value); const d = parseLocalDate(dateRange.start); setDateRange({ start: formatLocalYYYYMMDD(new Date(year, d.getMonth(), 1)), end: formatLocalYYYYMMDD(new Date(year, d.getMonth() + 1, 0)) }); }} className="rounded-lg bg-white p-1 font-bold text-slate-800 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary dark:[color-scheme:dark]">{Array.from({ length: 11 }, (_, index) => parseLocalDate(dateRange.start).getFullYear() - 5 + index).map(year => <option key={year} value={year}>{year}</option>)}</select></div>}
-          </div>
+          <button aria-label="Ir para o mês atual" onClick={goToCurrentMonth} className="shrink-0 rounded-lg p-1 text-slate-900 hover:bg-slate-100 dark:text-dark-app-text-primary dark:hover:bg-slate-700"><CalendarDays className="h-6 w-6" strokeWidth={2.5} /></button>
           <div className="mx-auto flex items-center gap-0.5">
             <button aria-label="Mês anterior" onClick={() => moveMonth(-1)} className="shrink-0 p-1"><ChevronLeft className="w-6 h-6" /></button>
             <span className="shrink-0 whitespace-nowrap text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary">{MONTHS[parseLocalDate(dateRange.start).getMonth()]}/{String(parseLocalDate(dateRange.start).getFullYear()).slice(-2)}</span>
@@ -168,7 +166,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
                 <th className="w-[58%] bg-white px-2 py-3 dark:bg-dark-app-surface-secondary">
                   <div className="flex justify-start">
                     <div className="relative flex min-w-0 items-center gap-2 rounded-full border border-slate-200 px-3 py-1 dark:border-dark-app-border">
-                      <Grid2X2 className="h-4 w-4 shrink-0 text-slate-500 dark:text-dark-app-text-secondary" />
+                      <span aria-hidden="true" className="h-6 w-6 shrink-0 rounded-full border-2 border-slate-400" />
                       <select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 w-full appearance-none bg-transparent pr-5 text-base font-normal text-slate-700 outline-none dark:text-dark-app-text-primary">
                         <option value="ALL">Todas</option>
                         {allDailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}
