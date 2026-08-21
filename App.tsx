@@ -205,7 +205,7 @@ const App: React.FC = () => {
   const formatDataEvent = (event: DataEvent | undefined) => {
     if (!event) return 'Nenhuma atualização registrada';
     const date = new Date(event.timestamp);
-    const label = event.type === 'IMPORT' ? 'Dados importados com sucesso' : event.type === 'DELETE' ? 'Dados excluídos com sucesso' : `Último salvamento ${event.saveOrigin === 'manual' ? 'manual' : 'automático'}`;
+    const label = event.type === 'IMPORT' ? 'Arquivo importado com sucesso' : event.type === 'EXPORT' ? 'Arquivo exportado com sucesso' : event.type === 'DELETE' ? 'Dados excluídos com sucesso' : `Último salvamento ${event.saveOrigin === 'manual' ? 'manual' : 'automático'}`;
     return `${label} às ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
   };
 
@@ -227,6 +227,7 @@ const App: React.FC = () => {
     const backup = { ...createSnapshot({ transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards }), exportedAt: new Date().toISOString() };
     const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }));
     const link = document.createElement('a'); link.href = url; link.download = `drachma-backup-${formatLocalYYYYMMDD(new Date())}.json`; link.click(); URL.revokeObjectURL(url);
+    recordDataEvent({ type: 'EXPORT', timestamp: new Date().toISOString() });
   };
   const importAppData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]; if (!file) return;
@@ -460,7 +461,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'savedAnnual' || activeTab === 'monthlyTransactions' || activeTab === 'recentTransactions' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
+        <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'savedAnnual' || activeTab === 'monthlyTransactions' || activeTab === 'recentTransactions' || activeTab === 'tags' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
             <section className="-mx-4 -mt-4 min-h-full bg-app-background dark:bg-dark-app-background md:-mx-8 md:-mt-8">
               <div className="border-b border-app-border bg-app-surface px-6 pb-7 pt-8 dark:border-dark-app-border dark:bg-dark-app-surface">
