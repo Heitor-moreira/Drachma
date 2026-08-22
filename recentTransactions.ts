@@ -1,17 +1,27 @@
 import { CreditCard, EntryType, Transaction } from './types';
 import { getTransactionEntryType, projectTransactions } from './finance';
 
+export type RecentSortDirection = 'ASC' | 'DESC';
+
 export const filterRecentTransactions = (
   transactions: Transaction[],
   cards: CreditCard[],
-  year: number,
-  month: number,
-  type: EntryType | 'ALL'
+  type: EntryType | 'ALL',
+  direction: RecentSortDirection = 'DESC'
 ) => {
-  const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-  const endDate = new Date(year, month + 1, 0);
-  const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
-  return projectTransactions(transactions, start, end, cards)
+  const result = projectTransactions(transactions, '0000-01-01', '9999-12-31', cards)
     .filter(transaction => type === 'ALL' || getTransactionEntryType(transaction) === type)
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => {
+      const aDate = a.createdAt || a.date;
+      const bDate = b.createdAt || b.date;
+      const comparison = aDate.localeCompare(bDate);
+      return direction === 'DESC' ? -comparison : comparison;
+    });
+  return result;
+};
+
+export const getOccurrenceLabel = (transaction: Transaction) => {
+  if (transaction.isInstallment && transaction.installmentInfo) return `[${transaction.installmentInfo.current}/${transaction.installmentInfo.total}]`;
+  if (transaction.recurrenceIndex !== undefined && transaction.recurrenceTotal !== undefined) return `[${transaction.recurrenceIndex + 1}/${transaction.recurrenceTotal}]`;
+  return '';
 };

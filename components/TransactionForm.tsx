@@ -120,6 +120,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
 
     const valAmount = parseFloat(amount);
     const purchaseId = initialData?.installmentInfo?.purchaseId || Math.random().toString(36).substr(2, 9);
+    const createdAt = new Date().toISOString();
     const newTransactions: Transaction[] = [];
     
     // Parse input date (YYYY-MM-DD)
@@ -169,7 +170,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       
       newTransactions.push({
         id: Math.random().toString(36).substr(2, 9),
-        description: isInstallment ? `${description} (${i + 1}/${installmentCount})` : description,
+        createdAt,
+        description,
         amount: valAmount,
         entryType: entryKind,
         tags: allTags,
