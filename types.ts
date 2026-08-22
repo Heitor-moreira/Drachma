@@ -32,6 +32,7 @@ export enum Category {
 export interface Transaction {
   id: string;
   date: string;
+  createdAt?: string;
   description: string;
   amount: number;
   entryType: EntryType;
@@ -55,6 +56,8 @@ export interface Transaction {
   batchId?: string;
   batchName?: string;
   importDate?: string;
+  recurrenceIndex?: number;
+  recurrenceTotal?: number;
 }
 
 export interface CreditCard {

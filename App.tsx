@@ -263,7 +263,9 @@ const App: React.FC = () => {
   }, [calculatedNetSalary]);
 
   const addTransactions = (newTs: Transaction[]) => {
-    setTransactions(prev => [...newTs, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    const createdAt = new Date().toISOString();
+    const normalized = newTs.map(transaction => normalizeTransaction({ ...transaction, createdAt: transaction.createdAt || createdAt }));
+    setTransactions(prev => [...normalized, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     setFeedbackMessage('Movimentação adicionada!');
   };
 

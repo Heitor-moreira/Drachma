@@ -11,7 +11,7 @@ export const getTransactionEntryType = (transaction: Transaction): EntryType => 
 export const normalizeTransaction = (transaction: Transaction): Transaction => {
   const entryType = transaction.cardId ? 'CARD' : getTransactionEntryType(transaction);
   const { category, ...rest } = transaction as Transaction & { category?: unknown };
-  return { ...rest, entryType };
+  return { ...rest, entryType, createdAt: rest.createdAt || rest.importDate || `${rest.date}T12:00:00.000Z` };
 };
 
 export const serializeTransaction = (transaction: Transaction): Transaction => {
@@ -94,7 +94,9 @@ export const projectTransactions = (transactions: Transaction[], start: string, 
         index++;
         continue;
       }
-      const projected = index === 0 ? transaction : { ...transaction, id: `${transaction.id}-projection-${index}`, date: cursor };
+      const projected = isRecurring
+        ? { ...transaction, id: index === 0 ? transaction.id : `${transaction.id}-projection-${index}`, date: cursor, recurrenceIndex: index, recurrenceTotal: Number.isFinite(totalOccurrences) ? totalOccurrences : undefined }
+        : transaction;
       const impactDate = getCashImpactDate(projected, cards);
       if (impactDate >= start && impactDate <= end) result.push({ ...projected, date: impactDate });
       if (!isRecurring) break;
