@@ -29,7 +29,7 @@ const SavedAnnualView: React.FC<Props> = ({ transactions, cards, currencySymbol,
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
     <header className="flex h-[76px] shrink-0 items-center gap-2 border-b border-slate-100 px-4 py-4 dark:border-dark-app-border">
       <button type="button" onClick={onBack} aria-label="Voltar para Totais" className="rounded-lg p-1 text-slate-800 dark:text-dark-app-text-primary"><ArrowLeft className="h-6 w-6" /></button>
-      <h1 className="text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary">Economizado</h1>
+      <h1 className="text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary">economizado</h1>
     </header>
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="border-b border-slate-100 px-6 py-5 dark:border-dark-app-border">

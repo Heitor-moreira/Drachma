@@ -3,7 +3,7 @@ import { getTransactionEntryType, projectTransactions } from './finance';
 
 export type TaggedTypeFilter = EntryType | 'ALL';
 
-export const normalizeTag = (tag: string) => tag.trim().replace(/^#/, '').toLocaleLowerCase();
+export const normalizeTag = (tag: string) => tag.trim().replace(/^#/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
 
 export const uniqueTransactionTags = (transactions: Transaction[]) => Array.from(new Set(transactions.flatMap(transaction => (transaction.tags || []).map(normalizeTag)).filter(Boolean))).sort((a, b) => a.localeCompare(b));
 
@@ -13,7 +13,7 @@ export const filterTaggedTransactions = (transactions: Transaction[], cards: Cre
   const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
   const selectedTag = normalizeTag(tag);
   return projectTransactions(transactions, start, end, cards)
-    .filter(transaction => transaction.tags?.some(item => !selectedTag || selectedTag === 'all' || normalizeTag(item) === selectedTag))
+    .filter(transaction => transaction.tags?.some(item => !selectedTag || selectedTag === 'all' || normalizeTag(item).includes(selectedTag)))
     .filter(transaction => type === 'ALL' || getTransactionEntryType(transaction) === type)
     .sort((a, b) => b.date.localeCompare(a.date));
 };

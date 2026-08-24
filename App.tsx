@@ -531,22 +531,22 @@ const App: React.FC = () => {
           <div className="mx-auto grid max-w-md min-[431px]:w-full grid-cols-5 gap-1 rounded-full border border-slate-200/80 dark:border-dark-app-border/80 bg-slate-100/95 dark:bg-dark-app-surface-secondary/95 backdrop-blur-lg px-1.5 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.18)] pointer-events-auto">
             <button onClick={() => { setActiveTab('dailyBalance'); setIsMobileMenuOpen(false); }} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-full text-xs font-bold transition-colors ${activeTab === 'dailyBalance' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-dark-app-text-secondary'}`}>
               <History size={20} />
-              <span>Saldos</span>
+              <span>saldos</span>
             </button>
             <button onClick={() => setActiveTab('totals')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-full text-xs font-bold ${activeTab === 'totals' ? 'bg-theme/15 text-theme' : 'text-slate-700 dark:text-dark-app-text-primary'}`}>
               <Calculator size={20} />
-              <span>Totais</span>
+              <span>totais</span>
             </button>
             <button onClick={() => openNewTransaction()} aria-label="Adicionar lançamento" className="flex h-14 w-14 place-self-center items-center justify-center self-center rounded-full bg-slate-950 text-white shadow-lg dark:bg-slate-100 dark:text-[#1E293B]">
               <Plus size={30} />
             </button>
             <button onClick={() => setActiveTab('tags')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-full text-xs font-bold ${activeTab === 'tags' ? 'bg-theme/15 text-theme' : 'text-slate-700 dark:text-dark-app-text-primary'}`}>
               <Tags size={20} />
-              <span>Tags</span>
+              <span>tags</span>
             </button>
             <button onClick={() => setActiveTab('menu')} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-full text-xs font-bold transition-colors ${activeTab === 'menu' ? 'bg-theme/15 text-theme' : 'text-slate-500 dark:text-dark-app-text-secondary'}`}>
               <Menu size={22} />
-              <span>Menu</span>
+              <span>menu</span>
             </button>
           </div>
         </nav>}
