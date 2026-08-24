@@ -58,7 +58,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-[#35b784] outline-none text-sm"
           />
         </div>
-        <FilterPill className="sm:max-w-xs" aria-label="Filtrar transações" value={filterType} onChange={event => setFilterType(event.target.value as 'ALL' | TransactionType)}><option value="ALL">Todos</option><option value={TransactionType.INCOME}>Receitas</option><option value={TransactionType.EXPENSE}>Despesas</option></FilterPill>
+        <FilterPill className="sm:max-w-xs" typeFilter aria-label="Filtrar transações" value={filterType} onChange={event => setFilterType(event.target.value as 'ALL' | TransactionType)}><option value="ALL">Todos</option><option value={TransactionType.INCOME}>Receitas</option><option value={TransactionType.EXPENSE}>Despesas</option></FilterPill>
       </div>
 
       <div className="space-y-6">

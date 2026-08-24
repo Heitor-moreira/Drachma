@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDown, ArrowDownLeft, ArrowLeft, ArrowUp, ArrowUpRight, ChevronRight, CreditCard as CreditCardIcon } from 'lucide-react';
+import { ArrowDown, ArrowDownLeft, ArrowLeft, ArrowUp, ArrowUpRight, ChevronRight, Search } from 'lucide-react';
 import { CreditCard, EntryType, Transaction } from '../types';
 import { filterRecentTransactions, getOccurrenceLabel, RecentSortDirection } from '../recentTransactions';
 import FilterPill from './FilterPill';
@@ -16,7 +16,7 @@ const types: Array<{ key: EntryType; label: string; color: string; icon: React.R
   { key: 'INCOME', label: 'Entrada', color: 'bg-emerald-500', icon: <ArrowDownLeft size={16} strokeWidth={3} /> },
   { key: 'EXPENSE', label: 'Saída', color: 'bg-rose-500', icon: <ArrowUpRight size={16} strokeWidth={3} /> },
   { key: 'SAVINGS', label: 'Economia', color: 'bg-lime-500', icon: <span className="font-bold">E</span> },
-  { key: 'CARD', label: 'Gasto com cartão', color: 'bg-violet-600', icon: <CreditCardIcon size={15} /> },
+  { key: 'CARD', label: 'Gasto com cartão', color: 'bg-violet-600', icon: <span className="font-bold">C</span> },
 ];
 
 const displayDate = (value: string) => {
@@ -27,7 +27,8 @@ const displayDate = (value: string) => {
 const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currencySymbol, onBack, onEdit }) => {
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>('ALL');
   const [sortDirection, setSortDirection] = useState<RecentSortDirection>('DESC');
-  const filteredTransactions = useMemo(() => filterRecentTransactions(transactions, cards, typeFilter, sortDirection), [transactions, cards, typeFilter, sortDirection]);
+  const [descriptionSearch, setDescriptionSearch] = useState('');
+  const filteredTransactions = useMemo(() => filterRecentTransactions(transactions, cards, typeFilter, sortDirection, descriptionSearch), [transactions, cards, typeFilter, sortDirection, descriptionSearch]);
 
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
     <header className="shrink-0 border-b border-slate-100 dark:border-dark-app-border">
@@ -36,9 +37,12 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
         <h1 className="min-w-0 flex-1 whitespace-nowrap text-center text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Lançamentos recentes</h1>
         <span className="w-8" aria-hidden="true" />
       </div>
-      <div className="-mx-4 mt-0 flex min-w-0 items-center gap-1 border-t border-slate-100 px-4 py-3 dark:border-dark-app-border sm:gap-2">
-      <FilterPill className="flex-1" aria-label="Filtrar por tipo" value={typeFilter} onChange={event => setTypeFilter(event.target.value as EntryType | 'ALL')}><option value="ALL">Todos</option>{types.map(type => <option key={type.key} value={type.key}>{type.label}</option>)}</FilterPill>
-      <button type="button" onClick={() => setSortDirection(value => value === 'DESC' ? 'ASC' : 'DESC')} aria-label={sortDirection === 'DESC' ? 'Ordenação: mais recentes primeiro' : 'Ordenação: mais antigos primeiro'} className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-base font-medium text-slate-700 shadow-sm dark:border-dark-app-border dark:bg-dark-app-surface dark:text-dark-app-text-primary"><span className="flex h-5 w-5 shrink-0 items-center justify-center">{sortDirection === 'DESC' ? <ArrowDown size={19} /> : <ArrowUp size={19} />}</span><span className="min-w-0 whitespace-nowrap">{sortDirection === 'DESC' ? 'Mais recentes' : 'Mais antigos'}</span></button>
+      <div className="-mx-4 mt-0 border-t border-slate-100 px-4 py-3 dark:border-dark-app-border">
+      <label className="flex h-11 min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 shadow-sm dark:border-dark-app-border dark:bg-dark-app-surface"><Search className="h-5 w-5 shrink-0 text-slate-500 dark:text-dark-app-text-secondary" /><input aria-label="Pesquisar por descrição" value={descriptionSearch} onChange={event => setDescriptionSearch(event.target.value)} placeholder="Pesquisar descrição" className="min-w-0 w-full bg-transparent text-base font-medium text-slate-700 outline-none placeholder:text-slate-400 dark:text-dark-app-text-primary dark:placeholder:text-dark-app-text-secondary" /></label>
+      <div className="mt-2 grid min-w-0 grid-cols-2 gap-1 sm:gap-2">
+      <FilterPill typeFilter aria-label="Filtrar por tipo" value={typeFilter} onChange={event => setTypeFilter(event.target.value as EntryType | 'ALL')}><option value="ALL">Todos</option>{types.map(type => <option key={type.key} value={type.key}>{type.label}</option>)}</FilterPill>
+      <button type="button" onClick={() => setSortDirection(value => value === 'DESC' ? 'ASC' : 'DESC')} aria-label={sortDirection === 'DESC' ? 'Ordenação: mais recentes primeiro' : 'Ordenação: mais antigos primeiro'} className="flex h-11 min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-base font-medium text-slate-700 shadow-sm dark:border-dark-app-border dark:bg-dark-app-surface dark:text-dark-app-text-primary"><span className="flex h-5 w-5 shrink-0 items-center justify-center">{sortDirection === 'DESC' ? <ArrowDown size={19} /> : <ArrowUp size={19} />}</span><span className="min-w-0 whitespace-nowrap">{sortDirection === 'DESC' ? 'Mais recentes' : 'Mais antigos'}</span></button>
+      </div>
       </div>
     </header>
     <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">

@@ -166,7 +166,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
                 <th className="w-[12%] py-3 px-2 bg-white text-left font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-xs">Dia</th>
                 <th className="w-[58%] bg-white px-2 py-3 dark:bg-dark-app-surface-secondary">
                   <div className="flex justify-start">
-                    <FilterPill aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+                    <FilterPill typeFilter aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
                         <option value="ALL">Todas</option>
                         {allDailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}
                     </FilterPill>
