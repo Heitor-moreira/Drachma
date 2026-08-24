@@ -1,5 +1,24 @@
 # Instruções de interface
 
+## Padrão de cabeçalhos com período e filtros
+
+Usar a tela **Saldos** como referência visual para telas com navegação de período centralizada e filtros no topo, incluindo Tags, Totais e Movimentações do mês:
+
+- cabeçalho de navegação do período com **76 px de altura**;
+- mês/período centralizado, com setas laterais e ações auxiliares preservadas;
+- usar como padrão os controles de Saldos: título/período em `text-2xl`, ícones de 24 px (`h-6 w-6`), botões com `p-1` e navegação com `gap-0.5`;
+- manter `px-4` no cabeçalho e slots laterais simétricos de 32 px (`w-8`) quando uma ação lateral não existir;
+- a seta de voltar tem prioridade sobre o calendário; o calendário só aparece quando não houver seta de voltar;
+- linha de filtros delimitada por **divisória superior e inferior**, como em Saldos;
+- linha de filtros com o mesmo espaçamento vertical de Saldos: `py-3` externo e pílula compacta com `py-1`/`py-1.5` em telas estreitas;
+- filtros lado a lado, com gap pequeno, sem rolagem horizontal e sem cortar conteúdo; reduzir padding e largura interna responsivamente quando necessário;
+- para filtros, usar a pílula padrão: altura `h-11`, fundo de superfície, borda semântica, sombra suave, ícone de quatro pontos à esquerda, texto em `text-base font-medium` e chevron à direita; preservar ícones semânticos quando o controle representar ordenação;
+- preservar rótulos, escala tipográfica aprovada e tokens de cor do app.
+
+## Premissa para novas telas
+
+Partir sempre dos padrões de layout e controles já consolidados no app. Alterar esses padrões apenas quando a finalidade específica da tela exigir.
+
 ## Tipografia obrigatória
 
 Antes de criar ou alterar qualquer tela, componente, botão, modal, formulário, tabela ou mensagem que contenha texto, consulte [FONTES_TIPOGRAFICAS.md](./FONTES_TIPOGRAFICAS.md).

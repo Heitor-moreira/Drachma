@@ -2,7 +2,8 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, DateRange, CreditCard, EntryType, InitialBalance } from '../types';
 import { projectTransactions, getTransactionEntryType } from '../finance';
 import { getCurrentMonthRange } from '../currentPeriod';
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, ChevronDown, Grid3X3 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
+import FilterPill from './FilterPill';
 
 interface Props {
   transactions: Transaction[];
@@ -160,19 +161,15 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
       <div className="min-h-0 flex-1 bg-white shadow-sm dark:bg-dark-app-surface-secondary">
         <div className="h-full overflow-x-hidden overflow-y-auto custom-scrollbar">
           <table className="w-full table-fixed border-collapse ">
-            <thead className="border-b border-slate-200 dark:border-dark-app-border">
+            <thead className="border-t border-b border-slate-200 dark:border-dark-app-border">
               <tr className="bg-white dark:bg-dark-app-surface-secondary">
                 <th className="w-[12%] py-3 px-2 bg-white text-left font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-xs">Dia</th>
                 <th className="w-[58%] bg-white px-2 py-3 dark:bg-dark-app-surface-secondary">
                   <div className="flex justify-start">
-                    <div className="relative flex min-w-0 items-center gap-2 rounded-full border border-slate-200 px-3 py-1 dark:border-dark-app-border">
-                      <span aria-hidden="true" className="h-6 w-6 shrink-0 rounded-full border-2 border-slate-400" />
-                      <select aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="min-w-0 w-full appearance-none bg-transparent pr-5 text-base font-normal text-slate-700 outline-none dark:text-dark-app-text-primary">
+                    <FilterPill aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
                         <option value="ALL">Todas</option>
                         {allDailyTypes.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 h-4 w-4 text-slate-500 dark:text-dark-app-text-secondary" />
-                    </div>
+                    </FilterPill>
                   </div>
                 </th>
                 <th className="w-[30%] p-2 bg-white text-right font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-lg whitespace-nowrap">Saldos</th>

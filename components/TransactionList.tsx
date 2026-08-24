@@ -1,8 +1,9 @@
 
 import React, { useState, useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
-import { Trash2, Search, Filter, Calendar, Tag, CreditCard, Edit2 } from 'lucide-react';
+import { Trash2, Search, Calendar, Tag, CreditCard, Edit2 } from 'lucide-react';
 import { getTransactionEntryType } from '../finance';
+import FilterPill from './FilterPill';
 
 interface Props {
   transactions: Transaction[];
@@ -57,11 +58,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDelete, onEdit }) =>
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-[#35b784] outline-none text-sm"
           />
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => setFilterType('ALL')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterType === 'ALL' ? 'bg-[#35b784] text-slate-800 shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>Todos</button>
-          <button onClick={() => setFilterType(TransactionType.INCOME)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterType === TransactionType.INCOME ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>Receitas</button>
-          <button onClick={() => setFilterType(TransactionType.EXPENSE)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterType === TransactionType.EXPENSE ? 'bg-rose-600 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}>Despesas</button>
-        </div>
+        <FilterPill className="sm:max-w-xs" aria-label="Filtrar transações" value={filterType} onChange={event => setFilterType(event.target.value as 'ALL' | TransactionType)}><option value="ALL">Todos</option><option value={TransactionType.INCOME}>Receitas</option><option value={TransactionType.EXPENSE}>Despesas</option></FilterPill>
       </div>
 
       <div className="space-y-6">

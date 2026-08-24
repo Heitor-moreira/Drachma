@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Transaction, CreditCard as CreditCardModel } from '../types';
-import { Calendar, Tag, MessageSquare, Repeat, CreditCard, Bookmark, ArrowDownLeft, ArrowUpRight, Trash2, X, ChevronDown, Pencil, RotateCcw } from 'lucide-react';
+import { Calendar, Tag, MessageSquare, Repeat, Bookmark, ArrowDownLeft, ArrowUpRight, Trash2, X, ChevronDown, Pencil, RotateCcw } from 'lucide-react';
 
 interface Props {
   onAdd: (transactions: Transaction[]) => void;
@@ -80,7 +80,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
     setCommittedTags(prev => commitTag(prev, tagsText));
     setTagsText('');
   };
-  const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: ArrowDownLeft }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: CreditCard } }[entryKind];
+  const kindMeta = { INCOME: { label: 'Entrada', color: 'text-emerald-600', pill: '#d1fae5', button: 'bg-emerald-500', icon: ArrowDownLeft }, EXPENSE: { label: 'Saída', color: 'text-rose-600', pill: '#ffe4e6', button: 'bg-rose-500', icon: ArrowUpRight }, SAVINGS: { label: 'Economia', color: 'text-lime-600', pill: '#ecfccb', button: 'bg-lime-500', icon: ArrowDownLeft }, CARD: { label: 'Gasto com cartão', color: 'text-violet-600', pill: '#ede9fe', button: 'bg-violet-600', icon: ArrowDownLeft } }[entryKind];
   const selectKind = (kind: EntryKind) => { setEntryKind(kind); };
   const KindIcon = kindMeta.icon;
   
@@ -198,7 +198,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   return (
     <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border [&>div]:!h-[80px]">
       <div className="flex items-center justify-between border-b border-slate-100 px-6 pb-4 dark:border-dark-app-border md:px-12"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-[32px] font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
-      <div className="relative flex min-h-20 w-full cursor-pointer items-center justify-between px-6 py-5 md:px-12" aria-label="Selecionar tipo de lançamento"><div className="flex min-w-0 items-center gap-4"><div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' ? <span className="text-[21px] font-bold">E</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`truncate text-[21px] font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={21} className={`shrink-0 ${kindMeta.color}`} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
+      <div className="relative flex min-h-20 w-full cursor-pointer items-center justify-between px-6 py-5 md:px-12" aria-label="Selecionar tipo de lançamento"><div className="flex min-w-0 items-center gap-4"><div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' || entryKind === 'CARD' ? <span className="text-[21px] font-bold">{entryKind === 'SAVINGS' ? 'E' : 'C'}</span> : <KindIcon size={21} strokeWidth={3} />}</div><span className={`truncate text-[21px] font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={21} className={`shrink-0 ${kindMeta.color}`} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
 
       <div className="min-h-20 px-6 py-5 md:px-12">
         <div>
