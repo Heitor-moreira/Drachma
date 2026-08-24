@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDown, ArrowDownLeft, ArrowLeft, ArrowUp, ArrowUpRight, ChevronDown, ChevronRight, CreditCard as CreditCardIcon } from 'lucide-react';
+import { ArrowDown, ArrowDownLeft, ArrowLeft, ArrowUp, ArrowUpRight, ChevronRight, CreditCard as CreditCardIcon } from 'lucide-react';
 import { CreditCard, EntryType, Transaction } from '../types';
 import { filterRecentTransactions, getOccurrenceLabel, RecentSortDirection } from '../recentTransactions';
+import FilterPill from './FilterPill';
 
 interface Props {
   transactions: Transaction[];
@@ -27,22 +28,17 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>('ALL');
   const [sortDirection, setSortDirection] = useState<RecentSortDirection>('DESC');
   const filteredTransactions = useMemo(() => filterRecentTransactions(transactions, cards, typeFilter, sortDirection), [transactions, cards, typeFilter, sortDirection]);
-  const selectedType = types.find(type => type.key === typeFilter);
 
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
-    <header className="h-[160px] shrink-0 border-b border-slate-100 px-4 py-4 dark:border-dark-app-border">
-      <div className="flex items-center justify-between gap-1">
-        <button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-xl p-1.5 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button>
+    <header className="shrink-0 border-b border-slate-100 dark:border-dark-app-border">
+      <div className="flex h-[76px] items-center justify-between gap-1 px-4 py-4">
+        <button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-lg p-1 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button>
         <h1 className="min-w-0 flex-1 whitespace-nowrap text-center text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Lançamentos recentes</h1>
-        <span className="w-9" aria-hidden="true" />
+        <span className="w-8" aria-hidden="true" />
       </div>
-      <div className="mt-3 flex items-center gap-2">
-        <div className="relative flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 px-3 py-2 dark:border-dark-app-border">
-        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${selectedType?.color || 'border-2 border-slate-400'} text-white`}>{selectedType?.icon}</span>
-        <select aria-label="Filtrar por tipo" value={typeFilter} onChange={event => setTypeFilter(event.target.value as EntryType | 'ALL')} className="min-w-0 w-full appearance-none bg-transparent pr-6 text-base font-normal text-slate-700 outline-none dark:text-dark-app-text-primary dark:[color-scheme:dark]"><option value="ALL">Todos</option>{types.map(type => <option key={type.key} value={type.key}>{type.label}</option>)}</select>
-        <ChevronDown className="pointer-events-none absolute right-3 h-4 w-4 text-slate-500 dark:text-dark-app-text-secondary" />
-      </div>
-      <button type="button" onClick={() => setSortDirection(value => value === 'DESC' ? 'ASC' : 'DESC')} aria-label={sortDirection === 'DESC' ? 'Ordenação: mais recentes primeiro' : 'Ordenação: mais antigos primeiro'} className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-base font-medium text-slate-700 dark:border-dark-app-border dark:text-dark-app-text-primary">{sortDirection === 'DESC' ? <ArrowDown size={19} className="shrink-0" /> : <ArrowUp size={19} className="shrink-0" />}<span className="truncate">{sortDirection === 'DESC' ? 'Mais recentes' : 'Mais antigos'}</span></button>
+      <div className="-mx-4 mt-0 flex min-w-0 items-center gap-1 border-t border-slate-100 px-4 py-3 dark:border-dark-app-border sm:gap-2">
+      <FilterPill className="flex-1" aria-label="Filtrar por tipo" value={typeFilter} onChange={event => setTypeFilter(event.target.value as EntryType | 'ALL')}><option value="ALL">Todos</option>{types.map(type => <option key={type.key} value={type.key}>{type.label}</option>)}</FilterPill>
+      <button type="button" onClick={() => setSortDirection(value => value === 'DESC' ? 'ASC' : 'DESC')} aria-label={sortDirection === 'DESC' ? 'Ordenação: mais recentes primeiro' : 'Ordenação: mais antigos primeiro'} className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-base font-medium text-slate-700 shadow-sm dark:border-dark-app-border dark:bg-dark-app-surface dark:text-dark-app-text-primary"><span className="flex h-5 w-5 shrink-0 items-center justify-center">{sortDirection === 'DESC' ? <ArrowDown size={19} /> : <ArrowUp size={19} />}</span><span className="min-w-0 whitespace-nowrap">{sortDirection === 'DESC' ? 'Mais recentes' : 'Mais antigos'}</span></button>
       </div>
     </header>
     <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">

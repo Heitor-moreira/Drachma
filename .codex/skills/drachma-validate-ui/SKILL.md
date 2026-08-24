@@ -5,21 +5,25 @@ description: Use when changing or diagnosing Drachma screens, components, modals
 
 # Validate Drachma UI
 
+`AGENTS.md` é a fonte de verdade para as instruções específicas do projeto,
+incluindo tipografia, cores, cabeçalhos, grafo, servidor local e regras de
+OpenCodeReview. Esta skill define somente o fluxo operacional para investigar,
+alterar e validar interfaces.
+
 ## Before editing
 
-- Read `FONTES_TIPOGRAFICAS.md` for text UI and `CORES_APP.md` for visual tokens.
-- Inspect the current component and preserve labels, order, placement, requested measurements, and semantic light/dark tokens.
-- Use the Code Review Graph first for impact and related consumers when the change touches existing behavior.
+- Read `AGENTS.md` and follow its project-specific UI rules before editing.
+- Inspect the current component and identify the relevant layout, responsive and interaction states.
+- Use the Code Review Graph according to the workflow defined in `AGENTS.md`.
 
 ## Validation workflow
 
-1. Verify the running Drachma instance on TCP port 3000 before starting or restarting it. If it is already running, leave it untouched.
-2. Use the current project command when startup is needed: `npm run dev -- --host 127.0.0.1 --port 3000`.
-3. Test the real browser flow at the relevant viewport, including mobile dimensions when the change affects layout or inputs.
-4. Inspect console errors, computed styles, and bounding rectangles when a visual change appears unchanged; prefer structural layout fixes over fixed-height or negative-margin compensation.
-5. For editable mobile fields, keep at least 16px text to avoid automatic Safari/iOS zoom; never use `user-scalable=no`.
-6. Check modal focus, actions, alignment, weight, color, wrapping, dismissal, and empty states. An empty post-selection query must hide tag suggestions.
-7. Run `npx tsc --noEmit`, `npm run build`, and `git diff --check` after implementation.
+1. Verify or start the local Drachma instance according to `AGENTS.md`.
+2. Test the real browser flow at the relevant viewport, including mobile dimensions when the change affects layout or inputs.
+3. Inspect console errors, computed styles and bounding rectangles when a visual change appears unchanged; prefer structural layout fixes over compensating offsets.
+4. For editable mobile fields, keep at least 16px text to avoid automatic Safari/iOS zoom; never use `user-scalable=no`.
+5. Check modal focus, actions, alignment, wrapping, dismissal and empty states. An empty post-selection query must hide tag suggestions.
+6. Run `npx tsc --noEmit`, `npm run build` and `git diff --check` after implementation.
 
 ## Finance-specific visual checks
 
