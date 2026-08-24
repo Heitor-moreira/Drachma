@@ -19,6 +19,15 @@ describe('filterTaggedTransactions', () => {
     expect(result.map(transaction => transaction.id)).toEqual(['match']);
   });
 
+  it('filters tags partially without case or accent sensitivity', () => {
+    const result = filterTaggedTransactions([
+      { ...base, id: 'food', date: '2026-08-20', description: 'Mercado', tags: ['Alimentação'] },
+      { ...base, id: 'fun', date: '2026-08-20', description: 'Cinema', tags: ['Lazer'] },
+    ], [], 2026, 7, 'ALL', 'ALIMEN');
+
+    expect(result.map(transaction => transaction.id)).toEqual(['food']);
+  });
+
   it('includes tagged recurring projections and installments in the selected month', () => {
     const result = filterTaggedTransactions([{ ...base, id: 'recurring', date: '2026-07-20', description: 'Recorrente', tags: ['fixo'], recurrenceFrequency: 'MONTHLY', recurrenceEndMode: 'COUNT', recurrenceCount: 2 }], [], 2026, 7, 'ALL', 'ALL');
     expect(result.map(transaction => transaction.date)).toEqual(['2026-08-20']);

@@ -34,7 +34,7 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
     <header className="shrink-0 border-b border-slate-100 dark:border-dark-app-border">
       <div className="flex h-[76px] items-center justify-between gap-1 px-4 py-4">
         <button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-lg p-1 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button>
-        <h1 className="min-w-0 flex-1 whitespace-nowrap text-center text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Lançamentos recentes</h1>
+        <h1 className="min-w-0 flex-1 whitespace-nowrap text-center text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">lançamentos recentes</h1>
         <span className="w-8" aria-hidden="true" />
       </div>
       <div className="-mx-4 mt-0 border-t border-slate-100 px-4 py-3 dark:border-dark-app-border">
