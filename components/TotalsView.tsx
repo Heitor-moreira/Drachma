@@ -5,6 +5,7 @@ import { getTransactionEntryType, projectTransactions } from '../finance';
 import { getCurrentMonthRange } from '../currentPeriod';
 
 interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
+export const calculatePerformance = ({ income, expense, savings, card }: { income: number; expense: number; savings: number; card: number }) => income - expense - savings - card;
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -26,7 +27,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
   const moveMonth = (delta: number) => { const next = new Date(start.getFullYear(), start.getMonth() + delta, 1, 12); setDateRange({ start: formatDate(next), end: formatDate(new Date(next.getFullYear(), next.getMonth() + 1, 0, 12)) }); };
   const goToCurrentMonth = () => setDateRange(getCurrentMonthRange());
   const money = (value: number) => `${currencySymbol} ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-  const performance = totals.income - totals.expense - totals.savings;
+  const performance = calculatePerformance(totals);
   const savingsPercentage = totals.income > 0 ? Math.min(100, Math.max(0, (totals.savings / totals.income) * 100)) : 0;
   const symbol = (content: React.ReactNode, color: string) => <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} text-xs font-bold text-white`}>{content}</span>;
   const movementTypes: { key: EntryType; label: string; icon: React.ReactNode; color: string; value: number }[] = [
