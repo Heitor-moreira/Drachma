@@ -53,5 +53,8 @@ opencode.jsonc
 # Local financial data and migrated backups
 drachma-dezembro-2025.migrado.json
 
+# Local product ideas and future proposals
+IDEIAS_FUTURAS.md
+
 # Added by code-review-graph
 .code-review-graph/

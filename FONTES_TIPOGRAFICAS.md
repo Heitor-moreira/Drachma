@@ -45,8 +45,8 @@ Antes de criar ou alterar uma interface com texto, consultar este arquivo e usar
 2. Não usar `text-[...]`, `clamp(...)`, `text-xl`, `text-4xl` ou tamanhos menores que 12 px em novas interfaces.
 3. Valores financeiros e saldos devem usar `text-base` (16 px), salvo quando forem um indicador principal, caso em que podem usar `text-2xl` ou `text-3xl`.
 4. O modal de lançamento usa os tokens `modal-value`, `modal-primary` e `modal-option` para preservar a hierarquia visual solicitada.
-4. Preservar contraste e legibilidade nos modos claro e escuro.
-5. Ao alterar uma interface existente, migrar tamanhos fora da escala quando isso não alterar indevidamente o layout.
+5. Preservar contraste e legibilidade nos modos claro e escuro.
+6. Ao alterar uma interface existente, migrar tamanhos fora da escala quando isso não alterar indevidamente o layout.
 
 ## Estado atual e migração
 

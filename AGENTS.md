@@ -1,33 +1,18 @@
-# Instruções de interface
+# Drachma — índice operacional de desenvolvimento
 
-## Padrão de cabeçalhos com período e filtros
+Este arquivo define o fluxo obrigatório de trabalho. As convenções detalhadas vivem nos documentos indicados abaixo. O código atual continua sendo a referência final quando houver divergência entre documentação e implementação.
 
-Usar a tela **Saldos** como referência visual para telas com navegação de período centralizada e filtros no topo, incluindo Tags, Totais e Movimentações do mês:
+## Regras obrigatórias
 
-- cabeçalho de navegação do período com **76 px de altura**;
-- mês/período centralizado, com setas laterais e ações auxiliares preservadas;
-- usar como padrão os controles de Saldos: título/período em `text-2xl`, ícones de 24 px (`h-6 w-6`), botões com `p-1` e navegação com `gap-0.5`;
-- manter `px-4` no cabeçalho e slots laterais simétricos de 32 px (`w-8`) quando uma ação lateral não existir;
-- a seta de voltar tem prioridade sobre o calendário; o calendário só aparece quando não houver seta de voltar;
-- linha de filtros delimitada por **divisória superior e inferior**, como em Saldos;
-- linha de filtros com o mesmo espaçamento vertical de Saldos: `py-3` externo e pílula compacta com `py-1`/`py-1.5` em telas estreitas;
-- filtros lado a lado, com gap pequeno, sem rolagem horizontal e sem cortar conteúdo; reduzir padding e largura interna responsivamente quando necessário;
-- para filtros, usar a pílula padrão: altura `h-11`, fundo de superfície, borda semântica, sombra suave, ícone de quatro pontos à esquerda, texto em `text-base font-medium` e chevron à direita; preservar ícones semânticos quando o controle representar ordenação;
-- preservar rótulos, escala tipográfica aprovada e tokens de cor do app.
+1. Preserve mudanças, diffs, arquivos não rastreados, backups, fixtures e dados que não pertençam à tarefa. Não descarte, sobrescreva nem inclua esse material em commits sem autorização explícita.
+2. Antes de explorar código, use primeiro o `code-review-graph`. Recorra a busca e leitura direta de arquivos somente para lacunas do grafo ou para confirmar detalhes da implementação.
+3. Antes de alterar uma interface, consulte as convenções aplicáveis de tipografia, cores, layout, acessibilidade e responsividade. Parta dos padrões já consolidados no app e preserve rótulos, hierarquia, tokens e comportamento.
+4. Não trate backups, propostas, planos ou o `README.md` como contrato vivo sem conferir o código, os tipos, a persistência e os fluxos atuais.
+5. Faça alterações pequenas e focadas. Valide o impacto, os fluxos afetados e a cobertura pertinente antes de concluir.
 
-## Premissa para novas telas
+## Inicialização local
 
-Partir sempre dos padrões de layout e controles já consolidados no app. Alterar esses padrões apenas quando a finalidade específica da tela exigir.
-
-## Tipografia obrigatória
-
-Antes de criar ou alterar qualquer tela, componente, botão, modal, formulário, tabela ou mensagem que contenha texto, consulte [FONTES_TIPOGRAFICAS.md](./FONTES_TIPOGRAFICAS.md).
-
-Use somente a família, os pesos e a escala aprovados nesse inventário. Não introduza novos tamanhos ou pesos tipográficos sem atualizar o inventário e registrar a justificativa. Ao modificar código legado, prefira migrar os estilos tipográficos fora da escala aprovada.
-
-## Inicialização local obrigatória
-
-No início de cada nova conversa relacionada ao Drachma, encerre somente os processos que estiverem ocupando a porta `3000` e inicie novamente o servidor local com:
+No início de cada nova conversa relacionada ao Drachma, encerre somente os processos que estiverem ocupando a porta `3000` e inicie o servidor com:
 
 ```bash
 npm run dev -- --host 127.0.0.1 --port 3000
@@ -35,49 +20,53 @@ npm run dev -- --host 127.0.0.1 --port 3000
 
 Não encerre processos de outras portas ou serviços não relacionados ao Drachma.
 
-## OpenCodeReview obrigatório para bugs
+## Fluxo obrigatório para bugs
 
-Sempre que o usuário solicitar a análise de possíveis bugs, a investigação de um comportamento incorreto ou a correção de bugs no app, siga esta ordem: (1) use primeiro o `code-review-graph` para mapear contexto, dependências, fluxos afetados e impacto; (2) execute depois o OpenCodeReview usando a skill/ferramenta nativa do Codex (`ocr_review`) para a análise especializada; (3) só então altere os arquivos e valide a correção. Para uma verificação do OpenCodeReview sem chamada ao LLM, use `preview=true`. As duas ferramentas são complementares e nenhuma substitui a outra.
+Para analisar, investigar ou corrigir comportamento incorreto, siga esta ordem:
 
-## Cores obrigatórias
+1. Use o `code-review-graph` para mapear contexto, dependências, fluxos, impacto e testes.
+2. Execute o OpenCodeReview pela skill ou ferramenta nativa do Codex (`ocr_review`). Para verificar a configuração sem chamada ao LLM, use `preview=true`.
+3. Altere somente os arquivos necessários.
+4. Valide conforme [VALIDACAO_APP.md](./VALIDACAO_APP.md).
 
-Antes de criar ou alterar qualquer asset visual, consulte [CORES_APP.md](./CORES_APP.md). Use a paleta aprovada para telas, componentes, botões, modais, formulários, tabelas, gráficos e ícones. Não introduza novas cores sem atualizar o inventário e registrar a justificativa.
+O grafo e o OpenCodeReview são complementares; nenhum substitui o outro.
 
-<!-- code-review-graph MCP tools -->
-## MCP Tools: code-review-graph
+## Uso obrigatório do grafo
 
-**IMPORTANT: This project has a knowledge graph. ALWAYS use the
-code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
-the codebase.** The graph is faster, cheaper (fewer tokens), and gives
-you structural context (callers, dependents, test coverage) that file
-scanning cannot.
+- Comece por contexto mínimo e verifique se o grafo está sincronizado com o `HEAD`.
+- Use busca semântica ou consultas do grafo para localizar entidades e relações.
+- Use raio de impacto e fluxos afetados antes de mudanças estruturais.
+- Em revisões, detecte as mudanças e obtenha contexto focado.
+- Consulte importadores, chamadores, dependências e testes pelo grafo antes de varrer arquivos.
+- Se o grafo estiver desatualizado ou `head_matches_build=false`, informe isso e trate seus resultados apenas como orientação até confirmar no código vivo.
 
-### When to use graph tools FIRST
+## Matriz de documentos por tipo de alteração
 
-- **Exploring code**: `semantic_search_nodes_tool` or `query_graph_tool` instead of Grep
-- **Understanding impact**: `get_impact_radius_tool` instead of manually tracing imports
-- **Code review**: `detect_changes_tool` + `get_review_context_tool` instead of reading entire files
-- **Finding relationships**: `query_graph_tool` with callers_of/callees_of/imports_of/tests_for
-- **Architecture questions**: `get_architecture_overview_tool` + `list_communities_tool`
+| Tipo de trabalho | Consulta obrigatória |
+| --- | --- |
+| Visão do produto, escopo e requisitos | [README.md](./README.md), apenas como vitrine do produto; não é fonte normativa |
+| Texto, títulos, valores, controles e hierarquia tipográfica | [FONTES_TIPOGRAFICAS.md](./FONTES_TIPOGRAFICAS.md) |
+| Cores, temas, estados financeiros, bordas e superfícies | [CORES_APP.md](./CORES_APP.md) |
+| Telas, cabeçalhos, filtros, modais, espaçamentos e navegação | [LAYOUTS_APP.md](./LAYOUTS_APP.md) |
+| Mobile, zoom, toque, teclado, foco, contraste e leitores de tela | [ACESSIBILIDADE_RESPONSIVIDADE.md](./ACESSIBILIDADE_RESPONSIVIDADE.md) |
+| Tipos financeiros, importação, exportação, backup e armazenamento | [DADOS_E_PERSISTENCIA.md](./DADOS_E_PERSISTENCIA.md) |
+| Testes, TypeScript, build, navegador e critérios de conclusão | [VALIDACAO_APP.md](./VALIDACAO_APP.md) |
+| Arquitetura, organização, nomenclatura e padrões de implementação | [CONVENCOES_CODIGO.md](./CONVENCOES_CODIGO.md) |
+| Status, staging, commits, proteção de mudanças e push | [CONVENCOES_GIT.md](./CONVENCOES_GIT.md) |
 
-Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
+Consulte todos os documentos aplicáveis quando uma tarefa atravessar mais de um domínio.
 
-### Key Tools
+## Referências operacionais
 
-| Tool | Use when |
-| ------ | ---------- |
-| `detect_changes_tool` | Reviewing code changes — gives risk-scored analysis |
-| `get_review_context_tool` | Need source snippets for review — token-efficient |
-| `get_impact_radius_tool` | Understanding blast radius of a change |
-| `get_affected_flows_tool` | Finding which execution paths are impacted |
-| `query_graph_tool` | Tracing callers, callees, imports, tests, dependencies |
-| `semantic_search_nodes_tool` | Finding functions/classes by name or keyword |
-| `get_architecture_overview_tool` | Understanding high-level codebase structure |
-| `refactor_tool` | Planning renames, finding dead code |
+- Consulte [.github/code-review-graph.instruction.md](./.github/code-review-graph.instruction.md) para o uso detalhado do grafo na exploração, análise de impacto e revisão.
+- Use [.codex/skills/drachma-investigate-finance/SKILL.md](./.codex/skills/drachma-investigate-finance/SKILL.md) ao investigar transações, saldos, recorrências, parcelas, totais, importação ou classificação financeira.
+- Use [.codex/skills/drachma-validate-ui/SKILL.md](./.codex/skills/drachma-validate-ui/SKILL.md) ao alterar ou diagnosticar telas, componentes, modais, formulários, navegação, tipografia, cores, responsividade ou interações no navegador.
 
-### Workflow
+## Encerramento da tarefa
 
-1. The graph auto-updates on file changes (via hooks).
-2. Use `detect_changes_tool` for code review.
-3. Use `get_affected_flows_tool` to understand impact.
-4. Use `query_graph_tool` pattern="tests_for" to check coverage.
+Antes de declarar uma mudança concluída:
+
+1. Confirme que apenas o escopo solicitado foi alterado.
+2. Execute as verificações proporcionais ao risco definidas em [VALIDACAO_APP.md](./VALIDACAO_APP.md).
+3. Revise o diff e preserve mudanças não relacionadas.
+4. Informe testes executados, limitações e qualquer documento ausente ou divergente.
