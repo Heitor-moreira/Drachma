@@ -27,6 +27,13 @@ describe('app storage contracts', () => {
     });
   });
 
+  it('supports export as a successful data event', () => {
+    expect(getLatestDataEvent(undefined, { type: 'EXPORT', timestamp: '2026-08-15T08:45:00.000Z' })).toEqual({
+      type: 'EXPORT',
+      timestamp: '2026-08-15T08:45:00.000Z',
+    });
+  });
+
   it('preserves the latest event when reading a snapshot', () => {
     const result = normalizeSnapshot({
       transactions: [],

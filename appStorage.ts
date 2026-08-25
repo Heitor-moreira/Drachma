@@ -4,7 +4,7 @@ import { normalizeTransaction, serializeTransaction } from './finance';
 export const APP_STORAGE_VERSION = 2;
 export const APP_STORAGE_KEY = 'drachma_app_state';
 
-export type DataEventType = 'SAVE' | 'IMPORT' | 'DELETE';
+export type DataEventType = 'SAVE' | 'IMPORT' | 'EXPORT' | 'DELETE';
 export type SaveOrigin = 'manual' | 'automatic';
 
 export interface DataEvent {
