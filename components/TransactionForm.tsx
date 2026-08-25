@@ -42,6 +42,13 @@ export const commitTag = (tags: string[], value: string) => {
   const normalized = normalizeTag(value);
   return normalized ? uniqueTags([...tags, normalized]) : uniqueTags(tags);
 };
+export const getTransactionOccurrenceLabel = (transaction?: Transaction | null) => {
+  if (!transaction) return '';
+  if (transaction.isInstallment && transaction.installmentInfo) return `[${transaction.installmentInfo.current}/${transaction.installmentInfo.total}]`;
+  if (transaction.recurrenceIndex !== undefined && transaction.recurrenceTotal !== undefined) return `[${transaction.recurrenceIndex + 1}/${transaction.recurrenceTotal}]`;
+  if (transaction.recurrenceFrequency && transaction.recurrenceFrequency !== 'NONE' && transaction.recurrenceEndMode === 'COUNT') return `[1/${Math.max(0, transaction.recurrenceCount || 0) + 1}]`;
+  return '';
+};
 
 type RecurrenceFrequency = 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 type RecurrenceEndMode = 'INFINITE' | 'COUNT';
@@ -202,13 +209,14 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
 
       <div className="min-h-20 px-6 py-5 md:px-12">
         <div>
-          <div className="flex items-center gap-3"><Pencil size={24} className="shrink-0 text-slate-500" /><textarea
+          <div className="flex min-w-0 items-center gap-3"><Pencil size={24} className="shrink-0 text-slate-500" /><textarea
             rows={1}
             value={description} 
             onChange={e => setDescription(e.target.value)} 
-            className="w-full min-w-0 resize-none overflow-hidden break-words px-0 py-2 text-[20px] leading-tight bg-transparent border-0 outline-none focus:ring-0 dark:text-dark-app-text-primary"
+            className="min-w-0 flex-1 resize-none overflow-hidden break-words px-0 py-2 text-[20px] leading-tight bg-transparent border-0 outline-none focus:ring-0 dark:text-dark-app-text-primary"
             placeholder="Descrição" 
           /></div>
+          {getTransactionOccurrenceLabel(initialData) && <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">{getTransactionOccurrenceLabel(initialData)}</span>}
         </div>
       </div>
 
@@ -221,8 +229,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
         <button type="button" onClick={() => { setIsRepeatMenuOpen(prev => !prev); setIsEndMenuOpen(false); }} className="flex min-h-11 w-full min-w-0 items-center gap-3 text-left">
           <Repeat size={24} className="shrink-0 text-slate-500" />
           <span className="truncate text-[20px] font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceLineLabel}</span>
-          <ChevronDown size={24} className="pointer-events-none shrink-0 text-slate-500" />
-          <span className="ml-auto" />
+          <ChevronDown size={24} className="pointer-events-none ml-auto shrink-0 text-slate-500" />
         </button>
         {isRepeatMenuOpen && (
           <div className="fixed inset-0 z-40 flex flex-col items-stretch justify-end bg-slate-900/40 pb-4 backdrop-blur-sm">
@@ -323,7 +330,7 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
                 onFocus={() => setIsTagsFocused(true)}
                 onBlur={() => setTimeout(() => setIsTagsFocused(false), 100)}
                 onChange={e => handleTagInput(e.currentTarget.value)}
-                placeholder={committedTags.length === 0 ? 'Digite uma tag e pressione Enter' : ''}
+                placeholder={committedTags.length === 0 ? 'Digite uma tag' : ''}
                 className="min-w-0 flex-1 self-center bg-transparent px-0 py-0 text-base leading-normal outline-none dark:text-dark-app-text-primary"
                 style={{ fontSize: '16px' }}
                 aria-label="Adicionar tags"
