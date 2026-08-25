@@ -107,7 +107,6 @@ export type CurrencyCode = 'BRL' | 'USD' | 'EUR' | 'GBP' | 'JPY';
 
 export interface UserSettings {
   currency: CurrencyCode;
-  aiEnabled: boolean;
   userName: string;
   userPhoto: string;
   theme: 'light' | 'dark';

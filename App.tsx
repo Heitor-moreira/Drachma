@@ -101,7 +101,6 @@ const App: React.FC = () => {
   const [settings, setSettings] = useState<UserSettings>(() => {
     return {
       currency: 'BRL',
-      aiEnabled: true,
       userName: 'Usuário Drachma',
       userPhoto: 'https://ui-avatars.com/api/?name=User&background=2687c5&color=ffffff',
       theme: 'light'
