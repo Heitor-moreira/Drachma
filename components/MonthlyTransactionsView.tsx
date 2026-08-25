@@ -16,10 +16,10 @@ const MonthlyTransactionsView: React.FC<Props> = ({ transactions, dateRange, set
   const end = new Date(start.getFullYear(), start.getMonth() + 1, 0, 12);
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>(initialType);
   const types = [
-    { key: 'INCOME' as const, label: 'Entradas', shortLabel: 'Entrada', circle: 'bg-emerald-500', icon: <ArrowDownLeft size={18} strokeWidth={3} /> },
-    { key: 'EXPENSE' as const, label: 'Saídas', shortLabel: 'Saída', circle: 'bg-rose-500', icon: <ArrowUpRight size={18} strokeWidth={3} /> },
-    { key: 'SAVINGS' as const, label: 'Economias', shortLabel: 'Economia', circle: 'bg-lime-500', icon: <span className="text-base font-bold">E</span> },
-    { key: 'CARD' as const, label: 'Gastos com cartão', shortLabel: 'Cartão', circle: 'bg-violet-600', icon: <span className="text-base font-bold">C</span> },
+    { key: 'INCOME' as const, label: 'Entradas', shortLabel: 'Entrada', circle: 'bg-emerald-500', icon: <ArrowDownLeft size={15} strokeWidth={3} /> },
+    { key: 'EXPENSE' as const, label: 'Saídas', shortLabel: 'Saída', circle: 'bg-rose-500', icon: <ArrowUpRight size={15} strokeWidth={3} /> },
+    { key: 'SAVINGS' as const, label: 'Economias', shortLabel: 'Economia', circle: 'bg-lime-500', icon: <span className="type-icon-label font-bold">E</span> },
+    { key: 'CARD' as const, label: 'Gastos com cartão', shortLabel: 'Cartão', circle: 'bg-violet-600', icon: <span className="type-icon-label font-bold">C</span> },
   ];
   const typesByKey = Object.fromEntries(types.map(type => [type.key, type]));
   const monthlyTransactions = useMemo(() => projectTransactions(transactions, formatDate(start), formatDate(end), cards).filter(transaction => typeFilter === 'ALL' || getTransactionEntryType(transaction) === typeFilter).sort((a, b) => b.date.localeCompare(a.date)), [transactions, cards, dateRange, typeFilter]);

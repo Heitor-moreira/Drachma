@@ -22,6 +22,7 @@ Antes de criar ou alterar uma interface com texto, consultar este arquivo e usar
 | `ui-body` | `text-base` | 16 px | texto padrão, valores financeiros e controles principais |
 | `ui-title` | `text-2xl` | 24 px | títulos de tela, cabeçalhos mensais e títulos de seção |
 | `ui-display` | `text-3xl` | 30 px | indicador ou título de destaque excepcional |
+| `type-icon` | `type-icon-label` | 15 px | letras `E` e `C` dos ícones de tipo de lançamento |
 | `modal-value` | `32px` | 32 px | valor principal do modal de lançamento |
 | `modal-primary` | `25px` | 25 px | textos principais e títulos do modal de lançamento |
 | `modal-option` | `21px` | 21 px | opções dos menus do modal de lançamento |

@@ -11,8 +11,8 @@ export const FilterDotsIcon = () => <span aria-hidden="true" className="grid h-5
 const EntryTypeIcon: React.FC<{ value: string }> = ({ value }) => {
   if (value === 'INCOME') return <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white"><ArrowDownLeft size={15} strokeWidth={3} /></span>;
   if (value === 'EXPENSE') return <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white"><ArrowUpRight size={15} strokeWidth={3} /></span>;
-  if (value === 'SAVINGS') return <span className="flex h-6 w-6 items-center justify-center rounded-full bg-lime-500 text-xs font-bold text-white">E</span>;
-  if (value === 'CARD') return <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">C</span>;
+  if (value === 'SAVINGS') return <span className="type-icon-label flex h-6 w-6 items-center justify-center rounded-full bg-lime-500 font-bold text-white">E</span>;
+  if (value === 'CARD') return <span className="type-icon-label flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 font-bold text-white">C</span>;
   return <FilterDotsIcon />;
 };
 

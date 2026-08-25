@@ -13,10 +13,10 @@ interface Props {
 }
 
 const types: Array<{ key: EntryType; label: string; color: string; icon: React.ReactNode }> = [
-  { key: 'INCOME', label: 'Entrada', color: 'bg-emerald-500', icon: <ArrowDownLeft size={16} strokeWidth={3} /> },
-  { key: 'EXPENSE', label: 'Saída', color: 'bg-rose-500', icon: <ArrowUpRight size={16} strokeWidth={3} /> },
-  { key: 'SAVINGS', label: 'Economia', color: 'bg-lime-500', icon: <span className="font-bold">E</span> },
-  { key: 'CARD', label: 'Gasto com cartão', color: 'bg-violet-600', icon: <span className="font-bold">C</span> },
+  { key: 'INCOME', label: 'Entrada', color: 'bg-emerald-500', icon: <ArrowDownLeft size={15} strokeWidth={3} /> },
+  { key: 'EXPENSE', label: 'Saída', color: 'bg-rose-500', icon: <ArrowUpRight size={15} strokeWidth={3} /> },
+  { key: 'SAVINGS', label: 'Economia', color: 'bg-lime-500', icon: <span className="type-icon-label font-bold">E</span> },
+  { key: 'CARD', label: 'Gasto com cartão', color: 'bg-violet-600', icon: <span className="type-icon-label font-bold">C</span> },
 ];
 
 const displayDate = (value: string) => {

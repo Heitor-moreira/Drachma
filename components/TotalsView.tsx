@@ -29,10 +29,10 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
   const money = (value: number) => `${currencySymbol} ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
   const performance = calculatePerformance(totals);
   const savingsPercentage = totals.income > 0 ? Math.min(100, Math.max(0, (totals.savings / totals.income) * 100)) : 0;
-  const symbol = (content: React.ReactNode, color: string) => <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} text-xs font-bold text-white`}>{content}</span>;
+  const symbol = (content: React.ReactNode, color: string) => <span className={`type-icon-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} font-bold text-white`}>{content}</span>;
   const movementTypes: { key: EntryType; label: string; icon: React.ReactNode; color: string; value: number }[] = [
-    { key: 'INCOME', label: 'Entradas', icon: <ArrowDownLeft size={14} strokeWidth={3} />, color: 'bg-emerald-500', value: totals.income },
-    { key: 'EXPENSE', label: 'Saídas', icon: <ArrowUpRight size={14} strokeWidth={3} />, color: 'bg-rose-500', value: totals.expense },
+    { key: 'INCOME', label: 'Entradas', icon: <ArrowDownLeft size={15} strokeWidth={3} />, color: 'bg-emerald-500', value: totals.income },
+    { key: 'EXPENSE', label: 'Saídas', icon: <ArrowUpRight size={15} strokeWidth={3} />, color: 'bg-rose-500', value: totals.expense },
     { key: 'SAVINGS', label: 'Economias', icon: 'E', color: 'bg-lime-500', value: totals.savings },
     { key: 'CARD', label: 'Gastos com cartão', icon: 'C', color: 'bg-violet-600', value: totals.card },
   ];
@@ -45,8 +45,8 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         <div className="min-w-0">
           <h3 className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">Performance</h3>
           <div className="mt-2 flex items-center gap-1">
-            {symbol(<ArrowDownLeft size={14} strokeWidth={3} />, 'bg-emerald-500')}{separator}
-            {symbol(<ArrowUpRight size={14} strokeWidth={3} />, 'bg-rose-500')}{separator}
+            {symbol(<ArrowDownLeft size={15} strokeWidth={3} />, 'bg-emerald-500')}{separator}
+            {symbol(<ArrowUpRight size={15} strokeWidth={3} />, 'bg-rose-500')}{separator}
             {symbol('E', 'bg-lime-500')}{separator}
             {symbol('C', 'bg-violet-600')}
           </div>
@@ -62,7 +62,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
           <div className="mt-2 flex items-center gap-2">
             {symbol('E', 'bg-lime-500')}
             <div className="h-4 w-28 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${savingsPercentage}%` }} /></div>
-            {symbol(<ArrowDownLeft size={14} strokeWidth={3} />, 'bg-emerald-500')}
+            {symbol(<ArrowDownLeft size={15} strokeWidth={3} />, 'bg-emerald-500')}
           </div>
         </div>
         <div className="shrink-0 text-right">
