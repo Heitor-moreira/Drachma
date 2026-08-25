@@ -23,7 +23,7 @@ const SavedAnnualView: React.FC<Props> = ({ transactions, cards, currencySymbol,
   }, [cards, transactions, year]);
   const percentage = annualData.income > 0 ? Math.min(100, Math.max(0, (annualData.savings / annualData.income) * 100)) : 0;
   const money = (value: number) => `${currencySymbol} ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-  const symbol = (content: React.ReactNode, color: string) => <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} text-xs font-bold text-white`}>{content}</span>;
+  const symbol = (content: React.ReactNode, color: string) => <span className={`type-icon-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} font-bold text-white`}>{content}</span>;
   const progress = (value: number, income: number) => income > 0 ? Math.min(100, Math.max(0, (value / income) * 100)) : 0;
 
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
@@ -45,7 +45,7 @@ const SavedAnnualView: React.FC<Props> = ({ transactions, cards, currencySymbol,
         <div className="mt-5 flex items-center gap-2">
           {symbol('E', 'bg-lime-500')}
           <div className="h-4 min-w-0 flex-1 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${percentage}%` }} /></div>
-          {symbol(<ArrowDownLeft size={14} strokeWidth={3} />, 'bg-emerald-500')}
+          {symbol(<ArrowDownLeft size={15} strokeWidth={3} />, 'bg-emerald-500')}
         </div>
         <div className="mt-3 flex items-start justify-between gap-4">
           <div><p className="text-base font-bold text-slate-700 dark:text-dark-app-text-secondary">Economias</p><p className="text-base text-slate-800 dark:text-dark-app-text-primary">{money(annualData.savings)}</p></div>
@@ -55,7 +55,7 @@ const SavedAnnualView: React.FC<Props> = ({ transactions, cards, currencySymbol,
       <div className="border-b border-slate-100 px-6 py-5 dark:border-dark-app-border"><h2 className="text-base font-bold text-slate-500 dark:text-dark-app-text-secondary">Total por mês</h2></div>
       {annualData.months.map(month => { const monthPercentage = progress(month.savings, month.income); return <div key={month.name} className="border-b border-slate-100 px-6 py-5 dark:border-dark-app-border">
         <div className="flex items-center justify-between"><h3 className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">{month.name}</h3><span className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">{monthPercentage.toFixed(0)}%</span></div>
-        <div className="mt-4 flex items-center gap-2">{symbol('E', 'bg-lime-500')}<div className="h-4 min-w-0 flex-1 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${monthPercentage}%` }} /></div>{symbol(<ArrowDownLeft size={14} strokeWidth={3} />, 'bg-emerald-500')}</div>
+        <div className="mt-4 flex items-center gap-2">{symbol('E', 'bg-lime-500')}<div className="h-4 min-w-0 flex-1 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${monthPercentage}%` }} /></div>{symbol(<ArrowDownLeft size={15} strokeWidth={3} />, 'bg-emerald-500')}</div>
         <div className="mt-3 flex items-start justify-between gap-4"><div><p className="text-base font-bold text-slate-500 dark:text-dark-app-text-secondary">Economias</p><p className="text-base text-slate-800 dark:text-dark-app-text-primary">{money(month.savings)}</p></div><div className="text-right"><p className="text-base font-bold text-slate-500 dark:text-dark-app-text-secondary">Entradas</p><p className="text-base text-slate-800 dark:text-dark-app-text-primary">{money(month.income)}</p></div></div>
       </div>; })}
     </div>

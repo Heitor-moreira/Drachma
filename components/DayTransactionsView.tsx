@@ -12,10 +12,10 @@ const DayTransactionsView: React.FC<Props> = ({ date, transactions, cards = [], 
   const [selectedDate, setSelectedDate] = useState(date);
   const [typeFilter, setTypeFilter] = useState('ALL');
   const types = [
-    { key: 'INCOME', label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: <ArrowDownLeft size={18} strokeWidth={3} /> },
-    { key: 'EXPENSE', label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: <ArrowUpRight size={18} strokeWidth={3} /> },
-    { key: 'SAVINGS', label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: <span className="text-lg font-bold">E</span> },
-    { key: 'CARD', label: 'Gasto com cartão', color: 'text-violet-600', circle: 'bg-violet-600', icon: <span className="text-xl font-bold">C</span> },
+    { key: 'INCOME', label: 'Entrada', color: 'text-emerald-600', circle: 'bg-emerald-500', icon: <ArrowDownLeft size={15} strokeWidth={3} /> },
+    { key: 'EXPENSE', label: 'Saída', color: 'text-rose-600', circle: 'bg-rose-500', icon: <ArrowUpRight size={15} strokeWidth={3} /> },
+    { key: 'SAVINGS', label: 'Economia', color: 'text-lime-600', circle: 'bg-lime-500', icon: <span className="type-icon-label font-bold">E</span> },
+    { key: 'CARD', label: 'Gasto com cartão', color: 'text-violet-600', circle: 'bg-violet-600', icon: <span className="type-icon-label font-bold">C</span> },
   ];
   const allTypesByKey = Object.fromEntries(types.map(item => [item.key, item]));
   const dayTransactions = useMemo(() => {

@@ -126,20 +126,21 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   filteredAndSortedReport.forEach(day => {
     const visibleTypes = typeFilter === 'ALL' ? allDailyTypes : allDailyTypes.filter(item => item.key === typeFilter);
     visibleTypes.forEach((item, index) => {
+      const isLastType = index === visibleTypes.length - 1;
       renderedRows.push(
         <tr key={`${day.date}-${item.key}`} className="group">
-          {index === 0 && <td rowSpan={visibleTypes.length} className={`align-top p-2 pt-3 border-b border-slate-200 text-center font-normal text-sm ${day.date === formatLocalYYYYMMDD(new Date()) ? 'bg-slate-900 text-white dark:bg-slate-900 dark:text-white' : 'bg-slate-100/70 text-slate-700 dark:border-dark-app-border dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary'}`}>{day.day}</td>}
-          <td className="p-2 border-b border-slate-200 dark:border-dark-app-border">
+          {index === 0 && <td rowSpan={visibleTypes.length} className={`align-top border-b-2 border-slate-300 p-2 pt-3 text-center font-normal text-sm dark:border-dark-app-border ${day.date === formatLocalYYYYMMDD(new Date()) ? 'bg-slate-900 text-white dark:bg-dark-app-border dark:text-white' : 'bg-app-surface-secondary text-slate-700 dark:bg-dark-app-day-column dark:text-dark-app-text-secondary'}`}>{day.day}</td>}
+          <td className={`p-2 ${isLastType ? 'border-b-2 border-slate-300 dark:border-dark-app-border' : 'border-b border-slate-200 dark:border-dark-app-border'}`}>
             <div className="flex min-w-0 items-center justify-between gap-2">
-              <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-base text-white font-bold`}>
-                {item.icon === 'INCOME' ? <ArrowDownLeft size={18} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={18} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : <span>C</span>}
+              <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`type-icon-label inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-white font-bold`}>
+                {item.icon === 'INCOME' ? <ArrowDownLeft size={15} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={15} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : <span>C</span>}
               </button>
               <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} className="min-w-0 flex-1 truncate bg-transparent text-right text-base font-normal text-slate-700 dark:text-dark-app-text-secondary whitespace-nowrap">
                 {currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </button>
             </div>
           </td>
-          {index === 0 && <td rowSpan={visibleTypes.length} className={`p-2 border-b border-slate-200 dark:border-dark-app-border text-right text-base font-normal whitespace-nowrap ${day.balance === 0 ? 'app-saldo-neutral' : day.balance > 0 ? 'app-saldo-positive' : 'app-saldo-negative'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
+          {index === 0 && <td rowSpan={visibleTypes.length} className={`border-b-2 border-slate-300 p-2 text-right text-base font-normal whitespace-nowrap dark:border-dark-app-border ${day.balance === 0 ? 'app-saldo-neutral' : day.balance > 0 ? 'app-saldo-positive' : 'app-saldo-negative'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
         </tr>
       );
     });
@@ -163,8 +164,8 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
           <table className="w-full table-fixed border-collapse ">
             <thead className="border-t border-b border-slate-200 dark:border-dark-app-border">
               <tr className="bg-white dark:bg-dark-app-surface-secondary">
-                <th className="w-[12%] py-3 px-2 bg-white text-left font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-xs">Dia</th>
-                <th className="w-[58%] bg-white px-2 py-3 dark:bg-dark-app-surface-secondary">
+                <th className="w-[12%] bg-white px-2 py-3 text-left font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-xs">Dia</th>
+                <th className="w-[44%] bg-white px-2 py-3 dark:bg-dark-app-surface-secondary">
                   <div className="flex justify-start">
                     <FilterPill typeFilter aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
                         <option value="ALL">Todas</option>
@@ -172,7 +173,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
                     </FilterPill>
                   </div>
                 </th>
-                <th className="w-[30%] p-2 bg-white text-right font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-lg whitespace-nowrap">Saldos</th>
+                <th className="w-[44%] bg-white p-2 text-right font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-lg whitespace-nowrap">Saldos</th>
               </tr>
             </thead>
             <tbody>

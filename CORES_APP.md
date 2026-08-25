@@ -34,6 +34,7 @@ Consultar este arquivo antes de criar novos assets. Usar os tokens e combinaçõ
 | `dark-background` | `#000000` | fundo geral OLED |
 | `dark-surface` | `#050505` | cards, modais e áreas principais |
 | `dark-surface-secondary` | `#0D0D0D` | superfícies secundárias |
+| `dark-day-column` | `#181818` | coluna Dia da tabela de Saldos |
 | `dark-text-primary` | `#F8FAFC` | texto principal |
 | `dark-text-secondary` | `#C4CBD1` | textos auxiliares |
 | `dark-border` | `#262626` | bordas e divisores |

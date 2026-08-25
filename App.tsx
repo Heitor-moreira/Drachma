@@ -35,6 +35,8 @@ import {
   , XCircle
   , CalendarDays
   , ChartNoAxesCombined
+  , ArrowLeft
+  , Database
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
 import packageJson from './package.json';
@@ -80,7 +82,7 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dailyBalance' | 'balanceHorizon' | 'dayTransactions' | 'savedAnnual' | 'monthlyTransactions' | 'recentTransactions' | 'tags' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu';
+  type TabType = 'dailyBalance' | 'balanceHorizon' | 'dayTransactions' | 'savedAnnual' | 'monthlyTransactions' | 'recentTransactions' | 'tags' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu' | 'data';
   const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [selectedDay, setSelectedDay] = useState(formatLocalYYYYMMDD(new Date()));
   const [isReportsOpen, setIsReportsOpen] = useState(false);
@@ -362,6 +364,7 @@ const App: React.FC = () => {
     installments: 'Compras Parceladas',
     fixed: 'Compras Recorrentes',
     salary: 'Gestão de Salário',
+    data: 'Dados',
     subscriptions: 'Assinaturas'
     , cards: 'Cartões',
     menu: 'Menu'
@@ -473,11 +476,19 @@ const App: React.FC = () => {
                 <button onClick={() => setIsProfileOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><User size={24} strokeWidth={1.8} /> Editar perfil <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setActiveTab('recentTransactions')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><History size={24} strokeWidth={1.8} /> Lançamentos recentes <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Settings size={24} strokeWidth={1.8} /> Configurações <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
+                <button onClick={() => setActiveTab('data')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Database size={24} strokeWidth={1.8} /> Dados <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <a href={feedbackMailto} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><MessageSquare size={24} strokeWidth={1.8} /> Mandar sugestões <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></a>
                 <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex min-h-20 w-full items-center gap-4 px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><HelpCircle size={24} strokeWidth={1.8} /> Ajuda <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
               </div>
-              <div className="border-t border-app-border px-6 pb-8 pt-6 dark:border-dark-app-border">
-                <h3 className="text-base font-bold text-app-text-primary dark:text-dark-app-text-primary">Dados</h3>
+            </section>
+          )}
+          {activeTab === 'data' && (
+            <section className="-mx-4 -mt-4 min-h-full bg-app-background dark:bg-dark-app-background md:-mx-8 md:-mt-8">
+              <header className="flex h-[76px] shrink-0 items-center gap-2 border-b border-app-border bg-app-surface px-4 py-4 dark:border-dark-app-border dark:bg-dark-app-surface">
+                <button onClick={() => setActiveTab('menu')} aria-label="Voltar" className="rounded-lg p-1 text-app-text-primary dark:text-dark-app-text-primary"><ArrowLeft className="h-6 w-6" /></button>
+                <h1 className="text-2xl font-bold text-app-text-primary dark:text-dark-app-text-primary">dados</h1>
+              </header>
+              <div className="px-6 pb-8 pt-6">
                 <p className={`mt-2 text-sm ${saveState === 'error' || lastDataEvent?.type === 'DELETE' ? 'text-rose-600' : isRecentDataEvent && lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
                   {saveState === 'saving' ? 'Salvando...' : saveState === 'error' ? 'Falha ao salvar' : formatDataEvent(lastDataEvent)}
                 </p>
