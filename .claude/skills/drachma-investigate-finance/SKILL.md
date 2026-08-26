@@ -1,0 +1,1 @@
+../../../.codex/skills/drachma-investigate-finance/SKILL.md

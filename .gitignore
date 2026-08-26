@@ -35,7 +35,13 @@ test-results/
 .vercel
 
 # Local AI/editor configuration and machine-specific MCP paths
-.claude/
+# Versionar somente o adaptador Claude e os links para as skills canônicas.
+.claude/*
+!.claude/skills/
+!.claude/skills/drachma-investigate-finance/
+!.claude/skills/drachma-investigate-finance/SKILL.md
+!.claude/skills/drachma-validate-ui/
+!.claude/skills/drachma-validate-ui/SKILL.md
 .codebuddy/
 .gemini/
 .kiro/
@@ -43,7 +49,6 @@ test-results/
 .qoder/
 .cursorrules
 .windsurfrules
-CLAUDE.md
 CODEBUDDY.md
 GEMINI.md
 QODER.md
