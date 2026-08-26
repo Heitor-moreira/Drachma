@@ -44,6 +44,7 @@ test-results/
 !.claude/skills/drachma-validate-ui/SKILL.md
 .codebuddy/
 .gemini/
+.gemni/
 .kiro/
 .opencode/
 .qoder/
