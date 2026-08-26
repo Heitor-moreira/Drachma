@@ -140,7 +140,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
               </button>
             </div>
           </td>
-          {index === 0 && <td rowSpan={visibleTypes.length} className={`border-b-2 border-slate-300 p-2 text-right text-base font-normal whitespace-nowrap dark:border-dark-app-border ${day.balance === 0 ? 'app-saldo-neutral' : day.balance > 0 ? 'app-saldo-positive' : 'app-saldo-negative'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
+          {index === 0 && <td rowSpan={visibleTypes.length} className={`align-top border-b-2 border-slate-300 p-2 text-right text-base font-normal whitespace-nowrap dark:border-dark-app-border ${day.balance === 0 ? 'app-saldo-neutral' : day.balance > 0 ? 'app-saldo-positive' : 'app-saldo-negative'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
         </tr>
       );
     });
@@ -164,7 +164,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
           <table className="w-full table-fixed border-collapse ">
             <thead className="border-t border-b border-slate-200 dark:border-dark-app-border">
               <tr className="bg-white dark:bg-dark-app-surface-secondary">
-                <th className="w-[12%] bg-white px-2 py-3 text-left font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-xs">Dia</th>
+                <th className="w-[12%] bg-white px-2 py-3 text-left text-base font-medium text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary">Dia</th>
                 <th className="w-[44%] bg-white px-2 py-3 dark:bg-dark-app-surface-secondary">
                   <div className="flex justify-start">
                     <FilterPill typeFilter aria-label="Filtrar por tipo" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
@@ -173,7 +173,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
                     </FilterPill>
                   </div>
                 </th>
-                <th className="w-[44%] bg-white p-2 text-right font-normal text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary uppercase text-lg whitespace-nowrap">Saldos</th>
+                <th className="w-[44%] bg-white p-2 text-right text-base font-medium text-slate-700 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary whitespace-nowrap">Saldos</th>
               </tr>
             </thead>
             <tbody>

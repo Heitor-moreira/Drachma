@@ -39,7 +39,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
   const separator = <span className="text-sm font-bold text-dark-app-text-secondary">−</span>;
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
     <div className="h-[76px] border-b border-slate-100 transition-colors dark:border-dark-app-border"><div className="relative flex h-full min-h-0 flex-nowrap items-center gap-1 overflow-visible bg-white px-4 py-4 dark:bg-dark-app-surface"><button aria-label="Ir para o mês atual" onClick={goToCurrentMonth} className="shrink-0 rounded-lg p-1 text-slate-900 hover:bg-slate-100 dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><CalendarDays className="h-6 w-6" strokeWidth={2.5} /></button><div className="mx-auto flex items-center gap-0.5"><button aria-label="Mês anterior" onClick={() => moveMonth(-1)} className="shrink-0 p-1"><ChevronLeft className="h-6 w-6" /></button><span className="shrink-0 whitespace-nowrap text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary">{MONTHS[start.getMonth()]}/{String(start.getFullYear()).slice(-2)}</span><button aria-label="Próximo mês" onClick={() => moveMonth(1)} className="shrink-0 p-1"><ChevronRight className="h-6 w-6" /></button></div><button aria-label="Abrir horizonte de saldos" onClick={onOpenHorizon} className="shrink-0 rounded-lg p-1 text-amber-300 hover:bg-amber-50 dark:hover:bg-dark-app-surface-secondary"><Grid3X3 className="h-6 w-6" /></button></div></div>
-    <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-normal text-slate-500 dark:text-dark-app-text-secondary">Cálculos do mês</h2></div>
+    <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-medium text-slate-500 dark:text-dark-app-text-secondary">Cálculos do mês</h2></div>
     <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">
       <div className="flex items-center justify-between gap-4 px-6 py-5">
         <div className="min-w-0">
@@ -71,7 +71,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         </div>
       </button>
       <div className="h-4 shrink-0 border-y border-white !border-y-white bg-white dark:!border-y-dark-app-surface dark:bg-dark-app-surface" aria-hidden="true" />
-      <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-normal text-slate-500 dark:text-dark-app-text-secondary">Movimentações do mês</h2></div>
+      <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-medium text-slate-500 dark:text-dark-app-text-secondary">Movimentações do mês</h2></div>
       {movementTypes.map(item => <button type="button" key={item.key} onClick={() => onOpenMonthlyTransactions(item.key)} className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left">
         <div className="flex min-w-0 items-center gap-3">
           {symbol(item.icon, item.color)}
