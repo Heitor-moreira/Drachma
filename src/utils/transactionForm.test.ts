@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { commitTag, getTransactionOccurrenceLabel, normalizeTag, uniqueTags } from '../components/TransactionForm';
+import { commitTag, getTransactionOccurrenceLabel, normalizeTag, TRANSACTION_CLOSE_DELAY_MS, TRANSACTION_SUBMIT_DELAY_MS, uniqueTags } from '../components/TransactionForm';
+
+describe('transaction form timing', () => {
+  it('keeps submit and close delays below the previous perceived-latency budget', () => {
+    expect(TRANSACTION_SUBMIT_DELAY_MS).toBeLessThan(220);
+    expect(TRANSACTION_CLOSE_DELAY_MS).toBeLessThan(260);
+    expect(TRANSACTION_SUBMIT_DELAY_MS).toBeLessThan(TRANSACTION_CLOSE_DELAY_MS);
+  });
+});
 
 describe('transaction form tags', () => {
   it('keeps multiple words and normalizes only when committed', () => {
