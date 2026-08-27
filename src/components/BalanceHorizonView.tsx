@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDownLeft, ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { CreditCard, DateRange, FinancialGroup, InitialBalance, Transaction } from '../types';
-import { getTransactionEntryType, projectTransactions } from '../finance';
+import { getTransactionEntryType, projectTransactions } from '../utils/finance';
 
 interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; initialBalance: InitialBalance; cards: CreditCard[]; currencySymbol: string; onBack: () => void; onAdd: (group: FinancialGroup | 'CARD', date: string) => void; onDayClick?: (date: string) => void; }
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };

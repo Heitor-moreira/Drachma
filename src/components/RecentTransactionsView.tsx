@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowDown, ArrowDownLeft, ArrowLeft, ArrowUp, ArrowUpRight, ChevronRight, Search } from 'lucide-react';
 import { CreditCard, EntryType, Transaction } from '../types';
-import { filterRecentTransactions, getOccurrenceLabel, RecentSortDirection } from '../recentTransactions';
+import { filterRecentTransactions, getOccurrenceLabel, RecentSortDirection } from '../utils/recentTransactions';
 import FilterPill from './FilterPill';
 
 interface Props {

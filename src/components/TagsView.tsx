@@ -1,9 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { ArrowDownLeft, ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Repeat, Search } from 'lucide-react';
 import { CreditCard, EntryType, Transaction } from '../types';
-import { filterTaggedTransactions, normalizeTag } from '../taggedTransactions';
-import { getTransactionEntryType } from '../finance';
-import { getCurrentMonthRange } from '../currentPeriod';
+import { filterTaggedTransactions, normalizeTag } from '../utils/taggedTransactions';
+import { getTransactionEntryType } from '../utils/finance';
+import { getCurrentMonthRange } from '../utils/currentPeriod';
 import FilterPill from './FilterPill';
 
 interface Props { transactions: Transaction[]; cards: CreditCard[]; currencySymbol: string; onBack: () => void; onEdit: (transaction: Transaction) => void; }

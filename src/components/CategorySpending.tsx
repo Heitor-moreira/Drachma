@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { Transaction, DateRange } from '../types';
 import { CATEGORY_COLORS } from '../constants';
-import { getTransactionEntryType } from '../finance';
+import { getTransactionEntryType } from '../utils/finance';
 import { Layers, Calendar } from 'lucide-react';
 
 interface Props {

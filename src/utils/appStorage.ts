@@ -1,4 +1,4 @@
-import { CreditCard, DateRange, InitialBalance, SalaryInfo, Subscription, Transaction, UserSettings } from './types';
+import { CreditCard, DateRange, InitialBalance, SalaryInfo, Subscription, Transaction, UserSettings } from '../types';
 import { normalizeTransaction, serializeTransaction } from './finance';
 
 export const APP_STORAGE_VERSION = 2;

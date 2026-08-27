@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { calculatePerformance } from './components/TotalsView';
+import { calculatePerformance } from '../components/TotalsView';
 
 describe('calculatePerformance', () => {
   test('subtrai gastos com cartão junto das demais saídas', () => {

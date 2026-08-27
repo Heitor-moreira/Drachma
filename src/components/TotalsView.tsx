@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 import { CreditCard, DateRange, EntryType, Transaction } from '../types';
-import { getTransactionEntryType, projectTransactions } from '../finance';
-import { getCurrentMonthRange } from '../currentPeriod';
+import { getTransactionEntryType, projectTransactions } from '../utils/finance';
+import { getCurrentMonthRange } from '../utils/currentPeriod';
 
 interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
 export const calculatePerformance = ({ income, expense, savings, card }: { income: number; expense: number; savings: number; card: number }) => income - expense - savings - card;

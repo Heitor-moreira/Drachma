@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commitTag, getTransactionOccurrenceLabel, normalizeTag, uniqueTags } from './components/TransactionForm';
+import { commitTag, getTransactionOccurrenceLabel, normalizeTag, uniqueTags } from '../components/TransactionForm';
 
 describe('transaction form tags', () => {
   it('keeps multiple words and normalizes only when committed', () => {

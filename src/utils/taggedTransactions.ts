@@ -1,4 +1,4 @@
-import { CreditCard, EntryType, Transaction } from './types';
+import { CreditCard, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from './finance';
 
 export type TaggedTypeFilter = EntryType | 'ALL';

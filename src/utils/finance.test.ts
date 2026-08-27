@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getRecurrenceDate, getTransactionEntryType, projectTransactions } from './finance';
-import { FinancialGroup, TransactionType } from './types';
+import { FinancialGroup, TransactionType } from '../types';
 
 describe('finance contracts', () => {
   it('preserves legacy classification while exposing EntryType', () => {

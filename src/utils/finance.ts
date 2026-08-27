@@ -1,4 +1,4 @@
-import { FinancialGroup, PaymentMethod, Transaction, TransactionType, CreditCard, EntryType } from './types';
+import { FinancialGroup, PaymentMethod, Transaction, TransactionType, CreditCard, EntryType } from '../types';
 
 export const getTransactionEntryType = (transaction: Transaction): EntryType => {
   if (transaction.entryType) return transaction.entryType;

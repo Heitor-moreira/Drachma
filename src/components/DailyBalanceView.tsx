@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, DateRange, CreditCard, EntryType, InitialBalance } from '../types';
-import { projectTransactions, getTransactionEntryType } from '../finance';
-import { getCurrentMonthRange } from '../currentPeriod';
+import { projectTransactions, getTransactionEntryType } from '../utils/finance';
+import { getCurrentMonthRange } from '../utils/currentPeriod';
 import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 import FilterPill from './FilterPill';
 

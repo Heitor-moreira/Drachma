@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
 import { Landmark, Edit2, Trash2, PieChart, ShieldCheck, Zap, Repeat } from 'lucide-react';
-import { getTransactionEntryType } from '../finance';
+import { getTransactionEntryType } from '../utils/finance';
 
 interface Props {
   transactions: Transaction[];
