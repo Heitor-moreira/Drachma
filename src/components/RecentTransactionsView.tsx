@@ -24,6 +24,25 @@ const displayDate = (value: string) => {
   return `${day}/${month}/${year}`;
 };
 
+interface RecentTransactionRowProps {
+  transaction: Transaction;
+  currencySymbol: string;
+  onEdit: (transaction: Transaction) => void;
+}
+
+const RecentTransactionRow = React.memo(({ transaction, currencySymbol, onEdit }: RecentTransactionRowProps) => {
+  const entryType = getType(transaction.entryType);
+  const type = types.find(item => item.key === entryType) || types[1];
+  const isIncome = entryType === 'INCOME';
+  const occurrenceLabel = getOccurrenceLabel(transaction);
+  const description = transaction.isInstallment ? transaction.description.replace(/\s\(\d+\/\d+\)$/, '') : transaction.description;
+  return <button type="button" key={transaction.id} onClick={() => onEdit(transaction)} className="flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-dark-app-surface-secondary">
+    <span className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${type.color} text-white`}>{type.icon}</span>
+    <span className="min-w-0 flex-1"><span className="flex items-center gap-2"><strong className="truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{description || type.label}</strong>{occurrenceLabel ? <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">{occurrenceLabel}</span> : null}</span><span className="mt-1 block text-sm text-slate-500 dark:text-dark-app-text-secondary">{displayDate(transaction.date)} · {type.label}</span>{transaction.tags?.length ? <span className="mt-2 flex flex-wrap gap-1">{transaction.tags.map(tag => <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">#{tag.replace(/^#/, '')}</span>)}</span> : null}</span>
+    <span className="shrink-0 text-right"><strong className={`text-base font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>{isIncome ? '+' : '-'} {currencySymbol} {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong><ChevronRight className="ml-auto mt-1 h-4 w-4 text-slate-300 dark:text-dark-app-text-secondary" /></span>
+  </button>;
+});
+
 const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currencySymbol, onBack, onEdit }) => {
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>('ALL');
   const [sortDirection, setSortDirection] = useState<RecentSortDirection>('DESC');
@@ -46,18 +65,7 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
       </div>
     </header>
     <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">
-      {filteredTransactions.map(transaction => {
-        const entryType = getType(transaction.entryType);
-        const type = types.find(item => item.key === entryType) || types[1];
-        const isIncome = entryType === 'INCOME';
-        const occurrenceLabel = getOccurrenceLabel(transaction);
-        const description = transaction.isInstallment ? transaction.description.replace(/\s\(\d+\/\d+\)$/, '') : transaction.description;
-        return <button type="button" key={transaction.id} onClick={() => onEdit(transaction)} className="flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-dark-app-surface-secondary">
-          <span className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${type.color} text-white`}>{type.icon}</span>
-          <span className="min-w-0 flex-1"><span className="flex items-center gap-2"><strong className="truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{description || type.label}</strong>{occurrenceLabel ? <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">{occurrenceLabel}</span> : null}</span><span className="mt-1 block text-sm text-slate-500 dark:text-dark-app-text-secondary">{displayDate(transaction.date)} · {type.label}</span>{transaction.tags?.length ? <span className="mt-2 flex flex-wrap gap-1">{transaction.tags.map(tag => <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">#{tag.replace(/^#/, '')}</span>)}</span> : null}</span>
-          <span className="shrink-0 text-right"><strong className={`text-base font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>{isIncome ? '+' : '-'} {currencySymbol} {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong><ChevronRight className="ml-auto mt-1 h-4 w-4 text-slate-300 dark:text-dark-app-text-secondary" /></span>
-        </button>;
-      })}
+      {filteredTransactions.map(transaction => <RecentTransactionRow key={transaction.id} transaction={transaction} currencySymbol={currencySymbol} onEdit={onEdit} />)}
       {!filteredTransactions.length && <p className="p-10 text-center text-sm text-slate-500 dark:text-dark-app-text-secondary">Nenhum lançamento encontrado para os filtros selecionados.</p>}
     </div>
   </section>;
