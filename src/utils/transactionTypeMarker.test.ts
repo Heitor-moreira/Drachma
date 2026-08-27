@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import TransactionForm from './components/TransactionForm';
+import TransactionForm from '../components/TransactionForm';
 
 describe('transaction form type markers', () => {
   it('uses C as the card marker in the new transaction modal', () => {

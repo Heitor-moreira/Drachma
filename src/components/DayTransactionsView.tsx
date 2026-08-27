@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { CreditCard, FinancialGroup, Transaction } from '../types';
-import { getTransactionEntryType, projectTransactions } from '../finance';
+import { getTransactionEntryType, projectTransactions } from '../utils/finance';
 import FilterPill from './FilterPill';
 
 interface Props { date: string; transactions: Transaction[]; cards?: CreditCard[]; currencySymbol: string; onBack: () => void; onAdd: (date: string) => void; onEdit: (transaction: Transaction) => void; }

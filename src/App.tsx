@@ -39,12 +39,12 @@ import {
   , Database
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
-import packageJson from './package.json';
-import { getFinancialGroup, normalizeTransaction, getTransactionEntryType, getRecurrenceDate, formatLocalDate } from './finance';
-import { buildFeedbackMailto, getDeviceLabel } from './feedback';
-import { createSnapshot, DataEvent, normalizeSnapshot } from './appStorage';
+import packageJson from '../package.json';
+import { getFinancialGroup, normalizeTransaction, getTransactionEntryType, getRecurrenceDate, formatLocalDate } from './utils/finance';
+import { buildFeedbackMailto, getDeviceLabel } from './utils/feedback';
+import { createSnapshot, DataEvent, normalizeSnapshot } from './utils/appStorage';
 import { useAppPersistence } from './hooks/useAppPersistence';
-import { fetchAppVersion, getVersionId, isNewVersion, VERSION_STORAGE_KEY, type AppVersion } from './version';
+import { fetchAppVersion, getVersionId, isNewVersion, VERSION_STORAGE_KEY, type AppVersion } from './utils/version';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowDownLeft, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CreditCard, Transaction } from '../types';
-import { getTransactionEntryType, projectTransactions } from '../finance';
+import { getTransactionEntryType, projectTransactions } from '../utils/finance';
 
 interface Props { transactions: Transaction[]; cards: CreditCard[]; currencySymbol: string; initialYear: number; onBack: () => void; }
 

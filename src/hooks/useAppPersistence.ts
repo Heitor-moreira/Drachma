@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { DataEvent, getLatestDataEvent, readJson, readSnapshot, writeSnapshot } from '../appStorage';
+import { DataEvent, getLatestDataEvent, readJson, readSnapshot, writeSnapshot } from '../utils/appStorage';
 import { InitialBalance, SalaryInfo, Subscription, Transaction, UserSettings, DateRange, CreditCard } from '../types';
 
 const LEGACY_KEYS = {
