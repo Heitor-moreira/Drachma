@@ -1,5 +1,5 @@
 import { bench, describe } from 'vitest';
-import { groupTransactionsByDate, projectTransactions } from './finance';
+import { groupTransactionsByDate, projectTransactions, projectTransactionsWithBalance } from './finance';
 import { Transaction } from '../types';
 
 const transactions: Transaction[] = [
@@ -16,7 +16,11 @@ const groupTransactionsByDateReference = (items: Transaction[], date: string) =>
 
 describe('finance performance baseline', () => {
   bench('projects the deterministic financial fixture', () => {
-    projectTransactions(transactions, '2024-01-01', '2026-12-31', [{ id: 'card-1', name: 'Cartão', bank: 'Teste', type: 'CREDIT', dueDay: 10, closingDay: 1, limit: 10000, color: '#000000', isActive: true }]);
+    projectTransactions(transactions.map(transaction => ({ ...transaction })), '2024-01-01', '2026-12-31', [{ id: 'card-1', name: 'Cartão', bank: 'Teste', type: 'CREDIT', dueDay: 10, closingDay: 1, limit: 10000, color: '#000000', isActive: true }]);
+  });
+
+  bench('projects the fixture with an incremental balance result', () => {
+    projectTransactionsWithBalance(transactions.map(transaction => ({ ...transaction })), '2024-01-01', '2026-12-31');
   });
 
   bench('groups the projected fixture by date', () => {

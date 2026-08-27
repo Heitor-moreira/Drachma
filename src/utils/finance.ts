@@ -118,6 +118,48 @@ export const projectTransactions = (transactions: Transaction[], start: string, 
   return result;
 };
 
+const projectionBalanceCache = new WeakMap<Transaction[], Map<string, { transactions: Transaction[]; beforeStartBalanceDelta: number }>>();
+
+export const projectTransactionsWithBalance = (transactions: Transaction[], start: string, end: string, cards: CreditCard[] = []) => {
+  const cacheKey = `${start}|${end}|${cards.map(card => `${card.id}:${card.dueDay || ''}`).join(',')}`;
+  const cachedByRange = projectionBalanceCache.get(transactions);
+  const cached = cachedByRange?.get(cacheKey);
+  if (cached) return cached;
+
+  const result: Transaction[] = [];
+  let beforeStartBalanceDelta = 0;
+  for (const transaction of transactions) {
+    const baseDate = transaction.date;
+    const frequency = transaction.recurrenceFrequency || (transaction.isFixed ? 'MONTHLY' : 'NONE');
+    const isRecurring = frequency !== 'NONE';
+    const totalOccurrences = transaction.recurrenceEndMode === 'COUNT'
+      ? Math.max(0, transaction.recurrenceCount || 0) + 1
+      : Number.POSITIVE_INFINITY;
+    let index = 0;
+    while (index < totalOccurrences && index < 120) {
+      const cursor = index === 0 ? baseDate : getRecurrenceDate(baseDate, frequency, index);
+      if (cursor > end) break;
+      if (transaction.recurrenceExcludedDates?.includes(cursor)) {
+        index++;
+        continue;
+      }
+      const projected = isRecurring
+        ? { ...transaction, id: index === 0 ? transaction.id : `${transaction.id}-projection-${index}`, date: cursor, recurrenceIndex: index, recurrenceTotal: Number.isFinite(totalOccurrences) ? totalOccurrences : undefined }
+        : transaction;
+      const impactDate = getCashImpactDate(projected, cards);
+      if (impactDate < start) beforeStartBalanceDelta += getTransactionEntryType(projected) === 'INCOME' ? projected.amount : -projected.amount;
+      else if (impactDate <= end) result.push({ ...projected, date: impactDate });
+      if (!isRecurring) break;
+      index++;
+    }
+  }
+  const calculated = { transactions: result, beforeStartBalanceDelta };
+  const ranges = cachedByRange || new Map<string, { transactions: Transaction[]; beforeStartBalanceDelta: number }>();
+  ranges.set(cacheKey, calculated);
+  projectionBalanceCache.set(transactions, ranges);
+  return calculated;
+};
+
 export const isPersonalIncome = (t: Transaction) => getTransactionEntryType(t) === 'INCOME';
 export const isPersonalExpense = (t: Transaction) => getFinancialGroup(t) === FinancialGroup.PERSONAL_EXPENSE;
 export const isSavings = (t: Transaction) => getFinancialGroup(t) === FinancialGroup.SAVINGS;
