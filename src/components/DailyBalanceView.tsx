@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, DateRange, CreditCard, EntryType, InitialBalance } from '../types';
-import { projectTransactions, getTransactionEntryType } from '../utils/finance';
+import { groupTransactionsByDate, projectTransactions, getTransactionEntryType } from '../utils/finance';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
 import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 import FilterPill from './FilterPill';
@@ -81,6 +81,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     const start = parseLocalDate(dateRange.start);
     const end = parseLocalDate(dateRange.end);
     const projected = projectTransactions(transactions, '0000-01-01', dateRange.end, cards);
+    const projectedByDate = groupTransactionsByDate(projected);
     let runningBalance = initialBalance.amount + projected
       .filter(t => parseLocalDate(t.date) < start)
       .reduce((acc, t) => getTransactionEntryType(t) === 'INCOME' ? acc + t.amount : acc - t.amount, 0);
@@ -102,9 +103,9 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
     }
 
     days.forEach(dateStr => {
-      const dayTs = projected.filter(t => t.date === dateStr);
-      const inc = dayTs.filter(t => getTransactionEntryType(t) === 'INCOME').reduce((acc, t) => acc + t.amount, 0);
-      const exp = dayTs.filter(t => getTransactionEntryType(t) !== 'INCOME').reduce((acc, t) => acc + t.amount, 0);
+      const dayTs = projectedByDate.get(dateStr) || [];
+      const inc = dayTs.reduce((acc, t) => getTransactionEntryType(t) === 'INCOME' ? acc + t.amount : acc, 0);
+      const exp = dayTs.reduce((acc, t) => getTransactionEntryType(t) !== 'INCOME' ? acc + t.amount : acc, 0);
       runningBalance = runningBalance + inc - exp;
       report.push({
         date: dateStr,
@@ -112,7 +113,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
         income: inc,
         expense: exp,
         amounts: allDailyTypes.reduce((acc, item) => {
-          acc[item.key] = dayTs.filter(t => item.key === 'CARD' ? getTransactionEntryType(t) === 'CARD' : getTransactionEntryType(t) === item.key).reduce((sum, t) => sum + t.amount, 0);
+          acc[item.key] = dayTs.reduce((sum, t) => (item.key === 'CARD' ? getTransactionEntryType(t) === 'CARD' : getTransactionEntryType(t) === item.key) ? sum + t.amount : sum, 0);
           return acc;
         }, {} as Record<string, number>),
         balance: runningBalance

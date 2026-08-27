@@ -71,6 +71,16 @@ export const getCashImpactDate = (transaction: Transaction, cards: CreditCard[])
 
 const projectionCache = new WeakMap<Transaction[], Map<string, Transaction[]>>();
 
+export const groupTransactionsByDate = (transactions: Transaction[]) => {
+  const grouped = new Map<string, Transaction[]>();
+  for (const transaction of transactions) {
+    const bucket = grouped.get(transaction.date);
+    if (bucket) bucket.push(transaction);
+    else grouped.set(transaction.date, [transaction]);
+  }
+  return grouped;
+};
+
 export const projectTransactions = (transactions: Transaction[], start: string, end: string, cards: CreditCard[] = []) => {
   const cacheKey = `${start}|${end}|${cards.map(card => `${card.id}:${card.dueDay || ''}`).join(',')}`;
   const transactionCache = projectionCache.get(transactions) || new Map<string, Transaction[]>();
