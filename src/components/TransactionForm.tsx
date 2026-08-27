@@ -15,6 +15,9 @@ interface Props {
   initialFinancialGroup?: 'CARD' | 'INCOME' | 'EXPENSE' | 'SAVINGS';
 }
 
+export const TRANSACTION_SUBMIT_DELAY_MS = 120;
+export const TRANSACTION_CLOSE_DELAY_MS = 160;
+
 // Helper to format date as YYYY-MM-DD in local time
 const formatLocalYYYYMMDD = (date: Date) => {
   const y = date.getFullYear();
@@ -149,8 +152,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
         recurrenceCount: recurrenceEndMode === 'COUNT' ? recurrenceCount : undefined,
         tags: allTags,
         cardId: entryKind === 'CARD' ? cardId : undefined
-      }]), 220);
-      window.setTimeout(onClose, 260);
+      }]), TRANSACTION_SUBMIT_DELAY_MS);
+      window.setTimeout(onClose, TRANSACTION_CLOSE_DELAY_MS);
       return;
     }
 
@@ -198,8 +201,8 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
       });
     }
 
-    window.setTimeout(() => onAdd(newTransactions), 220);
-    window.setTimeout(onClose, 260);
+    window.setTimeout(() => onAdd(newTransactions), TRANSACTION_SUBMIT_DELAY_MS);
+    window.setTimeout(onClose, TRANSACTION_CLOSE_DELAY_MS);
   };
 
   return (
