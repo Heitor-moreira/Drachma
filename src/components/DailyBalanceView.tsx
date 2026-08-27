@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, DateRange, CreditCard, EntryType, InitialBalance } from '../types';
-import { groupTransactionsByDate, projectTransactions, getTransactionEntryType } from '../utils/finance';
+import { groupTransactionsByDate, projectTransactionsWithBalance, getTransactionEntryType } from '../utils/finance';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
 import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 import FilterPill from './FilterPill';
@@ -80,11 +80,10 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
   const filteredAndSortedReport = useMemo(() => {
     const start = parseLocalDate(dateRange.start);
     const end = parseLocalDate(dateRange.end);
-    const projected = projectTransactions(transactions, '0000-01-01', dateRange.end, cards);
+    const projection = projectTransactionsWithBalance(transactions, dateRange.start, dateRange.end, cards);
+    const projected = projection.transactions;
     const projectedByDate = groupTransactionsByDate(projected);
-    let runningBalance = initialBalance.amount + projected
-      .filter(t => parseLocalDate(t.date) < start)
-      .reduce((acc, t) => getTransactionEntryType(t) === 'INCOME' ? acc + t.amount : acc - t.amount, 0);
+    let runningBalance = initialBalance.amount + projection.beforeStartBalanceDelta;
 
     const report: Array<{
       date: string;

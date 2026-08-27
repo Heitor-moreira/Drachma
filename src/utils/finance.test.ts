@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getRecurrenceDate, getTransactionEntryType, groupTransactionsByDate, projectTransactions } from './finance';
+import { getRecurrenceDate, getTransactionEntryType, groupTransactionsByDate, projectTransactions, projectTransactionsWithBalance } from './finance';
 import { FinancialGroup, Transaction, TransactionType } from '../types';
 
 describe('finance contracts', () => {
@@ -43,5 +43,18 @@ describe('finance contracts', () => {
     expect([...grouped.values()].flat()).toEqual(projected);
     expect(grouped.get('2026-01-02')).toBeUndefined();
     expect(grouped.get('2026-01-01')?.map(transaction => transaction.entryType)).toEqual(['INCOME', 'EXPENSE']);
+  });
+
+  it('returns the same interval projection and the accumulated impact before its start', () => {
+    const transactions = [
+      { id: 'income', date: '2026-01-01', description: 'Entrada', amount: 100, entryType: 'INCOME' as const, comment: '' },
+      { id: 'expense', date: '2026-01-02', description: 'Saída', amount: 40, entryType: 'EXPENSE' as const, comment: '' },
+      { id: 'recurring', date: '2025-12-01', description: 'Recorrente', amount: 10, entryType: 'EXPENSE' as const, comment: '', recurrenceFrequency: 'MONTHLY' as const, recurrenceEndMode: 'COUNT' as const, recurrenceCount: 2 },
+    ];
+    const result = projectTransactionsWithBalance(transactions, '2026-01-01', '2026-02-28');
+    const expected = projectTransactions(transactions, '2026-01-01', '2026-02-28');
+
+    expect(result.transactions).toEqual(expected);
+    expect(result.beforeStartBalanceDelta).toBe(-10);
   });
 });
