@@ -532,7 +532,7 @@ const App: React.FC = () => {
           {activeTab === 'recentTransactions' && <RecentTransactionsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'tags' && <TagsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'savedAnnual' && <SavedAnnualView transactions={transactions} cards={cards} currencySymbol={currencySymbol} initialYear={new Date(dateRange.start).getFullYear()} onBack={() => setActiveTab('totals')} />}
-          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} savingsTarget={settings.savingsTarget ?? 20} onOpenHorizon={() => setActiveTab('balanceHorizon')} onOpenSavedAnnual={() => setActiveTab('savedAnnual')} onOpenMonthlyTransactions={(type) => { setNewTransactionGroup(type); setActiveTab('monthlyTransactions'); }} />}
+          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} savingsTarget={settings.savingsTarget ?? 20} baseSalary={settings.baseSalary} onOpenHorizon={() => setActiveTab('balanceHorizon')} onOpenSavedAnnual={() => setActiveTab('savedAnnual')} onOpenMonthlyTransactions={(type) => { setNewTransactionGroup(type); setActiveTab('monthlyTransactions'); }} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -639,6 +639,20 @@ const App: React.FC = () => {
                         max="100"
                         value={settings.savingsTarget ?? 20}
                         onChange={e => setSettings({...settings, savingsTarget: Number(e.target.value)})}
+                        className="w-full appearance-none bg-transparent px-3 py-3 outline-none text-base font-bold text-slate-700 dark:text-dark-app-text-secondary"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-2">Salário Base ({CURRENCIES[settings.currency]?.symbol})</label>
+                    <div className="relative flex items-center border-b border-slate-200 dark:border-dark-app-border">
+                      <Wallet size={22} className="shrink-0 text-slate-500 dark:text-dark-app-text-secondary" />
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.baseSalary || ''}
+                        onChange={e => setSettings({...settings, baseSalary: Number(e.target.value)})}
                         className="w-full appearance-none bg-transparent px-3 py-3 outline-none text-base font-bold text-slate-700 dark:text-dark-app-text-secondary"
                       />
                     </div>

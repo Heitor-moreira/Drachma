@@ -140,6 +140,7 @@ export interface UserSettings {
   userPhoto: string;
   theme: 'light' | 'dark';
   savingsTarget?: number;
+  baseSalary?: number;
   // Campos de Sincronização (Supabase)
   userId?: string;
   version?: number;

@@ -1,16 +1,16 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3, Wallet } from 'lucide-react';
 import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../utils/finance';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
 
-interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; savingsTarget: number; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
+interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; savingsTarget: number; baseSalary?: number; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
 export const calculatePerformance = ({ income, expense, savings, card }: { income: number; expense: number; savings: number; card: number }) => income - expense - savings - card;
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, savingsTarget, onOpenHorizon, onOpenSavedAnnual, onOpenMonthlyTransactions }) => {
+const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, savingsTarget, baseSalary, onOpenHorizon, onOpenSavedAnnual, onOpenMonthlyTransactions }) => {
   const fallbackStart = new Date();
   const start = Number.isNaN(Date.parse(dateRange.start)) ? new Date(fallbackStart.getFullYear(), fallbackStart.getMonth(), 1, 12) : parseDate(dateRange.start);
   const end = new Date(start.getFullYear(), start.getMonth() + 1, 0, 12);
@@ -28,7 +28,8 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
   const goToCurrentMonth = () => setDateRange(getCurrentMonthRange());
   const money = (value: number) => `${currencySymbol} ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
   const performance = calculatePerformance(totals);
-  const savingsPercentage = totals.income > 0 ? Math.min(100, Math.max(0, (totals.savings / totals.income) * 100)) : 0;
+  const baseForSavings = baseSalary && baseSalary > 0 ? baseSalary : totals.income;
+  const savingsPercentage = baseForSavings > 0 ? Math.min(100, Math.max(0, (totals.savings / baseForSavings) * 100)) : 0;
   const symbol = (content: React.ReactNode, color: string) => <span className={`type-icon-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} font-bold text-white`}>{content}</span>;
   const movementTypes: { key: EntryType; label: string; icon: React.ReactNode; color: string; value: number }[] = [
     { key: 'INCOME', label: 'Entradas', icon: <ArrowDownLeft size={15} strokeWidth={3} />, color: 'bg-emerald-500', value: totals.income },
@@ -62,7 +63,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
           <div className="mt-2 flex items-center gap-2">
             {symbol('E', 'bg-lime-500')}
             <div className="h-4 w-28 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${savingsPercentage}%` }} /></div>
-            {symbol(<ArrowDownLeft size={15} strokeWidth={3} />, 'bg-emerald-500')}
+            {symbol(baseSalary && baseSalary > 0 ? <Wallet size={15} strokeWidth={2.5} /> : <ArrowDownLeft size={15} strokeWidth={3} />, baseSalary && baseSalary > 0 ? 'bg-slate-600' : 'bg-emerald-500')}
           </div>
         </div>
         <div className="shrink-0 text-right">
