@@ -2,7 +2,8 @@ import React, { useMemo, useRef, useState } from 'react';
 import { Transaction, DateRange, CreditCard, EntryType, InitialBalance } from '../types';
 import { groupTransactionsByDate, projectTransactionsWithBalance, getTransactionEntryType } from '../utils/finance';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3, Plus } from 'lucide-react';
+import { motion, useAnimation } from 'framer-motion';
 import FilterPill from './FilterPill';
 
 interface Props {
@@ -32,6 +33,47 @@ const parseLocalDate = (dateStr: string) => {
 };
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+const DailyActionRow = ({ day, item, onDayClick, currencySymbol, isLastType }: any) => {
+  const controls = useAnimation();
+  const handleDragEnd = async (event: any, info: any) => {
+    const offset = info.offset.x;
+    if (offset < -50) {
+      onDayClick?.(day.date, item.key as EntryType);
+    }
+    controls.start({ x: 0 });
+  };
+  
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // Prevent the parent touch events from taking over during drag
+    e.stopPropagation();
+  };
+
+  return (
+    <td className={`p-0 ${isLastType ? 'border-b-2 border-slate-300 dark:border-dark-app-border' : 'border-b border-slate-200 dark:border-dark-app-border'}`} onPointerDown={handlePointerDown}>
+      <div className="relative overflow-hidden w-full h-full">
+        <div className="absolute inset-y-0 right-0 w-20 bg-emerald-500 flex items-center justify-center text-white">
+          <Plus size={20} />
+        </div>
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: -80, right: 0 }}
+          dragElastic={0.1}
+          onDragEnd={handleDragEnd}
+          animate={controls}
+          className="flex min-w-0 items-center justify-between gap-2 p-2 bg-white dark:bg-dark-app-surface-secondary relative z-10"
+        >
+          <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`type-icon-label inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-white font-bold`}>
+            {item.icon === 'INCOME' ? <ArrowDownLeft size={15} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={15} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : <span>C</span>}
+          </button>
+          <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} className="min-w-0 flex-1 truncate bg-transparent text-right text-base font-normal text-slate-700 dark:text-dark-app-text-secondary whitespace-nowrap">
+            {currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </button>
+        </motion.div>
+      </div>
+    </td>
+  );
+};
 
 const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, initialBalance, currencySymbol, cards = [], onDayClick, compactHeader = false, onOpenHorizon }) => {
   const [isNarrowViewport, setIsNarrowViewport] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 430);
@@ -130,16 +172,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
       renderedRows.push(
         <tr key={`${day.date}-${item.key}`} className="group">
           {index === 0 && <td rowSpan={visibleTypes.length} className={`align-top border-b-2 border-slate-300 p-2 pt-3 text-center font-normal text-sm dark:border-dark-app-border ${day.date === formatLocalYYYYMMDD(new Date()) ? 'bg-slate-900 text-white dark:bg-dark-app-border dark:text-white' : 'bg-app-surface-secondary text-slate-700 dark:bg-dark-app-day-column dark:text-dark-app-text-secondary'}`}>{day.day}</td>}
-          <td className={`p-2 ${isLastType ? 'border-b-2 border-slate-300 dark:border-dark-app-border' : 'border-b border-slate-200 dark:border-dark-app-border'}`}>
-            <div className="flex min-w-0 items-center justify-between gap-2">
-              <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} aria-label={`Adicionar ${item.label} no dia ${day.day}`} className={`type-icon-label inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full cursor-pointer ${item.circle} text-white font-bold`}>
-                {item.icon === 'INCOME' ? <ArrowDownLeft size={15} strokeWidth={3} /> : item.icon === 'EXPENSE' ? <ArrowUpRight size={15} strokeWidth={3} /> : item.icon === 'E' ? <span>E</span> : <span>C</span>}
-              </button>
-              <button type="button" onClick={() => onDayClick?.(day.date, item.key as EntryType)} className="min-w-0 flex-1 truncate bg-transparent text-right text-base font-normal text-slate-700 dark:text-dark-app-text-secondary whitespace-nowrap">
-                {currencySymbol} {(day.amounts[item.key] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </button>
-            </div>
-          </td>
+          <DailyActionRow day={day} item={item} onDayClick={onDayClick} currencySymbol={currencySymbol} isLastType={isLastType} />
           {index === 0 && <td rowSpan={visibleTypes.length} className={`align-top border-b-2 border-slate-300 p-2 text-right text-base font-normal whitespace-nowrap dark:border-dark-app-border ${day.balance === 0 ? 'app-saldo-neutral' : day.balance > 0 ? 'app-saldo-positive' : 'app-saldo-negative'}`}>{currencySymbol} {day.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>}
         </tr>
       );
