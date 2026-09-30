@@ -58,6 +58,11 @@ export interface Transaction {
   importDate?: string;
   recurrenceIndex?: number;
   recurrenceTotal?: number;
+  // Campos de Sincronização (Supabase)
+  userId?: string;
+  version?: number;
+  deletedAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreditCard {
@@ -72,6 +77,12 @@ export interface CreditCard {
   closingDay?: number;
   dueDay?: number;
   isActive: boolean;
+  // Campos de Sincronização (Supabase)
+  userId?: string;
+  version?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface Subscription {
@@ -79,11 +90,23 @@ export interface Subscription {
   name: string;
   amount: number;
   isActive: boolean;
+  // Campos de Sincronização (Supabase)
+  userId?: string;
+  version?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface InitialBalance {
   amount: number;
   date: string;
+  // Campos de Sincronização (Supabase)
+  userId?: string;
+  version?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface SalaryDiscount {
@@ -96,6 +119,12 @@ export interface SalaryDiscount {
 export interface SalaryInfo {
   gross: number;
   discounts: SalaryDiscount[];
+  // Campos de Sincronização (Supabase)
+  userId?: string;
+  version?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface DateRange {
@@ -110,4 +139,10 @@ export interface UserSettings {
   userName: string;
   userPhoto: string;
   theme: 'light' | 'dark';
+  // Campos de Sincronização (Supabase)
+  userId?: string;
+  version?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
 }
