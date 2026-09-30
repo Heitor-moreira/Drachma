@@ -44,6 +44,7 @@ import { getFinancialGroup, normalizeTransaction, getTransactionEntryType, getRe
 import { buildFeedbackMailto, getDeviceLabel } from './utils/feedback';
 import { createSnapshot, DataEvent, normalizeSnapshot } from './utils/appStorage';
 import { useAppPersistence } from './hooks/useAppPersistence';
+import { useDataRepository } from './data';
 import { fetchAppVersion, getVersionId, isNewVersion, VERSION_STORAGE_KEY, type AppVersion } from './utils/version';
 import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
@@ -150,7 +151,9 @@ const App: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [feedbackMessage]);
 
+  const repo = useDataRepository();
   const { lastDataEvent, saveNow, recordDataEvent, isDirty } = useAppPersistence(
+    repo,
     { transactions, subscriptions, initialBalance, salaryInfo, dateRange, settings, cards },
     { setTransactions: value => setTransactions(value.map(normalizeTransaction)), setSubscriptions, setInitialBalance, setSalaryInfo, setDateRange, setSettings, setCards }
   );
@@ -244,7 +247,7 @@ const App: React.FC = () => {
   };
   const clearImportedData = () => {
     setTransactions([]); setSubscriptions([]); setInitialBalance({ amount: 0, date: formatLocalYYYYMMDD(new Date()) }); setSalaryInfo({ gross: 0, discounts: [] }); setCards([]);
-    [STORAGE_KEY_TRANSACTIONS, STORAGE_KEY_SUBSCRIPTIONS, STORAGE_KEY_INITIAL_BALANCE, STORAGE_KEY_SALARY_INFO, STORAGE_KEY_DATE_RANGE, STORAGE_KEY_SETTINGS, STORAGE_KEY_CARDS].forEach(key => localStorage.removeItem(key));
+    [STORAGE_KEY_TRANSACTIONS, STORAGE_KEY_SUBSCRIPTIONS, STORAGE_KEY_INITIAL_BALANCE, STORAGE_KEY_SALARY_INFO, STORAGE_KEY_DATE_RANGE, STORAGE_KEY_SETTINGS, STORAGE_KEY_CARDS].forEach(key => repo.removeLegacyKey(key));
     recordDataEvent({ type: 'DELETE', timestamp: new Date().toISOString() });
     setSaveState('idle');
     setFeedbackMessage('Dados excluídos.');

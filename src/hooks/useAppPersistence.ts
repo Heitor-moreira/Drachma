@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { DataEvent, getLatestDataEvent, readJson, readSnapshot, writeSnapshot } from '../utils/appStorage';
+import { DataEvent, getLatestDataEvent } from '../utils/appStorage';
+import type { DataRepository } from '../data/repository';
 import { InitialBalance, SalaryInfo, Subscription, Transaction, UserSettings, DateRange, CreditCard } from '../types';
 
 const LEGACY_KEYS = {
@@ -32,27 +33,27 @@ interface AppPersistenceSetters {
   setCards: (value: CreditCard[]) => void;
 }
 
-export const useAppPersistence = (state: AppPersistenceState, setters: AppPersistenceSetters) => {
+export const useAppPersistence = (repo: DataRepository, state: AppPersistenceState, setters: AppPersistenceSetters) => {
   const [loaded, setLoaded] = useState(false);
   const [lastDataEvent, setLastDataEvent] = useState<DataEvent | undefined>();
   const [isDirty, setIsDirty] = useState(false);
   const savedStateRef = useRef<string | undefined>(undefined);
   const pendingEventRef = useRef<DataEvent | undefined>(undefined);
   useEffect(() => {
-    const snapshot = readSnapshot();
+    const snapshot = repo.read();
     setLastDataEvent(snapshot?.lastDataEvent);
-    const transactions = snapshot?.transactions || readJson(LEGACY_KEYS.transactions);
-    const subscriptions = snapshot?.subscriptions || readJson(LEGACY_KEYS.subscriptions);
-    const initialBalance = snapshot?.initialBalance || readJson(LEGACY_KEYS.initialBalance);
-    const salaryInfo = snapshot?.salaryInfo || readJson(LEGACY_KEYS.salaryInfo);
+    const transactions = snapshot?.transactions || repo.readLegacyKey(LEGACY_KEYS.transactions);
+    const subscriptions = snapshot?.subscriptions || repo.readLegacyKey(LEGACY_KEYS.subscriptions);
+    const initialBalance = snapshot?.initialBalance || repo.readLegacyKey(LEGACY_KEYS.initialBalance);
+    const salaryInfo = snapshot?.salaryInfo || repo.readLegacyKey(LEGACY_KEYS.salaryInfo);
 
     if (Array.isArray(transactions)) setters.setTransactions(transactions);
     if (Array.isArray(subscriptions)) setters.setSubscriptions(subscriptions as Subscription[]);
     if (initialBalance && typeof initialBalance === 'object') setters.setInitialBalance(initialBalance as InitialBalance);
     if (salaryInfo && typeof salaryInfo === 'object') setters.setSalaryInfo(salaryInfo as SalaryInfo);
-    const dateRange = snapshot?.dateRange || readJson(LEGACY_KEYS.dateRange);
-    const settings = snapshot?.settings || readJson(LEGACY_KEYS.settings);
-    const cards = snapshot?.cards || readJson(LEGACY_KEYS.cards);
+    const dateRange = snapshot?.dateRange || repo.readLegacyKey(LEGACY_KEYS.dateRange);
+    const settings = snapshot?.settings || repo.readLegacyKey(LEGACY_KEYS.settings);
+    const cards = snapshot?.cards || repo.readLegacyKey(LEGACY_KEYS.cards);
     if (dateRange && typeof dateRange === 'object') setters.setDateRange(dateRange as DateRange);
     if (settings && typeof settings === 'object') setters.setSettings(settings as UserSettings);
     if (Array.isArray(cards)) setters.setCards(cards as CreditCard[]);
@@ -77,7 +78,7 @@ export const useAppPersistence = (state: AppPersistenceState, setters: AppPersis
       const candidate = pendingEventRef.current || { type: 'SAVE' as const, saveOrigin: 'automatic' as const, timestamp: new Date().toISOString() };
       const event = getLatestDataEvent(lastDataEvent, candidate);
       pendingEventRef.current = undefined;
-      writeSnapshot({ ...state, lastDataEvent: event });
+      repo.write({ ...state, lastDataEvent: event });
       setLastDataEvent(event);
     }, 150);
     return () => window.clearTimeout(timer);
@@ -85,7 +86,7 @@ export const useAppPersistence = (state: AppPersistenceState, setters: AppPersis
 
   const saveNow = () => {
     const event = getLatestDataEvent(lastDataEvent, { type: 'SAVE', saveOrigin: 'manual', timestamp: new Date().toISOString() });
-    writeSnapshot({ ...state, lastDataEvent: event });
+    repo.write({ ...state, lastDataEvent: event });
     setLastDataEvent(event);
     savedStateRef.current = JSON.stringify(state);
     setIsDirty(false);
@@ -94,7 +95,7 @@ export const useAppPersistence = (state: AppPersistenceState, setters: AppPersis
   const recordDataEvent = (event: DataEvent) => {
     const latestEvent = getLatestDataEvent(lastDataEvent, event);
     pendingEventRef.current = latestEvent;
-    writeSnapshot({ ...state, lastDataEvent: latestEvent });
+    repo.write({ ...state, lastDataEvent: latestEvent });
     setLastDataEvent(latestEvent);
   };
 
