@@ -139,6 +139,7 @@ export interface UserSettings {
   userName: string;
   userPhoto: string;
   theme: 'light' | 'dark';
+  savingsTarget?: number;
   // Campos de Sincronização (Supabase)
   userId?: string;
   version?: number;

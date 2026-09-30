@@ -4,13 +4,13 @@ import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../utils/finance';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
 
-interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
+interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; savingsTarget: number; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
 export const calculatePerformance = ({ income, expense, savings, card }: { income: number; expense: number; savings: number; card: number }) => income - expense - savings - card;
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, onOpenHorizon, onOpenSavedAnnual, onOpenMonthlyTransactions }) => {
+const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, savingsTarget, onOpenHorizon, onOpenSavedAnnual, onOpenMonthlyTransactions }) => {
   const fallbackStart = new Date();
   const start = Number.isNaN(Date.parse(dateRange.start)) ? new Date(fallbackStart.getFullYear(), fallbackStart.getMonth(), 1, 12) : parseDate(dateRange.start);
   const end = new Date(start.getFullYear(), start.getMonth() + 1, 0, 12);
@@ -67,7 +67,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         </div>
         <div className="shrink-0 text-right">
           <p className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{savingsPercentage.toFixed(0)}%</p>
-          <p className="text-sm font-normal text-slate-500 dark:text-dark-app-text-secondary">{totals.savings === 0 ? 'Nada guardado' : 'Dentro da meta'}</p>
+          <p className="text-sm font-normal text-slate-500 dark:text-dark-app-text-secondary">{totals.savings === 0 ? 'Nada guardado' : (savingsPercentage >= savingsTarget ? 'Meta atingida' : 'Abaixo da meta')}</p>
         </div>
       </button>
       <div className="h-4 shrink-0 border-y border-white !border-y-white bg-white dark:!border-y-dark-app-surface dark:bg-dark-app-surface" aria-hidden="true" />

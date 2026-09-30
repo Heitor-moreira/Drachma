@@ -38,6 +38,7 @@ import {
   , ChartNoAxesCombined
   , ArrowLeft
   , Database
+  , Target
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
 import packageJson from '../package.json';
@@ -105,7 +106,8 @@ const App: React.FC = () => {
       currency: 'BRL',
       userName: 'Usuário Drachma',
       userPhoto: 'https://ui-avatars.com/api/?name=User&background=2687c5&color=ffffff',
-      theme: 'light'
+      theme: 'light',
+      savingsTarget: 20
     };
   });
   const feedbackMailto = buildFeedbackMailto(packageJson.version, typeof navigator !== 'undefined' ? getDeviceLabel(navigator.userAgent) : 'Dispositivo desconhecido');
@@ -530,7 +532,7 @@ const App: React.FC = () => {
           {activeTab === 'recentTransactions' && <RecentTransactionsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'tags' && <TagsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'savedAnnual' && <SavedAnnualView transactions={transactions} cards={cards} currencySymbol={currencySymbol} initialYear={new Date(dateRange.start).getFullYear()} onBack={() => setActiveTab('totals')} />}
-          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} onOpenHorizon={() => setActiveTab('balanceHorizon')} onOpenSavedAnnual={() => setActiveTab('savedAnnual')} onOpenMonthlyTransactions={(type) => { setNewTransactionGroup(type); setActiveTab('monthlyTransactions'); }} />}
+          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} savingsTarget={settings.savingsTarget ?? 20} onOpenHorizon={() => setActiveTab('balanceHorizon')} onOpenSavedAnnual={() => setActiveTab('savedAnnual')} onOpenMonthlyTransactions={(type) => { setNewTransactionGroup(type); setActiveTab('monthlyTransactions'); }} />}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -624,6 +626,21 @@ const App: React.FC = () => {
                         ))}
                       </select>
                       <ChevronDown size={20} className="pointer-events-none absolute right-1 text-slate-500 dark:text-dark-app-text-secondary" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-2">Meta de Economia (%)</label>
+                    <div className="relative flex items-center border-b border-slate-200 dark:border-dark-app-border">
+                      <Target size={22} className="shrink-0 text-slate-500 dark:text-dark-app-text-secondary" />
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={settings.savingsTarget ?? 20}
+                        onChange={e => setSettings({...settings, savingsTarget: Number(e.target.value)})}
+                        className="w-full appearance-none bg-transparent px-3 py-3 outline-none text-base font-bold text-slate-700 dark:text-dark-app-text-secondary"
+                      />
                     </div>
                   </div>
                   
