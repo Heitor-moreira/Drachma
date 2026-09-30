@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Transaction, CreditCard as CreditCardModel } from '../types';
 import { Calendar, Tag, MessageSquare, Repeat, Bookmark, ArrowDownLeft, ArrowUpRight, Trash2, X, ChevronDown, Pencil, RotateCcw } from 'lucide-react';
 
@@ -234,9 +235,16 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
           <span className="truncate text-[20px] font-bold text-slate-700 dark:text-dark-app-text-secondary">{recurrenceLineLabel}</span>
           <ChevronDown size={24} className="pointer-events-none ml-auto shrink-0 text-slate-500" />
         </button>
+        <AnimatePresence>
         {isRepeatMenuOpen && (
-          <div className="fixed inset-0 z-40 flex flex-col items-stretch justify-end bg-slate-900/40 pb-4 backdrop-blur-sm">
-            <div className="h-auto max-h-[70vh] w-full shrink-0 overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 flex flex-col items-stretch justify-end bg-slate-900/40 backdrop-blur-sm"
+          >
+            <motion.div 
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="h-auto max-h-[90vh] w-full shrink-0 overflow-y-auto rounded-t-3xl bg-white shadow-2xl dark:bg-dark-app-surface mt-auto"
+            >
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-dark-app-border">
                 <h2 className="text-[25px] font-bold text-slate-900 dark:text-dark-app-text-primary">Repetir</h2>
                 <button onClick={() => setIsRepeatMenuOpen(false)} aria-label="Fechar" className="rounded-xl p-2 text-slate-500"><X size={28} /></button>
@@ -266,9 +274,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
                   <ChevronDown size={18} className="text-slate-400 opacity-0" />
                 </button>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
 
       {recurrenceFrequency !== 'NONE' && (
@@ -287,9 +296,16 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
               </div>
             ) : null}
           </div>
+          <AnimatePresence>
           {isEndMenuOpen && (
-            <div className="fixed inset-0 z-40 flex flex-col items-stretch justify-end bg-slate-900/40 pb-4 backdrop-blur-sm">
-              <div className="h-auto max-h-[70vh] w-full shrink-0 overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl dark:bg-dark-app-surface">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 flex flex-col items-stretch justify-end bg-slate-900/40 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="h-auto max-h-[90vh] w-full shrink-0 overflow-y-auto rounded-t-3xl bg-white shadow-2xl dark:bg-dark-app-surface mt-auto"
+              >
                 <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-dark-app-border">
                   <h2 className="text-[25px] font-bold text-slate-900 dark:text-dark-app-text-primary">Até quando</h2>
                   <button onClick={() => setIsEndMenuOpen(false)} aria-label="Fechar" className="rounded-xl p-2 text-slate-500"><X size={28} /></button>
@@ -314,9 +330,10 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
                     </button>
                   </div>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
       )}
 

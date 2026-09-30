@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
   CreditCard, 
   TrendingUp, 
@@ -443,9 +444,16 @@ const App: React.FC = () => {
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Mobile Navigation Dropdown Overlay */}
+        <AnimatePresence>
         {false && isMobileMenuOpen && (
-          <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
-            <div className="absolute top-16 left-4 right-4 bg-white dark:bg-dark-app-surface rounded-3xl shadow-2xl p-6 border border-slate-100 dark:border-dark-app-border animate-in slide-in-from-top-4 duration-300" onClick={e => e.stopPropagation()}>
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm md:hidden flex items-end" onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <motion.div 
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="w-full bg-white dark:bg-dark-app-surface rounded-t-3xl shadow-2xl p-6 border-t border-slate-100 dark:border-dark-app-border mt-auto max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}
+            >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="font-bold text-slate-800 dark:text-dark-app-text-primary uppercase text-xs tracking-widest">Navegação</h3>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400"><X size={20} /></button>
@@ -464,9 +472,10 @@ const App: React.FC = () => {
                 <div className="h-px bg-slate-100 dark:bg-dark-app-surface-secondary my-2"></div>
                 <button onClick={() => { setIsSettingsOpen(true); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 p-4 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-dark-app-surface-secondary text-slate-600 dark:text-dark-app-text-secondary"><Settings size={18} /> Configurações</button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         <div className={`flex-1 min-h-0 ${activeTab === 'dailyBalance' || activeTab === 'balanceHorizon' || activeTab === 'dayTransactions' || activeTab === 'savedAnnual' || activeTab === 'monthlyTransactions' || activeTab === 'recentTransactions' || activeTab === 'tags' || activeTab === 'totals' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 pb-28 md:p-8'} space-y-6`}>
           {activeTab === 'menu' && (
@@ -564,9 +573,16 @@ const App: React.FC = () => {
           </div>
         </nav>}
 
+        <AnimatePresence>
         {isSettingsOpen && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
-            <div className="bg-white dark:bg-dark-app-surface-secondary rounded-[2rem] shadow-2xl w-full max-w-md p-6 my-8 animate-in zoom-in duration-200 transition-colors duration-300">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:p-4 overflow-y-auto"
+          >
+            <motion.div 
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="bg-white dark:bg-dark-app-surface-secondary rounded-t-3xl sm:rounded-[2rem] shadow-2xl w-full max-w-md p-6 mt-auto sm:my-8 transition-colors duration-300"
+            >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="font-bold text-slate-900 dark:text-dark-app-text-primary text-2xl flex items-center gap-3"><Settings className="text-theme" size={26} /> Configurações</h3>
                 <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><X size={20} /></button>
@@ -615,9 +631,10 @@ const App: React.FC = () => {
 
                 <button onClick={() => setIsSettingsOpen(false)} className="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-[#1E293B] font-bold py-3 rounded-xl hover:bg-slate-800 dark:hover:bg-white transition-colors">Salvar Alterações</button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {isBalanceSummaryOpen && (() => {
           const rows = [
@@ -628,9 +645,16 @@ const App: React.FC = () => {
           return <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"><div className="w-full max-w-md bg-white dark:bg-dark-app-surface rounded-3xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-dark-app-border"><div><p className="text-xs font-bold uppercase tracking-widest text-slate-400">Resumo do saldo</p><h3 className="text-2xl font-bold dark:text-dark-app-text-primary">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3></div><button onClick={() => setIsBalanceSummaryOpen(false)} className="p-2 text-slate-500"><X size={22} /></button></div>{rows.map(row => { const total = transactions.filter(t => getFinancialGroup(t) === row.group).reduce((sum, t) => sum + t.amount, 0); return <div key={row.group} className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-dark-app-border"><span className={`text-lg font-bold ${row.color}`}>{row.label}</span><span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{row.sign < 0 ? '-' : '+'} {currencySymbol} {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>; })}<button onClick={() => setIsBalanceSummaryOpen(false)} className="m-5 w-[calc(100%-2.5rem)] bg-theme text-white font-bold py-3 rounded-2xl">Fechar</button></div></div>;
         })()}
 
+        <AnimatePresence>
         {isProfileOpen && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-            <div className="bg-white dark:bg-dark-app-surface rounded-3xl shadow-2xl w-full max-w-md p-8 animate-in zoom-in duration-200 transition-colors duration-300">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:p-4"
+          >
+            <motion.div 
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="bg-white dark:bg-dark-app-surface rounded-t-3xl sm:rounded-[2rem] shadow-2xl w-full max-w-md p-8 mt-auto sm:my-8 transition-colors duration-300"
+            >
               <div className="flex flex-col items-center text-center space-y-4">
                 <input 
                   type="text" 
@@ -640,9 +664,10 @@ const App: React.FC = () => {
                 />
                 <button onClick={() => setIsProfileOpen(false)} className="w-full bg-theme text-white font-bold py-3 rounded-xl hover:bg-theme-dark">Fechar</button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {isDeleteDataModalOpen && (
           <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
@@ -670,15 +695,23 @@ const App: React.FC = () => {
           </div>
         )}
 
+        <AnimatePresence>
         {(isFormOpen || editingTransaction) && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center bg-white dark:bg-dark-app-surface">
-            <div className="h-full min-h-screen w-full overflow-hidden bg-white dark:bg-dark-app-surface flex flex-col animate-in fade-in duration-200">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:p-4"
+          >
+            <motion.div 
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="h-[95vh] sm:h-[90vh] w-full max-w-2xl overflow-hidden bg-white dark:bg-dark-app-surface flex flex-col rounded-t-3xl sm:rounded-[2rem] shadow-2xl mt-auto"
+            >
               <div className="h-full overflow-y-auto py-8">
                 <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]!) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null); setNewTransactionDate(undefined); setNewTransactionGroup(undefined)}} onDelete={deleteTransaction} initialData={editingTransaction} initialDate={newTransactionDate} initialFinancialGroup={newTransactionGroup === FinancialGroup.PERSONAL_INCOME || newTransactionGroup === FinancialGroup.REIMBURSEMENT ? 'INCOME' : newTransactionGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : newTransactionGroup === FinancialGroup.PERSONAL_EXPENSE || newTransactionGroup === FinancialGroup.ADVANCE_TO_OTHERS ? 'EXPENSE' : newTransactionGroup} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         
         {isAdjustmentOpen && (
