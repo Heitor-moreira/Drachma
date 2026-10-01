@@ -9,12 +9,14 @@ describe('RecentTransactionRow', () => {
 
   afterEach(() => {
     // Restore the original component type after each test
+    // @ts-expect-error type is read-only in newer typings
     RecentTransactionRow.type = originalType;
   });
 
   it('renders at most 2 times when irrelevant updates occur (React.memo)', () => {
     // Spy on the actual render function
     const renderSpy = vi.fn(originalType as any);
+    // @ts-expect-error type is read-only in newer typings
     RecentTransactionRow.type = renderSpy as any;
     
     const transaction: any = { 
