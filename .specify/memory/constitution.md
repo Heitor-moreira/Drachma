@@ -51,6 +51,6 @@ Consult `DADOS_E_PERSISTENCIA.md` and type definitions in `types.ts` before modi
 
 ## Governance
 
-Compliance is checked on every task execution. Any structural changes, major architecture refactors, or modifications to the developer conventions defined in `AGENTS.md` and `VALIDACAO_APP.md` MUST trigger an amendment to this Constitution.
+Compliance is checked on every task execution. Any structural changes, major architecture refactors, or modifications to the developer conventions defined in `AGENTS.md` and `VALIDACAO.md` MUST trigger an amendment to this Constitution.
 
 **Version**: 1.0.0 | **Ratified**: 2026-08-26 | **Last Amended**: 2026-08-26

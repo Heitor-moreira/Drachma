@@ -27,7 +27,7 @@ Para analisar, investigar ou corrigir comportamento incorreto, siga esta ordem:
 1. Use o `code-review-graph` para mapear contexto, dependências, fluxos, impacto e testes.
 2. Execute o OpenCodeReview pela skill ou ferramenta nativa do Codex (`ocr_review`). Para verificar a configuração sem chamada ao LLM, use `preview=true`.
 3. Altere somente os arquivos necessários.
-4. Valide conforme [VALIDACAO_APP.md](./docs/VALIDACAO_APP.md).
+4. Valide conforme [VALIDACAO.md](./docs/VALIDACAO.md).
 
 O grafo e o OpenCodeReview são complementares; nenhum substitui o outro.
 
@@ -46,11 +46,11 @@ O grafo e o OpenCodeReview são complementares; nenhum substitui o outro.
 | --- | --- |
 | Visão do produto, escopo e requisitos | [README.md](./README.md), apenas como vitrine do produto; não é fonte normativa |
 | Texto, títulos, valores, controles e hierarquia tipográfica | [FONTES_TIPOGRAFICAS.md](./docs/FONTES_TIPOGRAFICAS.md) |
-| Cores, temas, estados financeiros, bordas e superfícies | [CORES_APP.md](./docs/CORES_APP.md) |
-| Telas, cabeçalhos, filtros, modais, espaçamentos e navegação | [LAYOUTS_APP.md](./docs/LAYOUTS_APP.md) |
+| Cores, temas, estados financeiros, bordas e superfícies | [CORES.md](./docs/CORES.md) |
+| Telas, cabeçalhos, filtros, modais, espaçamentos e navegação | [LAYOUTS.md](./docs/LAYOUTS.md) |
 | Mobile, zoom, toque, teclado, foco, contraste e leitores de tela | [ACESSIBILIDADE_RESPONSIVIDADE.md](./docs/ACESSIBILIDADE_RESPONSIVIDADE.md) |
 | Tipos financeiros, importação, exportação, backup e armazenamento | [DADOS_E_PERSISTENCIA.md](./docs/DADOS_E_PERSISTENCIA.md) |
-| Testes, TypeScript, build, navegador e critérios de conclusão | [VALIDACAO_APP.md](./docs/VALIDACAO_APP.md) |
+| Testes, TypeScript, build, navegador e critérios de conclusão | [VALIDACAO.md](./docs/VALIDACAO.md) |
 | Arquitetura, organização, nomenclatura e padrões de implementação | [CONVENCOES_CODIGO.md](./docs/CONVENCOES_CODIGO.md) |
 | Status, staging, commits, proteção de mudanças e push | [CONVENCOES_GIT.md](./docs/CONVENCOES_GIT.md) |
 
@@ -67,7 +67,7 @@ Consulte todos os documentos aplicáveis quando uma tarefa atravessar mais de um
 Antes de declarar uma mudança concluída:
 
 1. Confirme que apenas o escopo solicitado foi alterado.
-2. Execute as verificações proporcionais ao risco definidas em [VALIDACAO_APP.md](./docs/VALIDACAO_APP.md).
+2. Execute as verificações proporcionais ao risco definidas em [VALIDACAO.md](./docs/VALIDACAO.md).
 3. Revise o diff e preserve mudanças não relacionadas.
 4. Informe testes executados, limitações e qualquer documento ausente ou divergente.
 

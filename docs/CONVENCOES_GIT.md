@@ -23,4 +23,4 @@ git diff --check
 git diff --cached --name-status
 ```
 
-Executar também as verificações correspondentes em [VALIDACAO_APP.md](./VALIDACAO_APP.md).
+Executar também as verificações correspondentes em [VALIDACAO.md](./VALIDACAO.md).

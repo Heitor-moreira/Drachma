@@ -38,5 +38,5 @@ A tela **Saldos** é a referência visual para Tags, Totais, Movimentações do 
 ## Referências relacionadas
 
 - [FONTES_TIPOGRAFICAS.md](./FONTES_TIPOGRAFICAS.md)
-- [CORES_APP.md](./CORES_APP.md)
+- [CORES.md](./CORES.md)
 - [ACESSIBILIDADE_RESPONSIVIDADE.md](./ACESSIBILIDADE_RESPONSIVIDADE.md)
