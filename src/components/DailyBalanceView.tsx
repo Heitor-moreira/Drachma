@@ -58,7 +58,7 @@ const DailyActionRow = React.memo(({ day, item, onDayClick, currencySymbol, isLa
         <motion.div
           drag="x"
           dragConstraints={{ left: -80, right: 0 }}
-          dragElastic={0.1}
+          dragElastic={{ left: 0.1, right: 0 }}
           onDragEnd={handleDragEnd}
           animate={controls}
           className="flex min-w-0 items-center justify-between gap-2 p-2 bg-white dark:bg-dark-app-surface-secondary relative z-10"

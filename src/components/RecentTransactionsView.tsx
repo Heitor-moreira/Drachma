@@ -61,7 +61,7 @@ export const RecentTransactionRow = React.memo(({ transaction, currencySymbol, o
         type="button"
         drag="x"
         dragConstraints={{ left: -80, right: 0 }}
-        dragElastic={0.1}
+        dragElastic={{ left: 0.1, right: 0 }}
         onDragEnd={handleDragEnd}
         animate={controls}
         onClick={() => onEdit(transaction)}
