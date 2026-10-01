@@ -79,4 +79,4 @@ O contrato `AppStateSnapshot` contém:
 - backups não possuem criptografia, checksum ou assinatura;
 - `settings.userPhoto` deve ser tratado como URL externa não confiável.
 
-Melhorias ainda não implementadas pertencem ao arquivo local `IDEIAS_FUTURAS.md`, não a este contrato.
+Melhorias ainda não implementadas pertencem à pasta local de backlog, não a este contrato.
