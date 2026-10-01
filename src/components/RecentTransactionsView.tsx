@@ -33,7 +33,7 @@ interface RecentTransactionRowProps {
   onDelete?: (id: string) => void;
 }
 
-const RecentTransactionRow = React.memo(({ transaction, currencySymbol, onEdit, onDelete }: RecentTransactionRowProps) => {
+export const RecentTransactionRow = React.memo(({ transaction, currencySymbol, onEdit, onDelete }: RecentTransactionRowProps) => {
   const entryType = getType(transaction.entryType);
   const type = types.find(item => item.key === entryType) || types[1];
   const isIncome = entryType === 'INCOME';
@@ -73,7 +73,7 @@ const RecentTransactionRow = React.memo(({ transaction, currencySymbol, onEdit, 
       </motion.button>
     </div>
   );
-});
+}, (prev, next) => prev.transaction === next.transaction && prev.currencySymbol === next.currencySymbol);
 
 const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currencySymbol, onBack, onEdit, onDelete }) => {
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>('ALL');

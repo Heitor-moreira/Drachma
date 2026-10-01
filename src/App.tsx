@@ -450,10 +450,10 @@ const App: React.FC = () => {
         {false && isMobileMenuOpen && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm md:hidden flex items-end" onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 z-[110] bg-slate-900/60 md:hidden flex items-end" onClick={() => setIsMobileMenuOpen(false)}
           >
             <motion.div 
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "tween", duration: 0.25, ease: "easeOut" }} style={{ willChange: "transform" }}
               className="w-full bg-white dark:bg-dark-app-surface rounded-t-3xl shadow-2xl p-6 border-t border-slate-100 dark:border-dark-app-border mt-auto max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
@@ -579,10 +579,10 @@ const App: React.FC = () => {
         {isSettingsOpen && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:p-4 overflow-y-auto"
+            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 sm:p-4 overflow-y-auto"
           >
             <motion.div 
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "tween", duration: 0.25, ease: "easeOut" }} style={{ willChange: "transform" }}
               className="bg-white dark:bg-dark-app-surface-secondary rounded-t-3xl sm:rounded-[2rem] shadow-2xl w-full max-w-md p-6 mt-auto sm:my-8 transition-colors duration-300"
             >
               <div className="flex justify-between items-center mb-6">
@@ -673,17 +673,17 @@ const App: React.FC = () => {
             { group: FinancialGroup.PERSONAL_EXPENSE, label: 'Saída', color: 'text-rose-600', sign: -1 },
             { group: FinancialGroup.SAVINGS, label: 'Economia', color: 'text-lime-600', sign: -1 },
           ];
-          return <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"><div className="w-full max-w-md bg-white dark:bg-dark-app-surface rounded-3xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-dark-app-border"><div><p className="text-xs font-bold uppercase tracking-widest text-slate-400">Resumo do saldo</p><h3 className="text-2xl font-bold dark:text-dark-app-text-primary">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3></div><button onClick={() => setIsBalanceSummaryOpen(false)} className="p-2 text-slate-500"><X size={22} /></button></div>{rows.map(row => { const total = transactions.filter(t => getFinancialGroup(t) === row.group).reduce((sum, t) => sum + t.amount, 0); return <div key={row.group} className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-dark-app-border"><span className={`text-lg font-bold ${row.color}`}>{row.label}</span><span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{row.sign < 0 ? '-' : '+'} {currencySymbol} {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>; })}<button onClick={() => setIsBalanceSummaryOpen(false)} className="m-5 w-[calc(100%-2.5rem)] bg-theme text-white font-bold py-3 rounded-2xl">Fechar</button></div></div>;
+          return <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40"><div className="w-full max-w-md bg-white dark:bg-dark-app-surface rounded-3xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-dark-app-border"><div><p className="text-xs font-bold uppercase tracking-widest text-slate-400">Resumo do saldo</p><h3 className="text-2xl font-bold dark:text-dark-app-text-primary">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3></div><button onClick={() => setIsBalanceSummaryOpen(false)} className="p-2 text-slate-500"><X size={22} /></button></div>{rows.map(row => { const total = transactions.filter(t => getFinancialGroup(t) === row.group).reduce((sum, t) => sum + t.amount, 0); return <div key={row.group} className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-dark-app-border"><span className={`text-lg font-bold ${row.color}`}>{row.label}</span><span className="text-lg font-bold text-slate-700 dark:text-dark-app-text-secondary">{row.sign < 0 ? '-' : '+'} {currencySymbol} {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>; })}<button onClick={() => setIsBalanceSummaryOpen(false)} className="m-5 w-[calc(100%-2.5rem)] bg-theme text-white font-bold py-3 rounded-2xl">Fechar</button></div></div>;
         })()}
 
         <AnimatePresence>
         {isProfileOpen && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:p-4"
+            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 sm:p-4"
           >
             <motion.div 
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "tween", duration: 0.25, ease: "easeOut" }} style={{ willChange: "transform" }}
               className="bg-white dark:bg-dark-app-surface rounded-t-3xl sm:rounded-[2rem] shadow-2xl w-full max-w-md p-8 mt-auto sm:my-8 transition-colors duration-300"
             >
               <div className="flex flex-col items-center text-center space-y-4">
@@ -701,7 +701,7 @@ const App: React.FC = () => {
         </AnimatePresence>
 
         {isDeleteDataModalOpen && (
-          <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4">
             <div role="dialog" aria-modal="true" aria-labelledby="data-delete-title" className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-dark-app-surface">
               <h3 id="data-delete-title" className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">Tem certeza que deseja excluir?</h3>
               <p className="mt-3 text-base text-slate-600 dark:text-dark-app-text-secondary">Essa ação não pode ser desfeita.</p>
@@ -714,7 +714,7 @@ const App: React.FC = () => {
         )}
 
         {pendingRecurringDelete && (
-          <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4">
             <div role="dialog" aria-modal="true" aria-labelledby="recurring-delete-title" className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-dark-app-surface">
               <h3 id="recurring-delete-title" className="text-xl font-bold text-slate-900 dark:text-dark-app-text-primary">Tem certeza de que deseja excluir esse lançamento? Ele é recorrente.</h3>
               <div className="mt-6 grid gap-3">
@@ -730,10 +730,10 @@ const App: React.FC = () => {
         {(isFormOpen || editingTransaction) && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 backdrop-blur-sm sm:p-4"
+            className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 sm:p-4"
           >
             <motion.div 
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "tween", duration: 0.25, ease: "easeOut" }} style={{ willChange: "transform" }}
               className="h-[95vh] sm:h-[90vh] w-full max-w-2xl overflow-hidden bg-white dark:bg-dark-app-surface flex flex-col rounded-t-3xl sm:rounded-[2rem] shadow-2xl mt-auto"
             >
               <div className="h-full overflow-y-auto py-8">
@@ -746,7 +746,7 @@ const App: React.FC = () => {
 
         
         {isAdjustmentOpen && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40">
             <div className="bg-white dark:bg-dark-app-surface rounded-2xl shadow-2xl w-full max-w-md p-6 animate-in zoom-in duration-200">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="font-bold text-slate-800 dark:text-dark-app-text-primary text-lg flex items-center gap-2"><Wallet className="text-theme" /> Ajustar Saldo</h3>

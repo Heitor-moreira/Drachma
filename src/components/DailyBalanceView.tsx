@@ -34,7 +34,7 @@ const parseLocalDate = (dateStr: string) => {
 
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const DailyActionRow = ({ day, item, onDayClick, currencySymbol, isLastType }: any) => {
+const DailyActionRow = React.memo(({ day, item, onDayClick, currencySymbol, isLastType }: any) => {
   const controls = useAnimation();
   const handleDragEnd = async (event: any, info: any) => {
     const offset = info.offset.x;
@@ -73,7 +73,7 @@ const DailyActionRow = ({ day, item, onDayClick, currencySymbol, isLastType }: a
       </div>
     </td>
   );
-};
+}, (prev, next) => prev.day === next.day && prev.item.key === next.item.key && prev.currencySymbol === next.currencySymbol);
 
 const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRange, initialBalance, currencySymbol, cards = [], onDayClick, compactHeader = false, onOpenHorizon }) => {
   const [isNarrowViewport, setIsNarrowViewport] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 430);
