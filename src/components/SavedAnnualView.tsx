@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { ArrowDownLeft, ArrowLeft, ChevronLeft, ChevronRight, Wallet } from 'lucide-react';
 import { CreditCard, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../utils/finance';
@@ -10,7 +10,14 @@ const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth
 
 const SavedAnnualView: React.FC<Props> = ({ transactions, cards, currencySymbol, initialYear, onBack, baseSalary }) => {
   const [year, setYear] = useState(initialYear);
+  const swipeStartX = useRef<number | null>(null);
+  const swipeStartY = useRef<number | null>(null);
   const yearBounds = { min: new Date().getFullYear() - 5, max: new Date().getFullYear() + 5 };
+  const moveYear = (delta: number) => {
+    setYear(value => Math.max(yearBounds.min, Math.min(yearBounds.max, value + delta)));
+  };
+  const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => { const touch = event.touches[0]; swipeStartX.current = touch?.clientX ?? null; swipeStartY.current = touch?.clientY ?? null; };
+  const handleTouchEnd = (event: React.TouchEvent<HTMLElement>) => { if (swipeStartX.current === null) return; const touch = event.changedTouches[0]; const dx = (touch?.clientX ?? swipeStartX.current) - swipeStartX.current; const dy = (touch?.clientY ?? swipeStartY.current ?? 0) - (swipeStartY.current ?? 0); swipeStartX.current = null; swipeStartY.current = null; if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) moveYear(dx < 0 ? 1 : -1); };
   const annualData = useMemo(() => {
     const start = new Date(year, 0, 1, 12);
     const end = new Date(year, 11, 31, 12);
@@ -30,7 +37,7 @@ const SavedAnnualView: React.FC<Props> = ({ transactions, cards, currencySymbol,
     return monthBase > 0 ? Math.min(100, Math.max(0, (value / monthBase) * 100)) : 0;
   };
 
-  return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
+  return <section className="touch-pan-y flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
     <header className="flex h-[76px] shrink-0 items-center gap-2 border-b border-slate-100 px-4 py-4 dark:border-dark-app-border">
       <button type="button" onClick={onBack} aria-label="Voltar para Totais" className="rounded-lg p-1 text-slate-800 dark:text-dark-app-text-primary"><ArrowLeft className="h-6 w-6" /></button>
       <h1 className="text-2xl font-bold text-slate-800 dark:text-dark-app-text-primary">economizado</h1>
@@ -38,9 +45,9 @@ const SavedAnnualView: React.FC<Props> = ({ transactions, cards, currencySymbol,
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="border-b border-slate-100 px-6 py-5 dark:border-dark-app-border">
         <div className="flex items-center justify-between rounded-full border border-slate-200 bg-white px-3 py-1 dark:border-dark-app-border dark:bg-dark-app-surface-secondary">
-          <button type="button" aria-label="Ano anterior" disabled={year <= yearBounds.min} onClick={() => setYear(value => Math.max(yearBounds.min, value - 1))} className="rounded-full p-1 text-slate-700 disabled:opacity-30 dark:text-dark-app-text-primary"><ChevronLeft className="h-6 w-6" /></button>
+          <button type="button" aria-label="Ano anterior" disabled={year <= yearBounds.min} onClick={() => moveYear(-1)} className="rounded-full p-1 text-slate-700 disabled:opacity-30 dark:text-dark-app-text-primary"><ChevronLeft className="h-6 w-6" /></button>
           <span className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{year}</span>
-          <button type="button" aria-label="Próximo ano" disabled={year >= yearBounds.max} onClick={() => setYear(value => Math.min(yearBounds.max, value + 1))} className="rounded-full p-1 text-slate-700 disabled:opacity-30 dark:text-dark-app-text-primary"><ChevronRight className="h-6 w-6" /></button>
+          <button type="button" aria-label="Próximo ano" disabled={year >= yearBounds.max} onClick={() => moveYear(1)} className="rounded-full p-1 text-slate-700 disabled:opacity-30 dark:text-dark-app-text-primary"><ChevronRight className="h-6 w-6" /></button>
         </div>
       </div>
       <div className="border-b border-slate-100 px-6 py-5 dark:border-dark-app-border">
