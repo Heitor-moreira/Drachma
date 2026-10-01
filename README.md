@@ -52,7 +52,7 @@ npm run preview  # prévia local do build
 
 ## Dados e privacidade
 
-O estado do aplicativo é salvo em `localStorage`. O backup JSON contém informações financeiras em texto e deve ser armazenado com cuidado. Consulte [DADOS_E_PERSISTENCIA.md](./DADOS_E_PERSISTENCIA.md) para o contrato atual e os limites de segurança.
+O estado do aplicativo é salvo em `localStorage`. O backup JSON contém informações financeiras em texto e deve ser armazenado com cuidado. Consulte [DADOS_E_PERSISTENCIA.md](./docs/DADOS_E_PERSISTENCIA.md) para o contrato atual e os limites de segurança.
 
 ## Desenvolvimento
 
