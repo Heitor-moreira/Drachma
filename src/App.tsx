@@ -63,6 +63,9 @@ import DayTransactionsView from './components/DayTransactionsView';
 import MonthlyTransactionsView from './components/MonthlyTransactionsView';
 import RecentTransactionsView from './components/RecentTransactionsView';
 import TagsView from './components/TagsView';
+import { parseOFX, ParsedTransaction } from './utils/parsers/ofxParser';
+import { parseCSV, CSVColumnMapping } from './utils/parsers/csvParser';
+import ImportReviewView from './components/ImportReviewView';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'drachma_subscriptions';
@@ -85,7 +88,7 @@ const formatLocalYYYYMMDD = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  type TabType = 'dailyBalance' | 'balanceHorizon' | 'dayTransactions' | 'savedAnnual' | 'monthlyTransactions' | 'recentTransactions' | 'tags' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu' | 'data';
+  type TabType = 'dailyBalance' | 'balanceHorizon' | 'dayTransactions' | 'savedAnnual' | 'monthlyTransactions' | 'recentTransactions' | 'tags' | 'totals' | 'categorySpending' | 'installments' | 'fixed' | 'salary' | 'subscriptions' | 'cards' | 'menu' | 'data' | 'importReview';
   const [activeTab, setActiveTab] = useState<TabType>('dailyBalance');
   const [selectedDay, setSelectedDay] = useState(formatLocalYYYYMMDD(new Date()));
   const [isReportsOpen, setIsReportsOpen] = useState(false);
@@ -100,6 +103,7 @@ const App: React.FC = () => {
   const [salaryInfo, setSalaryInfo] = useState<SalaryInfo>({ gross: 0, discounts: [] });
   const [cards, setCards] = useState<CreditCardModel[]>([]);
   const [initialBalance, setInitialBalance] = useState<InitialBalance>({ amount: 0, date: formatLocalYYYYMMDD(new Date()) });
+  const [parsedTransactionsForReview, setParsedTransactionsForReview] = useState<ParsedTransaction[]>([]);
   
   const [settings, setSettings] = useState<UserSettings>(() => {
     return {
@@ -132,6 +136,7 @@ const App: React.FC = () => {
   const [availableVersion, setAvailableVersion] = useState<AppVersion | null>(null);
   const versionCheckInFlightRef = useRef(false);
   const importFileRef = useRef<HTMLInputElement>(null);
+  const importBankFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (settings.theme === 'dark') {
@@ -248,6 +253,38 @@ const App: React.FC = () => {
     } catch { setFeedbackMessage('Arquivo JSON inválido.'); } event.target.value = ''; };
     reader.readAsText(file);
   };
+
+  const importBankData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const content = String(reader.result);
+      let parsed: ParsedTransaction[] = [];
+      try {
+        if (file.name.toLowerCase().endsWith('.ofx')) {
+          parsed = parseOFX(content);
+        } else if (file.name.toLowerCase().endsWith('.csv')) {
+          // Exemplo simples com colunas padrão
+          const mapping: CSVColumnMapping = { dateCol: 0, descriptionCol: 1, amountCol: 2 };
+          // Na vida real a gente daria um step pra pessoa selecionar, mas vamos com um fallback basico
+          parsed = parseCSV(content, ',', mapping, true);
+        }
+        
+        if (parsed.length > 0) {
+          setParsedTransactionsForReview(parsed);
+          setActiveTab('importReview');
+        } else {
+          setFeedbackMessage('Nenhuma transação encontrada no arquivo.');
+        }
+      } catch (err) {
+        setFeedbackMessage('Erro ao processar arquivo.');
+      }
+      event.target.value = '';
+    };
+    reader.readAsText(file);
+  };
+
   const clearImportedData = () => {
     setTransactions([]); setSubscriptions([]); setInitialBalance({ amount: 0, date: formatLocalYYYYMMDD(new Date()) }); setSalaryInfo({ gross: 0, discounts: [] }); setCards([]);
     [STORAGE_KEY_TRANSACTIONS, STORAGE_KEY_SUBSCRIPTIONS, STORAGE_KEY_INITIAL_BALANCE, STORAGE_KEY_SALARY_INFO, STORAGE_KEY_DATE_RANGE, STORAGE_KEY_SETTINGS, STORAGE_KEY_CARDS].forEach(key => repo.removeLegacyKey(key));
@@ -505,9 +542,13 @@ const App: React.FC = () => {
                 <p className={`mt-2 text-sm ${saveState === 'error' || lastDataEvent?.type === 'DELETE' ? 'text-rose-600' : isRecentDataEvent && lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
                   {saveState === 'saving' ? 'Salvando...' : saveState === 'error' ? 'Falha ao salvar' : formatDataEvent(lastDataEvent)}
                 </p>
-                <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-4">
+                <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-5">
                   <div className="space-y-1">
                     <button onClick={handleSave} disabled={!isDirty || saveState === 'saving'} className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-theme px-2 text-xs font-bold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:bg-app-surface-secondary disabled:text-app-text-secondary dark:disabled:bg-dark-app-surface-secondary dark:disabled:text-dark-app-text-secondary"><Save size={15} /> Salvar</button>
+                  </div>
+                  <div className="space-y-1">
+                    <button onClick={() => importBankFileRef.current?.click()} aria-label="Importar Extrato Bancário" className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl border border-theme bg-theme/10 px-2 text-xs font-bold text-theme transition-colors hover:bg-theme/20"><Landmark size={15} /> Extrato</button>
+                    <p className="text-center text-xs text-app-text-secondary dark:text-dark-app-text-secondary">OFX ou CSV</p>
                   </div>
                   <div className="space-y-1">
                     <button onClick={exportAppData} aria-label="Exportar dados em JSON" className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-app-surface-secondary px-2 text-xs font-bold text-app-text-primary hover:brightness-95 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-primary"><Upload size={15} /> Exportar</button>
@@ -522,8 +563,22 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <input ref={importFileRef} type="file" accept="application/json,.json" onChange={importAppData} className="hidden" />
+                <input ref={importBankFileRef} type="file" accept=".ofx,.csv" onChange={importBankData} className="hidden" />
               </div>
             </section>
+          )}
+          {activeTab === 'importReview' && (
+            <ImportReviewView 
+              parsedTransactions={parsedTransactionsForReview} 
+              existingTransactions={transactions}
+              cards={cards}
+              currencySymbol={currencySymbol}
+              onConfirm={(newTs) => {
+                addTransactions(newTs);
+                setActiveTab('recentTransactions');
+              }}
+              onCancel={() => setActiveTab('data')}
+            />
           )}
           {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} onDayClick={(date, group) => openNewTransaction(group, date)} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
           {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={(group, date) => openNewTransaction(group, date)} onDayClick={(date) => { setSelectedDay(date); setActiveTab('dayTransactions'); }} />}
