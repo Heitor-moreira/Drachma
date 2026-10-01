@@ -11,7 +11,26 @@ export const getTransactionEntryType = (transaction: Transaction): EntryType => 
 export const normalizeTransaction = (transaction: Transaction): Transaction => {
   const entryType = transaction.cardId ? 'CARD' : getTransactionEntryType(transaction);
   const { category, ...rest } = transaction as Transaction & { category?: unknown };
-  return { ...rest, entryType, createdAt: rest.createdAt || rest.importDate || `${rest.date}T12:00:00.000Z` };
+  
+  const description = rest.description ? rest.description.slice(0, 120) : '';
+  const comment = rest.comment ? rest.comment.slice(0, 500) : '';
+  const tags = Array.isArray(rest.tags) ? rest.tags.slice(0, 10).map(t => typeof t === 'string' ? t.slice(0, 30) : String(t).slice(0, 30)) : undefined;
+  
+  const installmentInfo = rest.installmentInfo ? { ...rest.installmentInfo, total: Math.min(rest.installmentInfo.total, 120) } : undefined;
+  
+  const MAX_AMOUNT = 100000000; // 100 milhões
+  const amount = Math.min(Math.max(rest.amount || 0, -MAX_AMOUNT), MAX_AMOUNT);
+
+  return { 
+    ...rest, 
+    entryType, 
+    description,
+    comment,
+    tags,
+    installmentInfo,
+    amount,
+    createdAt: rest.createdAt || rest.importDate || `${rest.date}T12:00:00.000Z` 
+  };
 };
 
 export const serializeTransaction = (transaction: Transaction): Transaction => {

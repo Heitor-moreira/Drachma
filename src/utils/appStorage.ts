@@ -40,15 +40,39 @@ export const getLatestDataEvent = (current: DataEvent | undefined, next: DataEve
 
 export const validateSnapshot = (value: unknown): value is Partial<AppStateSnapshot> => {
   if (!isObject(value) || !Array.isArray(value.transactions)) return false;
-  return value.transactions.every(transaction => isObject(transaction) && typeof transaction.id === 'string' && typeof transaction.date === 'string' && typeof transaction.amount === 'number');
+  
+  for (const tx of value.transactions) {
+    if (!isObject(tx)) return false;
+    if (typeof tx.id !== 'string' || typeof tx.date !== 'string' || typeof tx.amount !== 'number') return false;
+    if (tx.description !== undefined && typeof tx.description !== 'string') return false;
+    if (tx.comment !== undefined && typeof tx.comment !== 'string') return false;
+    if (tx.tags !== undefined && !Array.isArray(tx.tags)) return false;
+  }
+
+  if (value.settings !== undefined) {
+    if (!isObject(value.settings)) return false;
+    const settings = value.settings as Record<string, unknown>;
+    if (settings.userPhoto !== undefined && typeof settings.userPhoto !== 'string') return false;
+  }
+
+  return true;
 };
 
 export const normalizeSnapshot = (value: unknown): Partial<AppStateSnapshot> => {
   if (!validateSnapshot(value)) throw new Error('Arquivo inválido');
   const data = value as Partial<AppStateSnapshot>;
+  
+  const settings = data.settings ? { ...data.settings } : undefined;
+  if (settings?.userPhoto) {
+    if (!settings.userPhoto.startsWith('https://') && !settings.userPhoto.startsWith('data:image/')) {
+      settings.userPhoto = ''; // reject unsafe schemas
+    }
+  }
+
   return {
     ...data,
-    transactions: data.transactions!.map(transaction => normalizeTransaction(transaction))
+    ...(settings ? { settings } : {}),
+    transactions: (data.transactions || []).map(transaction => normalizeTransaction(transaction))
   };
 };
 
