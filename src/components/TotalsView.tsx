@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3, Wallet } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../utils/finance';
+import { normalizeTag } from '../utils/taggedTransactions';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
 
 interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; savingsTarget: number; baseSalary?: number; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
@@ -17,11 +18,21 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
   const totals = useMemo(() => {
     const projected = projectTransactions(transactions, formatDate(start), formatDate(end), cards);
     const sum = (predicate: (transaction: Transaction) => boolean) => projected.filter(predicate).reduce((total, transaction) => total + transaction.amount, 0);
+    const tagMap = new Map<string, number>();
+    projected.forEach(t => {
+      const sign = getTransactionEntryType(t) === 'INCOME' ? 1 : -1;
+      const amount = t.amount * sign;
+      t.tags?.forEach(tag => {
+        const norm = normalizeTag(tag);
+        if (norm) tagMap.set(norm, (tagMap.get(norm) || 0) + amount);
+      });
+    });
     return {
       income: sum(t => getTransactionEntryType(t) === 'INCOME'),
       expense: sum(t => getTransactionEntryType(t) === 'EXPENSE'),
       savings: sum(t => getTransactionEntryType(t) === 'SAVINGS'),
       card: sum(t => getTransactionEntryType(t) === 'CARD'),
+      tags: Array.from(tagMap.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([name, total]) => ({ name, total }))
     };
   }, [transactions, cards, dateRange]);
   const moveMonth = (delta: number) => { const next = new Date(start.getFullYear(), start.getMonth() + delta, 1, 12); setDateRange({ start: formatDate(next), end: formatDate(new Date(next.getFullYear(), next.getMonth() + 1, 0, 12)) }); };
@@ -63,7 +74,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
           <div className="mt-2 flex items-center gap-2">
             {symbol('E', 'bg-lime-500')}
             <div className="h-4 w-28 rounded-full border-2 border-lime-500 p-0.5 dark:border-lime-400"><div className="h-full rounded-full bg-lime-500 dark:bg-lime-400" style={{ width: `${savingsPercentage}%` }} /></div>
-            {symbol(baseSalary && baseSalary > 0 ? <Wallet size={15} strokeWidth={2.5} /> : <ArrowDownLeft size={15} strokeWidth={3} />, baseSalary && baseSalary > 0 ? 'bg-slate-600' : 'bg-emerald-500')}
+            {symbol(<ArrowDownLeft size={15} strokeWidth={3} />, 'bg-emerald-500')}
           </div>
         </div>
         <div className="shrink-0 text-right">
@@ -80,6 +91,18 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         </div>
         <span className="shrink-0 text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{money(item.value)}</span>
       </button>)}
+      {totals.tags.length > 0 && <>
+        <div className="h-4 shrink-0 border-y border-white !border-y-white bg-white dark:!border-y-dark-app-surface dark:bg-dark-app-surface" aria-hidden="true" />
+        <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-medium text-slate-500 dark:text-dark-app-text-secondary">Tags do mês</h2></div>
+        {totals.tags.map(tag => <div key={tag.name} className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">#{tag.name}</span>
+          </div>
+          <span className={`shrink-0 text-base font-bold ${tag.total > 0 ? 'text-emerald-600' : tag.total < 0 ? 'text-rose-600' : 'text-slate-800 dark:text-dark-app-text-primary'}`}>
+            {tag.total > 0 ? '+' : (tag.total < 0 ? '-' : '')} {money(Math.abs(tag.total))}
+          </span>
+        </div>)}
+      </>}
     </div>
   </section>;
 };

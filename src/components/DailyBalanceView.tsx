@@ -50,7 +50,7 @@ const DailyActionRow = React.memo(({ day, item, onDayClick, currencySymbol, isLa
   };
 
   return (
-    <td className={`p-0 ${isLastType ? 'border-b-2 border-slate-300 dark:border-dark-app-border' : 'border-b border-slate-200 dark:border-dark-app-border'}`} onPointerDown={handlePointerDown}>
+    <td className={`p-0 ${isLastType ? 'border-b-2 border-slate-300 dark:border-dark-app-border' : 'border-b border-slate-200 dark:border-dark-app-border'}`} onPointerDown={handlePointerDown} onTouchStart={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
       <div className="relative overflow-hidden w-full h-full">
         <div className="absolute inset-y-0 right-0 w-20 bg-emerald-500 flex items-center justify-center text-white">
           <Plus size={20} />
