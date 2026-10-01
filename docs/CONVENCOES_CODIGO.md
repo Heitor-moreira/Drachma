@@ -10,12 +10,12 @@
 
 ## Arquitetura atual
 
-- `App.tsx` é a raiz de composição, estado e navegação;
-- `appStorage.ts` define o snapshot persistido e sua normalização;
-- `hooks/useAppPersistence.ts` controla leitura, escrita automática, salvamento manual e estado `isDirty`;
-- `finance.ts` concentra classificação, normalização, serialização, datas, recorrências e projeções;
-- `types.ts` contém os contratos compartilhados;
-- componentes de tela ficam em `components/` e funções de domínio testáveis permanecem fora do JSX quando possível.
+- `src/App.tsx` é a raiz de composição, estado e navegação;
+- `src/utils/appStorage.ts` define o snapshot persistido e sua normalização;
+- `src/hooks/useAppPersistence.ts` controla leitura, escrita automática, salvamento manual e estado `isDirty`;
+- `src/utils/finance.ts` concentra classificação, normalização, serialização, datas, recorrências e projeções;
+- `src/types.ts` contém os contratos compartilhados;
+- componentes de tela ficam em `src/components/` e funções de domínio testáveis permanecem fora do JSX quando possível.
 
 ## Finanças
 

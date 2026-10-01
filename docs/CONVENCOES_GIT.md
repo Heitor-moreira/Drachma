@@ -11,7 +11,7 @@
 ## Commits
 
 - usar mensagens curtas, em português e no imperativo;
-- prefixos permitidos: `feat:`, `fix:`, `docs:`, `refactor:` e `chore:`;
+- prefixos permitidos: `feat:`, `fix:`, `docs:`, `refactor:`, `perf:`, `test:`, `build:` e `chore:`;
 - manter uma ideia por commit;
 - validar o diff preparado antes de criar o commit;
 - separar código, documentação e migrações quando puderem ser revisados independentemente.

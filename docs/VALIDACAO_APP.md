@@ -15,7 +15,7 @@ git diff --check
 
 | Mudança | Validação adicional |
 | --- | --- |
-| Regra financeira, recorrência ou parcela | testes focados do domínio e cenários de projeção |
+| Regra financeira, recorrência ou parcela | testes focados do domínio, cenários de projeção e benchmark (`npx vitest bench src/utils/finance.bench.ts --run`) |
 | Persistência, importação ou exportação | testes de snapshot válido, inválido e compatibilidade |
 | Interface, layout ou texto | navegador desktop e mobile, temas claro e escuro |
 | Modal, formulário ou menu | teclado, foco, fechamento, conteúdo longo e estados inválidos |
