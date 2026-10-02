@@ -35,6 +35,14 @@ A tela **Saldos** é a referência visual para Tags, Totais, Movimentações do 
 - respeitar áreas seguras em dispositivos móveis;
 - não ampliar uma correção localizada para problemas visuais fora do escopo.
 
+## Raios de borda (border-radius)
+
+- **Pílulas e botões de ação (`rounded-full`):** ações principais de formulário (Salvar, Cancelar e Excluir em `TransactionForm`), botão central flutuante, pílulas de filtro (`FilterPill`), seletores de período e tags;
+- **Ações secundárias e diálogos de confirmação (`rounded-2xl` ou `rounded-xl`):** botões de modais de confirmação, painéis de configurações e inputs de formulário;
+- **Controles de ícone nos cabeçalhos (`rounded-lg` ou `rounded-xl`):** botões de voltar, fechar, calendário e navegação auxiliar;
+- **Cards e superfícies (`rounded-3xl` ou `rounded-[2rem]`):** cartões de resumo, blocos informativos e painéis;
+- **Modais e bottom sheets (`rounded-t-3xl` ou `rounded-t-[2rem]`):** bordas superiores arredondadas em painéis móveis.
+
 ## Referências relacionadas
 
 - [FONTES_TIPOGRAFICAS.md](./FONTES_TIPOGRAFICAS.md)
