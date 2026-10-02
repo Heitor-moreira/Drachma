@@ -1,8 +1,9 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { DataProvider } from './data';
+import { AuthProvider } from './contexts/AuthContext';
+import { SyncProvider } from './contexts/SyncContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -12,8 +13,12 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <DataProvider>
-      <App />
-    </DataProvider>
+    <AuthProvider>
+      <SyncProvider>
+        <DataProvider>
+          <App />
+        </DataProvider>
+      </SyncProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
