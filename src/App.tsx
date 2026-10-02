@@ -7,7 +7,7 @@ import {
   History,
   Settings,
   X,
-  Wallet,
+  ArrowDownLeft,
   Coins,
   Landmark,
   CalendarClock,
@@ -393,7 +393,7 @@ const App: React.FC = () => {
               <p className="text-xs font-bold text-theme uppercase tracking-[0.2em] mb-1">Saldo Total</p>
               <h3 className="text-2xl font-bold">{currencySymbol} {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
             </div>
-            <Wallet size={60} className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform" />
+            <TrendingUp size={60} className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform" />
           </button>
         </div>
 
@@ -647,7 +647,7 @@ const App: React.FC = () => {
                   <div>
                     <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-2">Salário Base ({CURRENCIES[settings.currency]?.symbol})</label>
                     <div className="relative flex items-center border-b border-slate-200 dark:border-dark-app-border">
-                      <Wallet size={22} className="shrink-0 text-slate-500 dark:text-dark-app-text-secondary" />
+                      <ArrowDownLeft size={22} className="shrink-0 text-emerald-500" strokeWidth={2.5} />
                       <input
                         type="number"
                         min="0"
@@ -749,7 +749,7 @@ const App: React.FC = () => {
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/40">
             <div className="bg-white dark:bg-dark-app-surface rounded-2xl shadow-2xl w-full max-w-md p-6 animate-in zoom-in duration-200">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-slate-800 dark:text-dark-app-text-primary text-lg flex items-center gap-2"><Wallet className="text-theme" /> Ajustar Saldo</h3>
+                <h3 className="font-bold text-slate-800 dark:text-dark-app-text-primary text-lg flex items-center gap-2"><Coins className="text-theme" /> Ajustar Saldo</h3>
                 <button onClick={() => setIsAdjustmentOpen(false)} className="text-slate-400 hover:text-slate-600 dark:text-dark-app-text-secondary"><X size={20} /></button>
               </div>
               <div className="space-y-4">

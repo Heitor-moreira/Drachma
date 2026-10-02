@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Subscription } from '../types';
-import { Plus, Trash2, Wallet, PieChart, CreditCard, Edit2, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, Trash2, PieChart, CreditCard, Edit2, CheckCircle2, XCircle } from 'lucide-react';
 
 interface Props {
   subscriptions: Subscription[];

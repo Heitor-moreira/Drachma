@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { SalaryInfo, SalaryDiscount } from '../types';
-import { Wallet, Plus, Trash2, Calculator, Info, Landmark, Percent, DollarSign } from 'lucide-react';
+import { Plus, Trash2, Calculator, Info, Landmark, Percent, DollarSign } from 'lucide-react';
 
 interface Props {
   salaryInfo: SalaryInfo;
