@@ -99,6 +99,7 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
     <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">
       {filteredTransactions.map(transaction => <RecentTransactionRow key={transaction.id} transaction={transaction} currencySymbol={currencySymbol} onEdit={onEdit} onDelete={onDelete} />)}
       {!filteredTransactions.length && <p className="p-10 text-center text-sm text-slate-500 dark:text-dark-app-text-secondary">Nenhum lançamento encontrado para os filtros selecionados.</p>}
+      <div className="h-28 shrink-0 md:hidden" aria-hidden="true" />
     </div>
   </section>;
 };

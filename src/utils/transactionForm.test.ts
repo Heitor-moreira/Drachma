@@ -1,5 +1,7 @@
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { commitTag, getTransactionOccurrenceLabel, normalizeTag, TRANSACTION_CLOSE_DELAY_MS, TRANSACTION_SUBMIT_DELAY_MS, uniqueTags } from '../components/TransactionForm';
+import TransactionForm, { commitTag, getTransactionOccurrenceLabel, normalizeTag, TRANSACTION_CLOSE_DELAY_MS, TRANSACTION_SUBMIT_DELAY_MS, uniqueTags } from '../components/TransactionForm';
 
 describe('transaction form timing', () => {
   it('keeps submit and close delays below the previous perceived-latency budget', () => {
@@ -31,5 +33,34 @@ describe('transaction form occurrence label', () => {
 
   it('shows the first finite recurrence occurrence in the modal', () => {
     expect(getTransactionOccurrenceLabel({ id: 'recurrence', date: '2026-08-01', description: 'Conta', amount: 10, entryType: 'EXPENSE', comment: '', recurrenceFrequency: 'MONTHLY', recurrenceEndMode: 'COUNT', recurrenceCount: 3 })).toBe('[1/4]');
+  });
+});
+
+describe('transaction form description field', () => {
+  it('does not enforce rigid 80px height and uses leading-normal on description textarea', () => {
+    const html = renderToStaticMarkup(React.createElement(TransactionForm, {
+      onAdd: () => undefined,
+      onClose: () => undefined,
+      currencySymbol: 'R$',
+      initialData: {
+        id: '1',
+        description: 'Formatura Helô (parcelas 3, 4 e 5)',
+        amount: 231.24,
+        entryType: 'EXPENSE',
+        date: '2026-07-14',
+        comment: ''
+      }
+    }));
+
+    // Form must not enforce rigid !h-[80px]
+    expect(html).not.toContain('!h-[80px]');
+    expect(html).toContain('min-h-[80px]');
+
+    // Container should allow auto height
+    expect(html).toContain('!h-auto min-h-[80px]');
+
+    // Textarea should have leading-normal
+    expect(html).toContain('leading-normal');
+    expect(html).toContain('Formatura Helô (parcelas 3, 4 e 5)');
   });
 });

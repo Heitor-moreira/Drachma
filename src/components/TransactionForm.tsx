@@ -59,6 +59,7 @@ type RecurrenceEndMode = 'INFINITE' | 'COUNT';
 
 const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialData, currencySymbol, cards = [], availableTags = [], initialDate, initialFinancialGroup }) => {
   const [description, setDescription] = useState(initialData?.description || '');
+  const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
   const amountInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,6 +115,20 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   useEffect(() => {
     if (!initialData && !window.matchMedia('(pointer: coarse)').matches) amountInputRef.current?.focus({ preventScroll: true });
   }, [initialData]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const el = descriptionTextareaRef.current;
+      if (!el) return;
+      el.style.height = 'auto';
+      if (el.scrollHeight > 0) {
+        el.style.height = `${el.scrollHeight}px`;
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [description]);
 
   useEffect(() => {
     if (!isTagsFocused) return;
@@ -207,20 +222,37 @@ const TransactionForm: React.FC<Props> = ({ onAdd, onClose, onDelete, initialDat
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border [&>div]:!h-[80px]">
+    <form onSubmit={handleSubmit} className="flex min-h-full flex-col space-y-0 divide-y divide-slate-200 dark:divide-dark-app-border [&>div]:min-h-[80px]">
       <div className="flex items-center justify-between border-b border-slate-100 px-6 pb-4 dark:border-dark-app-border md:px-12"><input ref={amountInputRef} inputMode="decimal" value={formatCurrency(amount, currencySymbol)} onChange={e => { const digits = e.target.value.replace(/\D/g, ''); setAmount((Number(digits || 0) / 100).toFixed(2)); }} className="w-3/4 text-[32px] font-bold bg-transparent outline-none dark:text-dark-app-text-primary" aria-label="Valor" required /><button type="button" onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-white"><X size={24} /></button></div>
       <div className="relative flex min-h-20 w-full cursor-pointer items-center justify-between px-6 py-5 md:px-12" aria-label="Selecionar tipo de lançamento"><div className="flex min-w-0 items-center gap-4"><div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${kindMeta.button} text-white`} aria-hidden="true">{entryKind === 'SAVINGS' || entryKind === 'CARD' ? <span className="type-icon-label font-bold">{entryKind === 'SAVINGS' ? 'E' : 'C'}</span> : <KindIcon size={15} strokeWidth={3} />}</div><span className={`truncate text-[21px] font-bold ${kindMeta.color}`}>{kindMeta.label}</span></div><ChevronDown size={21} className={`shrink-0 ${kindMeta.color}`} /><select aria-label="Tipo de lançamento" value={entryKind} onChange={e => selectKind(e.target.value as EntryKind)} className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><option value="INCOME">Entrada</option><option value="EXPENSE">Saída</option><option value="SAVINGS">Economia</option><option value="CARD">Gasto com cartão</option></select></div>
 
-      <div className="min-h-20 px-6 py-5 md:px-12">
-        <div>
-          <div className="flex min-w-0 items-center gap-3"><Pencil size={24} className="shrink-0 text-slate-500" /><textarea
-            rows={1}
-            value={description} 
-            onChange={e => setDescription(e.target.value)} 
-            className="min-w-0 flex-1 resize-none overflow-hidden break-words px-0 py-2 text-[20px] leading-tight bg-transparent border-0 outline-none focus:ring-0 dark:text-dark-app-text-primary"
-            placeholder="Descrição" 
-          /></div>
-          {getTransactionOccurrenceLabel(initialData) && <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">{getTransactionOccurrenceLabel(initialData)}</span>}
+      <div className="!h-auto min-h-[80px] flex flex-col justify-center px-6 py-4 md:px-12">
+        <div className="w-full">
+          <div className="flex min-w-0 items-start gap-3">
+            <Pencil size={24} className="shrink-0 text-slate-500 mt-1" />
+            <textarea
+              ref={descriptionTextareaRef}
+              rows={1}
+              value={description} 
+              onChange={e => {
+                setDescription(e.target.value);
+                e.target.style.height = 'auto';
+                if (e.target.scrollHeight > 0) {
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }
+              }} 
+              className="min-w-0 flex-1 resize-none overflow-hidden break-words px-0 py-1 text-[20px] leading-normal bg-transparent border-0 outline-none focus:ring-0 dark:text-dark-app-text-primary min-h-[36px]"
+              style={{ fieldSizing: 'content' as any }}
+              placeholder="Descrição" 
+            />
+          </div>
+          {getTransactionOccurrenceLabel(initialData) && (
+            <div className="mt-1 pl-9">
+              <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">
+                {getTransactionOccurrenceLabel(initialData)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

@@ -109,6 +109,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
           </span>
         </div>)}
       </>}
+      <div className="h-28 shrink-0 md:hidden" aria-hidden="true" />
     </div>
   </section>;
 };

@@ -218,6 +218,7 @@ const DailyBalanceView: React.FC<Props> = ({ transactions, dateRange, setDateRan
               )}
             </tbody>
           </table>
+          <div className="h-28 shrink-0 md:hidden" aria-hidden="true" />
         </div>
       </div>
     </div>

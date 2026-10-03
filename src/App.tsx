@@ -39,6 +39,7 @@ import {
   , ArrowLeft
   , Database
   , Target
+  , GraduationCap
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
 import packageJson from '../package.json';
@@ -141,10 +142,11 @@ const App: React.FC = () => {
   const importBankFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    document.documentElement.classList.remove('dark', 'claude');
     if (settings.theme === 'dark') {
       document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    } else if (settings.theme === 'claude') {
+      document.documentElement.classList.add('claude');
     }
   }, [settings.theme]);
 
@@ -412,7 +414,8 @@ const App: React.FC = () => {
     subscriptions: 'Assinaturas Legadas',
     subscriptionsTags: 'Assinaturas',
     cards: 'Cartões',
-    menu: 'Menu'
+    menu: 'Menu',
+    importReview: 'Revisão de Importação'
   };
 
   return (
@@ -654,18 +657,27 @@ const App: React.FC = () => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Tema</label>
-                  <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-dark-app-surface p-1 rounded-2xl">
+                  <div className="grid grid-cols-3 gap-2 bg-slate-100 dark:bg-dark-app-surface p-1 rounded-2xl">
                     <button 
+                      type="button"
                       onClick={() => setSettings({...settings, theme: 'light'})}
-                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.theme === 'light' ? 'bg-white dark:bg-dark-app-surface-secondary text-slate-800 dark:text-dark-app-text-primary shadow-sm' : 'text-slate-400'}`}
+                      className={`flex items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl text-xs font-bold transition-all text-center ${settings.theme === 'light' ? 'bg-white dark:bg-dark-app-surface-secondary text-slate-800 dark:text-dark-app-text-primary shadow-sm' : 'text-slate-400'}`}
                     >
-                      <Sun size={16} /> Claro
+                      <Sun size={16} className="shrink-0" /> Claro
                     </button>
                     <button 
+                      type="button"
                       onClick={() => setSettings({...settings, theme: 'dark'})}
-                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${settings.theme === 'dark' ? 'bg-white dark:bg-dark-app-surface-secondary text-slate-800 dark:text-dark-app-text-primary shadow-sm' : 'text-slate-400'}`}
+                      className={`flex items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl text-xs font-bold transition-all text-center ${settings.theme === 'dark' ? 'bg-white dark:bg-dark-app-surface-secondary text-slate-800 dark:text-dark-app-text-primary shadow-sm' : 'text-slate-400'}`}
                     >
-                      <Moon size={16} /> Escuro
+                      <Moon size={16} className="shrink-0" /> Escuro
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setSettings({...settings, theme: 'claude'})}
+                      className={`flex items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl text-xs font-bold transition-all text-center ${settings.theme === 'claude' ? 'bg-white dark:bg-dark-app-surface-secondary text-slate-800 dark:text-dark-app-text-primary shadow-sm' : 'text-slate-400'}`}
+                    >
+                      <GraduationCap size={16} className="shrink-0" /> <span className="leading-tight">Claude Academy</span>
                     </button>
                   </div>
                 </div>
@@ -691,7 +703,7 @@ const App: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-2">Meta de Economia (%)</label>
+                    <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-2">Meta de Economia</label>
                     <div className="relative flex items-center border-b border-slate-200 dark:border-dark-app-border">
                       <Target size={22} className="shrink-0 text-slate-500 dark:text-dark-app-text-secondary" />
                       <input
@@ -702,19 +714,21 @@ const App: React.FC = () => {
                         onChange={e => setSettings({...settings, savingsTarget: Number(e.target.value)})}
                         className="w-full appearance-none bg-transparent px-3 py-3 outline-none text-base font-bold text-slate-700 dark:text-dark-app-text-secondary"
                       />
+                      <span className="shrink-0 font-bold text-base text-slate-500 dark:text-dark-app-text-secondary pr-2">%</span>
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-2">Salário Base ({CURRENCIES[settings.currency]?.symbol})</label>
+                    <label className="block text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase mb-2">Salário Base</label>
                     <div className="relative flex items-center border-b border-slate-200 dark:border-dark-app-border">
                       <ArrowDownLeft size={22} className="shrink-0 text-emerald-500" strokeWidth={2.5} />
+                      <span className="shrink-0 font-bold text-base text-slate-500 dark:text-dark-app-text-secondary pl-3">{CURRENCIES[settings.currency]?.symbol || 'R$'}</span>
                       <input
                         type="number"
                         min="0"
                         value={settings.baseSalary || ''}
                         onChange={e => setSettings({...settings, baseSalary: Number(e.target.value)})}
-                        className="w-full appearance-none bg-transparent px-3 py-3 outline-none text-base font-bold text-slate-700 dark:text-dark-app-text-secondary"
+                        className="w-full appearance-none bg-transparent pl-2 pr-3 py-3 outline-none text-base font-bold text-slate-700 dark:text-dark-app-text-secondary"
                       />
                     </div>
                   </div>
@@ -791,12 +805,29 @@ const App: React.FC = () => {
         {(isFormOpen || editingTransaction) && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => { setIsFormOpen(false); setEditingTransaction(null); setNewTransactionDate(undefined); setNewTransactionGroup(undefined); }}
             className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-900/40 sm:p-4"
           >
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "tween", duration: 0.25, ease: "easeOut" }} style={{ willChange: "transform" }}
+              drag="y"
+              dragDirectionLock
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.6 }}
+              onDragEnd={(_e, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 400) {
+                  setIsFormOpen(false);
+                  setEditingTransaction(null);
+                  setNewTransactionDate(undefined);
+                  setNewTransactionGroup(undefined);
+                }
+              }}
+              onClick={e => e.stopPropagation()}
               className="h-[95vh] sm:h-[90vh] w-full max-w-2xl overflow-hidden bg-white dark:bg-dark-app-surface flex flex-col rounded-t-3xl sm:rounded-[2rem] shadow-2xl mt-auto"
             >
+              <div className="w-full flex items-center justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing touch-none">
+                <div className="w-12 h-1.5 rounded-full bg-slate-300 dark:bg-dark-app-border" />
+              </div>
               <div className="h-full overflow-y-auto py-8">
                 <TransactionForm onAdd={editingTransaction ? (ts) => updateTransaction(ts[0]!) : addTransactions} onClose={() => {setIsFormOpen(false); setEditingTransaction(null); setNewTransactionDate(undefined); setNewTransactionGroup(undefined)}} onDelete={deleteTransaction} initialData={editingTransaction} initialDate={newTransactionDate} initialFinancialGroup={newTransactionGroup === FinancialGroup.PERSONAL_INCOME || newTransactionGroup === FinancialGroup.REIMBURSEMENT ? 'INCOME' : newTransactionGroup === FinancialGroup.SAVINGS ? 'SAVINGS' : newTransactionGroup === FinancialGroup.PERSONAL_EXPENSE || newTransactionGroup === FinancialGroup.ADVANCE_TO_OTHERS ? 'EXPENSE' : newTransactionGroup} currencySymbol={currencySymbol} cards={cards} availableTags={availableTags} />
               </div>

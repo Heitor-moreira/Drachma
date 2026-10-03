@@ -39,6 +39,15 @@
                 'text-primary': '#F8FAFC',
                 'text-secondary': '#C4CBD1',
                 border: '#262626'
+              },
+              'claude-app': {
+                background: '#FAF9F5',
+                surface: '#FFFFFF',
+                'surface-secondary': '#F5F3ED',
+                'text-primary': '#141413',
+                'text-secondary': '#6C6C6A',
+                border: '#E5E2DC',
+                accent: '#2B64C5'
               }
             }
           }
@@ -53,6 +62,10 @@
       }
       .dark body {
         background-color: #000000;
+      }
+      .claude body {
+        background-color: #FAF9F5;
+        color: #141413;
       }
 
       @media (max-width: 768px) {
@@ -69,6 +82,10 @@
 
         .dark body {
           background: #000000;
+        }
+
+        .claude body {
+          background: #E5E2DC;
         }
 
         .phone-shell {
@@ -90,6 +107,99 @@
           display: block !important;
         }
       }
+
+      /* Regras para o tema Claude Academy (.claude) */
+      .claude .phone-shell {
+        background-color: #FAF9F5 !important;
+        color: #141413 !important;
+      }
+
+      /* Fundo principal / body / app-background: #FAF9F5 */
+      .claude .bg-app-background,
+      .claude .bg-slate-50,
+      .claude-bg-main {
+        background-color: #FAF9F5 !important;
+      }
+
+      /* Fundo de superfícies / cards: #FFFFFF */
+      .claude .bg-app-surface,
+      .claude .bg-white,
+      .claude-bg-surface {
+        background-color: #FFFFFF !important;
+      }
+
+      /* Fundo secundário / inputs: #F5F3ED */
+      .claude .bg-app-surface-secondary,
+      .claude .bg-slate-100,
+      .claude .bg-slate-200,
+      .claude-bg-secondary {
+        background-color: #F5F3ED !important;
+      }
+
+      .claude input:not(.bg-transparent):not([type="checkbox"]):not([type="radio"]),
+      .claude select:not(.bg-transparent),
+      .claude textarea:not(.bg-transparent) {
+        background-color: #F5F3ED;
+        color: #141413;
+      }
+
+      /* Texto principal: #141413 */
+      .claude,
+      .claude .text-app-text-primary,
+      .claude .text-slate-900,
+      .claude .text-slate-800,
+      .claude-text-primary {
+        color: #141413 !important;
+      }
+
+      /* Texto secundário: #6C6C6A */
+      .claude .text-app-text-secondary,
+      .claude .text-slate-600,
+      .claude .text-slate-500,
+      .claude .text-slate-400,
+      .claude-text-secondary {
+        color: #6C6C6A !important;
+      }
+
+      /* Bordas: #E5E2DC */
+      .claude .border-app-border,
+      .claude .border-slate-100,
+      .claude .border-slate-200,
+      .claude .border-slate-300,
+      .claude-border {
+        border-color: #E5E2DC !important;
+      }
+
+      /* Destaques / botões primários: #141413 com texto #FAF9F5 */
+      .claude .bg-slate-900,
+      .claude-btn-primary {
+        background-color: #141413 !important;
+        color: #FAF9F5 !important;
+      }
+
+      /* Acento funcional / links: #2B64C5 */
+      .claude a,
+      .claude .text-theme,
+      .claude-accent {
+        color: #2B64C5 !important;
+      }
+
+      .claude .border-theme {
+        border-color: #2B64C5 !important;
+      }
+
+      .claude .theme-ring:focus {
+        --tw-ring-color: #2B64C5;
+      }
+
+      .claude-accent-bg {
+        background-color: #2B64C5 !important;
+      }
+
+      .claude .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #E5E2DC;
+      }
+
       .theme-bg { background-color: #35b784; }
       .theme-text { color: #35b784; }
       .theme-border { border-color: #35b784; }

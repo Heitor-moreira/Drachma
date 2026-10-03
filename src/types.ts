@@ -138,7 +138,7 @@ export interface UserSettings {
   currency: CurrencyCode;
   userName: string;
   userPhoto: string;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'claude';
   savingsTarget?: number;
   baseSalary?: number;
   // Campos de Sincronização (Supabase)
