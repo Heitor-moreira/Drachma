@@ -22,6 +22,7 @@ describe('Swipe Navigation across views', () => {
           onOpenHorizon={vi.fn()}
           onOpenSavedAnnual={vi.fn()}
           onOpenMonthlyTransactions={vi.fn()}
+          onOpenTaggedMonthlyTransactions={vi.fn()}
         />
       );
 
@@ -46,6 +47,7 @@ describe('Swipe Navigation across views', () => {
           onOpenHorizon={vi.fn()}
           onOpenSavedAnnual={vi.fn()}
           onOpenMonthlyTransactions={vi.fn()}
+          onOpenTaggedMonthlyTransactions={vi.fn()}
         />
       );
 
@@ -70,6 +72,7 @@ describe('Swipe Navigation across views', () => {
           onOpenHorizon={vi.fn()}
           onOpenSavedAnnual={vi.fn()}
           onOpenMonthlyTransactions={vi.fn()}
+          onOpenTaggedMonthlyTransactions={vi.fn()}
         />
       );
 

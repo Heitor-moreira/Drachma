@@ -108,6 +108,32 @@
         }
       }
 
+      /* Dev Mode Overrides */
+      .dev-mode-active .phone-shell {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-width: none !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+      .dev-mode-active .phone-shell > aside {
+        display: flex !important;
+      }
+      @container devmode (max-width: 767px) {
+        .dev-mode-active .phone-shell > aside {
+          display: none !important;
+        }
+        .dev-mode-active .phone-shell > main > nav {
+          display: block !important;
+        }
+      }
+      @container devmode (min-width: 768px) {
+        .dev-mode-active .phone-shell > main > nav {
+          display: none !important;
+        }
+      }
+
       /* Regras para o tema Claude Academy (.claude) */
       .claude .phone-shell {
         background-color: #FAF9F5 !important;

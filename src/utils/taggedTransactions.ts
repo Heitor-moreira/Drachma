@@ -17,3 +17,25 @@ export const filterTaggedTransactions = (transactions: Transaction[], cards: Cre
     .filter(transaction => type === 'ALL' || getTransactionEntryType(transaction) === type)
     .sort((a, b) => b.date.localeCompare(a.date));
 };
+
+export const transactionHasTag = (transaction: Transaction, targetTag: string): boolean => {
+  const normalizedTarget = normalizeTag(targetTag);
+  if (!normalizedTarget) return false;
+  return Boolean(transaction.tags?.some(tag => normalizeTag(tag) === normalizedTarget));
+};
+
+export const sortTagTotals = (
+  tags: { name: string; total: number }[],
+  mode: 'alpha' | 'value',
+  direction: 'asc' | 'desc'
+): { name: string; total: number }[] => {
+  return [...tags].sort((a, b) => {
+    if (mode === 'value') {
+      if (a.total !== b.total) {
+        return direction === 'desc' ? b.total - a.total : a.total - b.total;
+      }
+      return a.name.localeCompare(b.name);
+    }
+    return direction === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name);
+  });
+};

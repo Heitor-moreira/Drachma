@@ -1,23 +1,27 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
+import { ArrowDown, ArrowDownLeft, ArrowUp, ArrowUpDown, ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../utils/finance';
-import { normalizeTag } from '../utils/taggedTransactions';
+import { normalizeTag, sortTagTotals } from '../utils/taggedTransactions';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
 import { getPerformanceVerdict } from '../utils/performanceFeedback';
 
-interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; savingsTarget: number; baseSalary?: number; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; }
+import FilterPill from './FilterPill';
+
+interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards: CreditCard[]; currencySymbol: string; savingsTarget: number; baseSalary?: number; onOpenHorizon: () => void; onOpenSavedAnnual: () => void; onOpenMonthlyTransactions: (type: EntryType) => void; onOpenTaggedMonthlyTransactions: (tag: string) => void; }
 export const calculatePerformance = ({ income, expense, savings, card }: { income: number; expense: number; savings: number; card: number }) => income - expense - savings - card;
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, savingsTarget, baseSalary, onOpenHorizon, onOpenSavedAnnual, onOpenMonthlyTransactions }) => {
+const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards, currencySymbol, savingsTarget, baseSalary, onOpenHorizon, onOpenSavedAnnual, onOpenMonthlyTransactions, onOpenTaggedMonthlyTransactions }) => {
   const fallbackStart = new Date();
   const start = Number.isNaN(Date.parse(dateRange.start)) ? new Date(fallbackStart.getFullYear(), fallbackStart.getMonth(), 1, 12) : parseDate(dateRange.start);
   const end = new Date(start.getFullYear(), start.getMonth() + 1, 0, 12);
   const swipeStartX = useRef<number | null>(null);
   const swipeStartY = useRef<number | null>(null);
+  const [tagSortMode, setTagSortMode] = useState<'alpha' | 'value'>('alpha');
+  const [tagSortDirection, setTagSortDirection] = useState<'asc' | 'desc'>('asc');
   const totals = useMemo(() => {
     const projected = projectTransactions(transactions, formatDate(start), formatDate(end), cards);
     const sum = (predicate: (transaction: Transaction) => boolean) => projected.filter(predicate).reduce((total, transaction) => total + transaction.amount, 0);
@@ -38,6 +42,10 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
       tags: Array.from(tagMap.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([name, total]) => ({ name, total }))
     };
   }, [transactions, cards, dateRange]);
+  const sortedTags = useMemo(
+    () => sortTagTotals(totals.tags, tagSortMode, tagSortDirection),
+    [totals.tags, tagSortMode, tagSortDirection]
+  );
   const moveMonth = (delta: number) => { const next = new Date(start.getFullYear(), start.getMonth() + delta, 1, 12); setDateRange({ start: formatDate(next), end: formatDate(new Date(next.getFullYear(), next.getMonth() + 1, 0, 12)) }); };
   const goToCurrentMonth = () => setDateRange(getCurrentMonthRange());
   const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => { const touch = event.touches[0]; swipeStartX.current = touch?.clientX ?? null; swipeStartY.current = touch?.clientY ?? null; };
@@ -46,6 +54,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
   const performance = calculatePerformance(totals);
   const baseForSavings = baseSalary && baseSalary > 0 ? baseSalary : totals.income;
   const savingsPercentage = baseForSavings > 0 ? Math.min(100, Math.max(0, (totals.savings / baseForSavings) * 100)) : 0;
+
   const performanceVerdict = getPerformanceVerdict(performance, baseForSavings, totals.savings);
   const symbol = (content: React.ReactNode, color: string) => <span className={`type-icon-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} font-bold text-white`}>{content}</span>;
   const movementTypes: { key: EntryType; label: string; icon: React.ReactNode; color: string; value: number }[] = [
@@ -71,7 +80,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         </div>
         <div className="shrink-0 text-right">
           <p className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{money(performance)}</p>
-          <p className={`text-sm font-normal ${performanceVerdict.colorClass}`}>{performanceVerdict.text}</p>
+          <p className={`mt-2 text-sm font-normal break-words ${performanceVerdict.colorClass}`}>{performanceVerdict.text}</p>
         </div>
       </div>
       <button type="button" onClick={onOpenSavedAnnual} className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left">
@@ -97,17 +106,51 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         </div>
         <span className="shrink-0 text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{money(item.value)}</span>
       </button>)}
-      {totals.tags.length > 0 && <>
+      {sortedTags.length > 0 && <>
         <div className="h-4 shrink-0 border-y border-white !border-y-white bg-white dark:!border-y-dark-app-surface dark:bg-dark-app-surface" aria-hidden="true" />
-        <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border"><h2 className="text-base font-medium text-slate-500 dark:text-dark-app-text-secondary">Tags do mês</h2></div>
-        {totals.tags.map(tag => <div key={tag.name} className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left">
+        <div className="border-b border-slate-100 px-6 py-4 dark:border-dark-app-border">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-base font-medium text-slate-500 dark:text-dark-app-text-secondary">Tags do mês</h2>
+            <div className="flex items-center gap-2">
+              <FilterPill
+                icon={<ArrowUpDown size={18} />}
+                aria-label="Critério de ordenação das tags"
+                value={tagSortMode}
+                onChange={(e) => {
+                  const nextMode = e.target.value as 'alpha' | 'value';
+                  setTagSortMode(nextMode);
+                  setTagSortDirection(nextMode === 'value' ? 'desc' : 'asc');
+                }}
+                className="flex-1 sm:w-auto"
+              >
+                <option value="alpha">Ordem alfabética</option>
+                <option value="value">Valor</option>
+              </FilterPill>
+              <button
+                type="button"
+                onClick={() => setTagSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                aria-label={tagSortDirection === 'asc' ? 'Alternar para ordem decrescente' : 'Alternar para ordem crescente'}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-dark-app-border dark:bg-dark-app-surface dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"
+              >
+                {tagSortDirection === 'asc' ? <ArrowDown size={18} /> : <ArrowUp size={18} />}
+              </button>
+            </div>
+          </div>
+        </div>
+        {sortedTags.map(tag => <button
+          type="button"
+          key={tag.name}
+          onClick={() => onOpenTaggedMonthlyTransactions(tag.name)}
+          className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-dark-app-surface-secondary"
+          aria-label={`Ver lançamentos da tag #${tag.name}`}
+        >
           <div className="flex min-w-0 items-center gap-3">
             <span className="truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">#{tag.name}</span>
           </div>
           <span className={`shrink-0 text-base font-bold ${tag.total > 0 ? 'text-emerald-600' : tag.total < 0 ? 'text-rose-600' : 'text-slate-800 dark:text-dark-app-text-primary'}`}>
             {tag.total > 0 ? '+' : (tag.total < 0 ? '-' : '')} {money(Math.abs(tag.total))}
           </span>
-        </div>)}
+        </button>)}
       </>}
       <div className="h-28 shrink-0 md:hidden" aria-hidden="true" />
     </div>

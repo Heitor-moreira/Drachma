@@ -1,22 +1,37 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDownLeft, ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../utils/finance';
+import { normalizeTag, transactionHasTag } from '../utils/taggedTransactions';
 import FilterPill from './FilterPill';
 
-interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards?: CreditCard[]; currencySymbol: string; initialType: EntryType; onBack: () => void; onAdd: (date: string) => void; onEdit: (transaction: Transaction) => void; }
+interface Props { transactions: Transaction[]; dateRange: DateRange; setDateRange: (range: DateRange) => void; cards?: CreditCard[]; currencySymbol: string; initialType: EntryType | 'ALL'; initialTag?: string; onBack: () => void; onAdd: (date: string) => void; onEdit: (transaction: Transaction) => void; }
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 const parseDate = (value: string) => { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day, 12); };
 const formatDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 const displayDate = (value: string) => { const date = parseDate(value); return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`; };
 
-const MonthlyTransactionsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards = [], currencySymbol, initialType, onBack, onAdd, onEdit }) => {
+const MonthlyTransactionsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, cards = [], currencySymbol, initialType, initialTag, onBack, onAdd, onEdit }) => {
   const fallbackStart = new Date();
   const start = Number.isNaN(Date.parse(dateRange.start)) ? new Date(fallbackStart.getFullYear(), fallbackStart.getMonth(), 1, 12) : parseDate(dateRange.start);
   const end = new Date(start.getFullYear(), start.getMonth() + 1, 0, 12);
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>(initialType);
+  const [tagFilter, setTagFilter] = useState<string>(initialTag ? normalizeTag(initialTag) : '');
   const swipeStartX = useRef<number | null>(null);
   const swipeStartY = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (initialTag !== undefined) {
+      setTagFilter(initialTag ? normalizeTag(initialTag) : '');
+    }
+  }, [initialTag]);
+
+  useEffect(() => {
+    if (initialType !== undefined) {
+      setTypeFilter(initialType);
+    }
+  }, [initialType]);
+
   const types = [
     { key: 'INCOME' as const, label: 'Entradas', shortLabel: 'Entrada', circle: 'bg-emerald-500', icon: <ArrowDownLeft size={15} strokeWidth={3} /> },
     { key: 'EXPENSE' as const, label: 'Saídas', shortLabel: 'Saída', circle: 'bg-rose-500', icon: <ArrowUpRight size={15} strokeWidth={3} /> },
@@ -24,14 +39,62 @@ const MonthlyTransactionsView: React.FC<Props> = ({ transactions, dateRange, set
     { key: 'CARD' as const, label: 'Gastos com cartão', shortLabel: 'Cartão', circle: 'bg-violet-600', icon: <span className="type-icon-label font-bold">C</span> },
   ];
   const typesByKey = Object.fromEntries(types.map(type => [type.key, type]));
-  const monthlyTransactions = useMemo(() => projectTransactions(transactions, formatDate(start), formatDate(end), cards).filter(transaction => typeFilter === 'ALL' || getTransactionEntryType(transaction) === typeFilter).sort((a, b) => b.date.localeCompare(a.date)), [transactions, cards, dateRange, typeFilter]);
-  const moveMonth = (delta: number) => { const next = new Date(start.getFullYear(), start.getMonth() + delta, 1, 12); setDateRange({ start: formatDate(next), end: formatDate(new Date(next.getFullYear(), next.getMonth() + 1, 0, 12)) }); };
+
+  const availableTags = useMemo(() => {
+    const projected = projectTransactions(transactions, formatDate(start), formatDate(end), cards);
+    const set = new Set<string>();
+    projected.forEach(t => {
+      t.tags?.forEach(tag => {
+        const norm = normalizeTag(tag);
+        if (norm) set.add(norm);
+      });
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [transactions, start, end, cards]);
+
+  const monthlyTransactions = useMemo(
+    () =>
+      projectTransactions(transactions, formatDate(start), formatDate(end), cards)
+        .filter(transaction => typeFilter === 'ALL' || getTransactionEntryType(transaction) === typeFilter)
+        .filter(transaction => !tagFilter || transactionHasTag(transaction, tagFilter))
+        .sort((a, b) => b.date.localeCompare(a.date)),
+    [transactions, cards, dateRange, typeFilter, tagFilter]
+  );
+
+  const moveMonth = (delta: number) => {
+    const next = new Date(start.getFullYear(), start.getMonth() + delta, 1, 12);
+    const nextStart = formatDate(next);
+    const nextEnd = formatDate(new Date(next.getFullYear(), next.getMonth() + 1, 0, 12));
+    if (tagFilter) {
+      const nextProjected = projectTransactions(transactions, nextStart, nextEnd, cards);
+      const hasTagInNextMonth = nextProjected.some(t => transactionHasTag(t, tagFilter));
+      if (!hasTagInNextMonth) {
+        setTagFilter('');
+      }
+    }
+    setDateRange({ start: nextStart, end: nextEnd });
+  };
+
   const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => { const touch = event.touches[0]; swipeStartX.current = touch?.clientX ?? null; swipeStartY.current = touch?.clientY ?? null; };
   const handleTouchEnd = (event: React.TouchEvent<HTMLElement>) => { if (swipeStartX.current === null) return; const touch = event.changedTouches[0]; const dx = (touch?.clientX ?? swipeStartX.current) - swipeStartX.current; const dy = (touch?.clientY ?? swipeStartY.current ?? 0) - (swipeStartY.current ?? 0); swipeStartX.current = null; swipeStartY.current = null; if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) moveMonth(dx < 0 ? 1 : -1); };
   return <section className="touch-pan-y flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
     <header className="flex h-[76px] shrink-0 items-center justify-between border-b border-slate-100 px-3 py-4 dark:border-dark-app-border sm:px-4"><button type="button" onClick={onBack} aria-label="Voltar para Totais" className="rounded-xl p-1.5 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={26} /></button><div className="flex items-center gap-0.5"><button type="button" onClick={() => moveMonth(-1)} aria-label="Mês anterior" className="rounded-xl p-1"><ChevronLeft size={26} /></button><span className="whitespace-nowrap text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">{MONTHS[start.getMonth()]}/{String(start.getFullYear()).slice(-2)}</span><button type="button" onClick={() => moveMonth(1)} aria-label="Próximo mês" className="rounded-xl p-1"><ChevronRight size={26} /></button></div><button type="button" onClick={() => onAdd(formatDate(new Date(start.getFullYear(), start.getMonth(), Math.min(new Date().getDate(), end.getDate()), 12)))} aria-label="Adicionar lançamento" className="rounded-xl p-1.5 text-slate-900 dark:text-dark-app-text-primary"><Plus size={30} /></button></header>
-    <div className="border-t border-b border-slate-100 px-3 py-3 dark:border-dark-app-border sm:px-6"><FilterPill typeFilter aria-label="Filtrar por tipo" value={typeFilter} onChange={event => setTypeFilter(event.target.value as EntryType | 'ALL')}><option value="ALL">Todos</option>{types.map(type => <option key={type.key} value={type.key}>{type.label}</option>)}</FilterPill></div>
-    <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">{monthlyTransactions.map(transaction => { const entryType = getTransactionEntryType(transaction); const item = typesByKey[entryType] || typesByKey.EXPENSE; const isIncome = entryType === 'INCOME'; return <button type="button" key={transaction.id} onClick={() => onEdit(transaction)} aria-label={`Editar ${transaction.description || item.shortLabel}`} className="flex w-full items-center justify-between gap-4 border-y border-slate-100 px-6 py-5 text-left dark:border-dark-app-border"><div className="min-w-0"><div className="flex items-center gap-3"><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${item.circle} text-white`}>{item.icon}</span><h2 className="truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{transaction.description || item.shortLabel}</h2></div><p className="mt-2 text-sm text-slate-500 dark:text-dark-app-text-secondary">{displayDate(transaction.date)}</p></div><div className="shrink-0 text-right"><p className={`text-base font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>{isIncome ? '+' : '-'} {currencySymbol} {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p><p className="mt-1 text-sm text-slate-500 dark:text-dark-app-text-secondary">{item.shortLabel}</p></div></button>; })}{monthlyTransactions.length === 0 && <p className="p-10 text-center text-sm text-slate-400">Nenhum lançamento neste mês.</p>}</div>
+    <div className={`grid min-w-0 ${availableTags.length > 0 ? 'grid-cols-2' : 'grid-cols-1'} gap-1 border-t border-b border-slate-100 px-3 py-3 sm:gap-2 sm:px-6 dark:border-dark-app-border`}>
+      <FilterPill typeFilter aria-label="Filtrar por tipo" value={typeFilter} onChange={event => setTypeFilter(event.target.value as EntryType | 'ALL')}><option value="ALL">Todos</option>{types.map(type => <option key={type.key} value={type.key}>{type.label}</option>)}</FilterPill>
+      {availableTags.length > 0 && (
+        <FilterPill
+          aria-label="Filtrar por tag"
+          value={tagFilter}
+          onChange={event => setTagFilter(event.target.value)}
+        >
+          <option value="">Todas as tags</option>
+          {availableTags.map(tag => (
+            <option key={tag} value={tag}>#{tag}</option>
+          ))}
+        </FilterPill>
+      )}
+    </div>
+    <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">{monthlyTransactions.map(transaction => { const entryType = getTransactionEntryType(transaction); const item = typesByKey[entryType] || typesByKey.EXPENSE; const isIncome = entryType === 'INCOME'; return <button type="button" key={transaction.id} onClick={() => onEdit(transaction)} aria-label={`Editar ${transaction.description || item.shortLabel}`} className="flex w-full items-center justify-between gap-4 border-y border-slate-100 px-6 py-5 text-left dark:border-dark-app-border"><div className="min-w-0"><div className="flex items-center gap-3"><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${item.circle} text-white`}>{item.icon}</span><h2 className="truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{transaction.description || item.shortLabel}</h2></div><p className="mt-2 text-sm text-slate-500 dark:text-dark-app-text-secondary">{displayDate(transaction.date)}</p></div><div className="shrink-0 text-right"><p className={`text-base font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>{isIncome ? '+' : '-'} {currencySymbol} {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p><p className="mt-1 text-sm text-slate-500 dark:text-dark-app-text-secondary">{item.shortLabel}</p></div></button>; })}{monthlyTransactions.length === 0 && <p className="p-10 text-center text-sm text-slate-400 dark:text-dark-app-text-secondary">{typeFilter !== 'ALL' || Boolean(tagFilter) ? 'Nenhum lançamento encontrado para os filtros selecionados.' : 'Nenhum lançamento neste mês.'}</p>}</div>
   </section>;
 };
 export default MonthlyTransactionsView;

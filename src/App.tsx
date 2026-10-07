@@ -68,6 +68,8 @@ import TagsView from './components/TagsView';
 import { parseOFX, ParsedTransaction } from './utils/parsers/ofxParser';
 import { parseCSV, CSVColumnMapping } from './utils/parsers/csvParser';
 import ImportReviewView from './components/ImportReviewView';
+import LoginView from './components/LoginView';
+import { useAuth } from './contexts/AuthContext';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'drachma_subscriptions';
@@ -125,9 +127,15 @@ const App: React.FC = () => {
     return { start: formatLocalYYYYMMDD(start), end: formatLocalYYYYMMDD(new Date(now.getFullYear(), now.getMonth() + 1, 0)) };
   });
 
+  const { isAuthenticated, isLoading: isAuthLoading, logout, user: authUser } = useAuth();
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTransactionDate, setNewTransactionDate] = useState<string | undefined>();
   const [newTransactionGroup, setNewTransactionGroup] = useState<(FinancialGroup | EntryType) | undefined>(undefined);
+  const [monthlyInitialTag, setMonthlyInitialTag] = useState<string>('');
+  const [monthlyInitialType, setMonthlyInitialType] = useState<EntryType | 'ALL'>('EXPENSE');
   const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -418,6 +426,29 @@ const App: React.FC = () => {
     importReview: 'Revisão de Importação'
   };
 
+  if (isAuthLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#031630] transition-colors duration-300">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-300">
+          <div className="relative flex items-center justify-center p-2 rounded-full bg-[#0A192F] shadow-2xl border border-[#C8963E]/40">
+            <img 
+              src="/drachma-icon.png" 
+              alt="Drachma" 
+              className="w-20 h-20 rounded-full shadow-xl animate-pulse object-cover" 
+            />
+          </div>
+          <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#C8963E]/80">
+            Drachma
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginView />;
+  }
+
   return (
     <div className="phone-shell min-h-screen flex flex-col md:flex-row text-slate-900 dark:text-dark-app-text-primary overflow-hidden h-screen bg-slate-50 dark:bg-dark-app-surface transition-colors duration-300 relative">
       {/* Sidebar Desktop */}
@@ -536,7 +567,8 @@ const App: React.FC = () => {
                 <button onClick={() => setIsSettingsOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Settings size={24} strokeWidth={1.8} /> Configurações <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setActiveTab('data')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Database size={24} strokeWidth={1.8} /> Dados <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <a href={feedbackMailto} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><MessageSquare size={24} strokeWidth={1.8} /> Mandar sugestões <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></a>
-                <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex min-h-20 w-full items-center gap-4 px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><HelpCircle size={24} strokeWidth={1.8} /> Ajuda <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
+                <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><HelpCircle size={24} strokeWidth={1.8} /> Ajuda <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
+                <button onClick={() => setIsLogoutConfirmOpen(true)} className="flex min-h-20 w-full items-center gap-4 px-6 text-left text-base font-semibold text-rose-600 dark:text-rose-400 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/20"><LogOut size={24} strokeWidth={1.8} /> Sair da conta <ChevronRight className="ml-auto text-rose-300 dark:text-rose-900" size={24} /></button>
               </div>
             </section>
           )}
@@ -591,11 +623,49 @@ const App: React.FC = () => {
           {activeTab === 'dailyBalance' && <DailyBalanceView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} cards={cards} onDayClick={(date, group) => openNewTransaction(group, date)} onOpenHorizon={() => setActiveTab('balanceHorizon')} />}
           {activeTab === 'balanceHorizon' && <BalanceHorizonView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} initialBalance={initialBalance} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('dailyBalance')} onAdd={(group, date) => openNewTransaction(group, date)} onDayClick={(date) => { setSelectedDay(date); setActiveTab('dayTransactions'); }} />}
           {activeTab === 'dayTransactions' && <DayTransactionsView date={selectedDay} transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('balanceHorizon')} onAdd={(date) => openNewTransaction(undefined, date)} onEdit={setEditingTransaction} />}
-          {activeTab === 'monthlyTransactions' && <MonthlyTransactionsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} initialType={(newTransactionGroup as EntryType) || 'EXPENSE'} onBack={() => setActiveTab('totals')} onAdd={(date) => openNewTransaction(undefined, date)} onEdit={setEditingTransaction} />}
+          {activeTab === 'monthlyTransactions' && (
+            <MonthlyTransactionsView
+              transactions={transactions}
+              dateRange={dateRange}
+              setDateRange={setDateRange}
+              cards={cards}
+              currencySymbol={currencySymbol}
+              initialType={monthlyInitialType}
+              initialTag={monthlyInitialTag}
+              onBack={() => {
+                setMonthlyInitialTag('');
+                setActiveTab('totals');
+              }}
+              onAdd={(date) => openNewTransaction(undefined, date)}
+              onEdit={setEditingTransaction}
+            />
+          )}
           {activeTab === 'recentTransactions' && <RecentTransactionsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'tags' && <TagsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'savedAnnual' && <SavedAnnualView transactions={transactions} cards={cards} currencySymbol={currencySymbol} initialYear={new Date(dateRange.start).getFullYear()} baseSalary={settings.baseSalary} onBack={() => setActiveTab('totals')} />}
-          {activeTab === 'totals' && <TotalsView transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} cards={cards} currencySymbol={currencySymbol} savingsTarget={settings.savingsTarget ?? 20} baseSalary={settings.baseSalary} onOpenHorizon={() => setActiveTab('balanceHorizon')} onOpenSavedAnnual={() => setActiveTab('savedAnnual')} onOpenMonthlyTransactions={(type) => { setNewTransactionGroup(type); setActiveTab('monthlyTransactions'); }} />}
+          {activeTab === 'totals' && (
+            <TotalsView
+              transactions={transactions}
+              dateRange={dateRange}
+              setDateRange={setDateRange}
+              cards={cards}
+              currencySymbol={currencySymbol}
+              savingsTarget={settings.savingsTarget ?? 20}
+              baseSalary={settings.baseSalary}
+              onOpenHorizon={() => setActiveTab('balanceHorizon')}
+              onOpenSavedAnnual={() => setActiveTab('savedAnnual')}
+              onOpenMonthlyTransactions={(type) => {
+                setMonthlyInitialTag('');
+                setMonthlyInitialType(type);
+                setActiveTab('monthlyTransactions');
+              }}
+              onOpenTaggedMonthlyTransactions={(tagName) => {
+                setMonthlyInitialTag(tagName);
+                setMonthlyInitialType('ALL');
+                setActiveTab('monthlyTransactions');
+              }}
+            />
+          )}
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
@@ -736,11 +806,69 @@ const App: React.FC = () => {
                 </div>
 
                 <button onClick={() => setIsSettingsOpen(false)} className="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-[#1E293B] font-bold py-3 rounded-xl hover:bg-slate-800 dark:hover:bg-white transition-colors">Salvar Alterações</button>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-dark-app-border">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setIsSettingsOpen(false);
+                      setIsLogoutConfirmOpen(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-rose-600 dark:text-rose-400 font-bold hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                  >
+                    <LogOut size={18} />
+                    Sair da conta
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
         )}
         </AnimatePresence>
+
+        {isLogoutConfirmOpen && (
+          <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-900/40 p-4 animate-in fade-in duration-200">
+            <div role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title" className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-dark-app-surface border border-slate-100 dark:border-dark-app-border">
+              <div className="flex items-center gap-3 mb-3 text-rose-600 dark:text-rose-400">
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-2xl">
+                  <LogOut size={24} />
+                </div>
+                <h3 id="logout-confirm-title" className="text-xl font-bold text-slate-900 dark:text-dark-app-text-primary">Sair da conta?</h3>
+              </div>
+              <p className="mt-2 text-sm text-slate-600 dark:text-dark-app-text-secondary leading-relaxed">
+                Você precisará entrar novamente para acessar seus dados sincronizados.
+              </p>
+              <div className="mt-6 flex gap-3">
+                <button 
+                  type="button" 
+                  disabled={isLoggingOut}
+                  onClick={() => setIsLogoutConfirmOpen(false)} 
+                  className="min-h-12 flex-1 rounded-2xl bg-slate-100 px-4 py-3 font-bold text-slate-600 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary hover:bg-slate-200 dark:hover:bg-dark-app-border transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="button" 
+                  disabled={isLoggingOut}
+                  onClick={async () => {
+                    setIsLoggingOut(true);
+                    try {
+                      await logout();
+                      setIsLogoutConfirmOpen(false);
+                    } catch {
+                      setFeedbackMessage('Erro ao sair da conta.');
+                    } finally {
+                      setIsLoggingOut(false);
+                    }
+                  }} 
+                  className="min-h-12 flex-1 rounded-2xl bg-rose-600 px-4 py-3 font-bold text-white hover:bg-rose-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isLoggingOut ? 'Saindo...' : 'Sair da conta'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isBalanceSummaryOpen && (() => {
           const rows = [
