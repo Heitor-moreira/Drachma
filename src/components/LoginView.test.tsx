@@ -8,6 +8,8 @@ const auth = {
   login: vi.fn(),
   loginWithGoogle: vi.fn(),
   resetPassword: vi.fn(),
+  authCallbackError: null as string | null,
+  clearAuthCallbackError: vi.fn(),
 };
 
 vi.mock('../contexts/AuthContext', () => ({
@@ -18,6 +20,8 @@ beforeEach(() => {
   auth.login = vi.fn().mockResolvedValue(undefined);
   auth.loginWithGoogle = vi.fn().mockResolvedValue(undefined);
   auth.resetPassword = vi.fn().mockResolvedValue(undefined);
+  auth.authCallbackError = null;
+  auth.clearAuthCallbackError = vi.fn();
 });
 
 afterEach(cleanup);
@@ -128,6 +132,33 @@ describe('LoginView — Google', () => {
     fireEvent.click(btn);
     expect(await screen.findByText('Serviço de autenticação não configurado no momento.')).toBeTruthy();
     expect(btn.disabled).toBe(false);
+  });
+
+  it('G3: erro de provider desabilitado exibe mensagem amigável e reabilita botão', async () => {
+    auth.loginWithGoogle = vi.fn().mockRejectedValue(new Error('Unsupported provider: provider is not enabled'));
+    render(<LoginView />);
+    const btn = screen.getByRole('button', { name: /Continuar com o Google/ }) as HTMLButtonElement;
+    fireEvent.click(btn);
+    expect(
+      await screen.findByText('Login com Google indisponível no momento. Use e-mail e senha ou contate o administrador.')
+    ).toBeTruthy();
+    expect(btn.disabled).toBe(false);
+  });
+
+  it('G4: exibe authCallbackError recebido do contexto e limpa o erro no contexto', async () => {
+    auth.authCallbackError = 'Signups not allowed for this instance';
+    render(<LoginView />);
+    expect(
+      await screen.findByText('Esta conta Google não tem acesso ao Drachma. Solicite acesso ou entre com o e-mail cadastrado.')
+    ).toBeTruthy();
+    expect(auth.clearAuthCallbackError).toHaveBeenCalled();
+  });
+
+  it('G5: cancelamento do usuário no callback exibe mensagem de cancelado', async () => {
+    auth.authCallbackError = 'access_denied';
+    render(<LoginView />);
+    expect(await screen.findByText('Login com Google cancelado.')).toBeTruthy();
+    expect(auth.clearAuthCallbackError).toHaveBeenCalled();
   });
 });
 

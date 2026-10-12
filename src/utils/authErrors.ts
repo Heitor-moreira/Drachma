@@ -1,6 +1,48 @@
-export const translateAuthError = (err: any): string => {
-  const message = typeof err === 'string' ? err : String(err?.message || '');
+export interface TranslateAuthErrorOptions {
+  context?: 'oauth' | 'recovery' | 'login';
+}
 
+export const translateAuthError = (err: any, options?: TranslateAuthErrorOptions): string => {
+  const message = typeof err === 'string' ? err : String(err?.message || err?.error_description || '');
+
+  // 1. Mapeamentos específicos do Google OAuth
+  if (
+    message.includes('provider is not enabled') ||
+    message.includes('Unsupported provider') ||
+    message.includes('provider_disabled')
+  ) {
+    return 'Login com Google indisponível no momento. Use e-mail e senha ou contate o administrador.';
+  }
+
+  if (
+    message.includes('Signups not allowed') ||
+    message.includes('signup_disabled') ||
+    message.includes('signups_not_allowed')
+  ) {
+    return 'Esta conta Google não tem acesso ao Drachma. Solicite acesso ou entre com o e-mail cadastrado.';
+  }
+
+  if (
+    message.includes('user cancelled') ||
+    message.includes('The user denied') ||
+    message.includes('user_denied') ||
+    (options?.context === 'oauth' && message.includes('access_denied'))
+  ) {
+    return 'Login com Google cancelado.';
+  }
+
+  if (message.includes('user_banned')) {
+    return 'Conta bloqueada. Contate o administrador.';
+  }
+
+  if (
+    message.includes('oauth_provider_error') ||
+    (options?.context === 'oauth' && (message.includes('server_error') || message.includes('validation_failed')))
+  ) {
+    return 'Não foi possível concluir o login com o Google. Tente novamente.';
+  }
+
+  // 2. Mapeamentos de credenciais e e-mail
   if (
     message.includes('Invalid login credentials') ||
     message.includes('invalid_credentials')
@@ -54,6 +96,12 @@ export const translateAuthError = (err: any): string => {
   }
   if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
     return 'Erro de conexão. Verifique sua internet e tente novamente.';
+  }
+
+  // 3. Fallback: Nunca exibir JSON ou mensagens cruas com objetos
+  const trimmed = message.trim();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.includes('"error":') || trimmed.includes('"error_code":')) {
+    return 'Ocorreu um erro ao processar. Tente novamente.';
   }
 
   return message || 'Ocorreu um erro ao processar. Tente novamente.';

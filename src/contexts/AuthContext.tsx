@@ -17,6 +17,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   isPasswordRecovery: boolean;
+  authCallbackError: string | null;
+  clearAuthCallbackError: () => void;
   error: string | null;
   login: (email: string, password?: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -44,7 +46,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [authCallbackError, setAuthCallbackError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const clearAuthCallbackError = () => setAuthCallbackError(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -54,13 +59,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Detectar fluxo de recuperação inicial
+    // Detectar fluxo de recuperação inicial ou erro de callback OAuth na URL
     if (typeof window !== 'undefined') {
       const isRecovery =
         window.location.hash.includes('type=recovery') ||
         window.location.pathname.startsWith('/reset-password');
       if (isRecovery) {
         setIsPasswordRecovery(true);
+      } else {
+        const searchParams = new URLSearchParams(window.location.search);
+        const hashStr = window.location.hash.startsWith('#')
+          ? window.location.hash.slice(1)
+          : window.location.hash;
+        const hashParams = new URLSearchParams(hashStr);
+
+        const oauthError = searchParams.get('error') || hashParams.get('error');
+        const oauthErrorCode = searchParams.get('error_code') || hashParams.get('error_code');
+        const oauthErrorDesc = searchParams.get('error_description') || hashParams.get('error_description');
+
+        if (oauthError || oauthErrorCode || oauthErrorDesc) {
+          const combined = oauthErrorDesc || oauthErrorCode || oauthError || 'oauth_provider_error';
+          setAuthCallbackError(combined);
+          window.history.replaceState(null, '', window.location.pathname);
+        }
       }
     }
 
@@ -134,24 +155,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     setError(null);
+    setAuthCallbackError(null);
     try {
       if (!isSupabaseConfigured) {
         throw new Error('Supabase não configurado. Verifique as variáveis de ambiente.');
       }
 
-      const { error: oAuthError } = await supabase.auth.signInWithOAuth({
+      const { data, error: oAuthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined,
+          queryParams: { prompt: 'select_account' },
+          skipBrowserRedirect: true,
         },
       });
 
       if (oAuthError) {
         throw oAuthError;
       }
+
+      if (!data?.url) {
+        throw new Error('oauth_provider_error');
+      }
+
+      // Pré-checagem: verificar se o provider Google está habilitado no Supabase antes de navegar.
+      // Se fetch não estiver disponível, preserva o fluxo OAuth padrão.
+      if (typeof window !== 'undefined') {
+        if (typeof fetch === 'function') {
+          let res: Response | null = null;
+          try {
+            res = await fetch(data.url, { method: 'GET', redirect: 'manual' });
+          } catch {
+            // Sem resposta (ex.: falha de rede/CORS), prossegue com o redirect para manter o OAuth disponível.
+          }
+
+          if (res && res.type !== 'opaqueredirect' && res.status >= 400) {
+            const body = await res.json().catch(() => ({}));
+            const errMsg = body.msg || body.error_description || body.error_code || body.error || 'provider is not enabled';
+            throw new Error(errMsg);
+          }
+        }
+        window.location.assign(data.url);
+      }
     } catch (err: any) {
-      const message = err?.message || 'Erro ao conectar com o Google.';
-      setError(message);
       throw err;
     }
   };
@@ -245,6 +291,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!session || !!user,
         isLoading,
         isPasswordRecovery,
+        authCallbackError,
+        clearAuthCallbackError,
         error,
         login,
         loginWithGoogle,

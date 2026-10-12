@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, LogIn, KeyRound, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { translateAuthError } from '../utils/authErrors';
@@ -14,13 +14,29 @@ const LoginView: React.FC<LoginViewProps> = ({
   onNavigateToRequestAccess,
   onNavigateToForgotPassword 
 }) => {
-  const { login: authLogin, loginWithGoogle: authGoogleLogin, resetPassword: authResetPassword } = useAuth();
+  const {
+    login: authLogin,
+    loginWithGoogle: authGoogleLogin,
+    resetPassword: authResetPassword,
+    authCallbackError,
+    clearAuthCallbackError,
+  } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Exibir erros vindos do callback do OAuth na montagem
+  useEffect(() => {
+    if (authCallbackError) {
+      setError(translateAuthError(authCallbackError, { context: 'oauth' }));
+      if (clearAuthCallbackError) {
+        clearAuthCallbackError();
+      }
+    }
+  }, [authCallbackError, clearAuthCallbackError]);
 
   // Modo de recuperação de senha embutido, chamado via prop ou via query string (?forgot=true)
   const [isForgotMode, setIsForgotMode] = useState(() => {
@@ -82,7 +98,7 @@ const LoginView: React.FC<LoginViewProps> = ({
         await authGoogleLogin();
       }
     } catch (err: any) {
-      setError(translateAuthError(err));
+      setError(translateAuthError(err, { context: 'oauth' }));
       setIsLoading(false);
     }
   };
