@@ -58,6 +58,7 @@ export interface Transaction {
   importDate?: string;
   recurrenceIndex?: number;
   recurrenceTotal?: number;
+  subscriptionId?: string;
   // Campos de Sincronização (Supabase)
   userId?: string;
   version?: number;
@@ -85,11 +86,27 @@ export interface CreditCard {
   deletedAt?: string;
 }
 
+export type SubscriptionCycle = 'MONTHLY' | 'YEARLY';
+export type SubscriptionPaymentType = 'DIRECT_DEBIT' | 'CREDIT_CARD';
+export type SubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'CANCELED';
+
 export interface Subscription {
   id: string;
   name: string;
   amount: number;
+  dueDay: number;
+  cycle: SubscriptionCycle;
+  paymentType: SubscriptionPaymentType;
+  cardId?: string;
+  status: SubscriptionStatus;
   isActive: boolean;
+  billingMonth?: number;
+  startDate?: string;
+  lastGeneratedDate?: string;
+  pausedAt?: string;
+  canceledAt?: string;
+  serviceKey?: string;
+  category?: string;
   // Campos de Sincronização (Supabase)
   userId?: string;
   version?: number;

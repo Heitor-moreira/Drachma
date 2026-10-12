@@ -4,7 +4,6 @@ import { CreditCard, DateRange, EntryType, Transaction } from '../types';
 import { getTransactionEntryType, projectTransactions } from '../utils/finance';
 import { normalizeTag, sortTagTotals } from '../utils/taggedTransactions';
 import { getCurrentMonthRange } from '../utils/currentPeriod';
-import { getPerformanceVerdict } from '../utils/performanceFeedback';
 
 import FilterPill from './FilterPill';
 
@@ -55,7 +54,6 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
   const baseForSavings = baseSalary && baseSalary > 0 ? baseSalary : totals.income;
   const savingsPercentage = baseForSavings > 0 ? Math.min(100, Math.max(0, (totals.savings / baseForSavings) * 100)) : 0;
 
-  const performanceVerdict = getPerformanceVerdict(performance, baseForSavings, totals.savings);
   const symbol = (content: React.ReactNode, color: string) => <span className={`type-icon-label flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${color} font-bold text-white`}>{content}</span>;
   const movementTypes: { key: EntryType; label: string; icon: React.ReactNode; color: string; value: number }[] = [
     { key: 'INCOME', label: 'Entradas', icon: <ArrowDownLeft size={15} strokeWidth={3} />, color: 'bg-emerald-500', value: totals.income },
@@ -80,7 +78,7 @@ const TotalsView: React.FC<Props> = ({ transactions, dateRange, setDateRange, ca
         </div>
         <div className="shrink-0 text-right">
           <p className="text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{money(performance)}</p>
-          <p className={`mt-2 text-sm font-normal break-words ${performanceVerdict.colorClass}`}>{performanceVerdict.text}</p>
+          <p className="mt-2 text-sm font-normal text-slate-500 dark:text-dark-app-text-secondary">{performance >= 0 ? 'Sobrou dinheiro' : 'Faltou dinheiro'}</p>
         </div>
       </div>
       <button type="button" onClick={onOpenSavedAnnual} className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left">

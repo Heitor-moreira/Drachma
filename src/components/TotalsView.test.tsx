@@ -49,8 +49,8 @@ const sampleTransactions: Transaction[] = [
 ];
 
 describe('TotalsView', () => {
-  it('renders performance verdict in a dedicated block below the icons without colliding', () => {
-    const { container } = render(
+  it('renders performance binary indicator (Sobrou dinheiro / Faltou dinheiro)', () => {
+    const { rerender } = render(
       <TotalsView
         transactions={sampleTransactions}
         dateRange={defaultDateRange}
@@ -68,15 +68,29 @@ describe('TotalsView', () => {
     const performanceHeading = screen.getByRole('heading', { level: 3, name: 'Performance' });
     expect(performanceHeading).toBeDefined();
 
-    // Check that monetary value is rendered
+    // Check that monetary value and Sobrou dinheiro are rendered when positive
     expect(screen.getByText('R$ 4.170,00')).toBeDefined();
+    expect(screen.getByText('Sobrou dinheiro')).toBeDefined();
 
-    // Check that performance verdict text is rendered with break-words in its dedicated paragraph
-    const verdictParagraph = container.querySelector('p.break-words');
-    expect(verdictParagraph).not.toBeNull();
-    expect(verdictParagraph?.textContent?.length).toBeGreaterThan(0);
-    expect(verdictParagraph?.className).toContain('mt-2');
-    expect(verdictParagraph?.className).toContain('text-sm');
+    // When negative, check that Faltou dinheiro is rendered
+    const negativeTransactions: Transaction[] = [
+      { id: 'neg1', description: 'Gasto alto', amount: 1000, entryType: 'EXPENSE', date: '2026-08-01', comment: '' },
+    ];
+    rerender(
+      <TotalsView
+        transactions={negativeTransactions}
+        dateRange={defaultDateRange}
+        setDateRange={vi.fn()}
+        cards={[]}
+        currencySymbol="R$"
+        savingsTarget={20}
+        onOpenHorizon={vi.fn()}
+        onOpenSavedAnnual={vi.fn()}
+        onOpenMonthlyTransactions={vi.fn()}
+        onOpenTaggedMonthlyTransactions={vi.fn()}
+      />
+    );
+    expect(screen.getByText('Faltou dinheiro')).toBeDefined();
   });
 
   it('renders tags of the month as accessible interactive buttons and calls onOpenTaggedMonthlyTransactions', () => {

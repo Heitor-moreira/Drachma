@@ -53,7 +53,7 @@ export const formatLocalDate = (date: Date) => {
   return `${y}-${m}-${d}`;
 };
 
-const addMonthsKeepingDay = (dateString: string, months: number) => {
+export const addMonthsKeepingDay = (dateString: string, months: number) => {
   const [y, m, d] = dateString.split('-').map(Number);
   const result = new Date(y, m - 1 + months, 1, 12);
   const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();

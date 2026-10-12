@@ -53,6 +53,7 @@ import CategorySpending from './components/CategorySpending';
 import TransactionForm from './components/TransactionForm';
 import SubscriptionCalculator from './components/SubscriptionCalculator';
 import SubscriptionsView from './components/SubscriptionsView';
+import { generateSubscriptionTransactions } from './utils/subscriptionTransactions';
 import DailyBalanceView from './components/DailyBalanceView';
 import SalaryManager from './components/SalaryManager';
 import InstallmentManager from './components/InstallmentManager';
@@ -204,6 +205,24 @@ const App: React.FC = () => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
+
+  useEffect(() => {
+    const processSubscriptions = () => {
+      if (!subscriptions || subscriptions.length === 0) return;
+      const newTxs = generateSubscriptionTransactions(subscriptions, transactions);
+      if (newTxs.length > 0) {
+        setTransactions(prev => [...prev, ...newTxs]);
+      }
+    };
+    processSubscriptions();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        processSubscriptions();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [subscriptions, transactions]);
 
   const updateApp = () => {
     if (!availableVersion || isDirty) return;
@@ -669,9 +688,33 @@ const App: React.FC = () => {
           {activeTab === 'categorySpending' && <CategorySpending transactions={transactions} dateRange={dateRange} setDateRange={setDateRange} currencySymbol={currencySymbol} />}
           {activeTab === 'installments' && <InstallmentManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
           {activeTab === 'fixed' && <RecurringExpensesManager transactions={transactions} baseSalary={baseSalary} onEdit={setEditingTransaction} onDelete={deleteTransaction} currencySymbol={currencySymbol} />}
+          {activeTab === 'subscriptions' && (
+            <SubscriptionsView
+              subscriptions={subscriptions}
+              setSubscriptions={setSubscriptions}
+              cards={cards}
+              salaryInfo={salaryInfo}
+              baseSalary={baseSalary}
+              currencySymbol={currencySymbol}
+              onBack={() => setActiveTab('menu')}
+              transactions={transactions}
+              onEdit={setEditingTransaction}
+            />
+          )}
+          {activeTab === 'subscriptionsTags' && (
+            <SubscriptionsView
+              subscriptions={subscriptions}
+              setSubscriptions={setSubscriptions}
+              cards={cards}
+              salaryInfo={salaryInfo}
+              baseSalary={baseSalary}
+              currencySymbol={currencySymbol}
+              onBack={() => setActiveTab('menu')}
+              transactions={transactions}
+              onEdit={setEditingTransaction}
+            />
+          )}
           {activeTab === 'salary' && <SalaryManager salaryInfo={salaryInfo} onUpdate={setSalaryInfo} currencySymbol={currencySymbol} />}
-          {activeTab === 'subscriptions' && <SubscriptionCalculator subscriptions={subscriptions} setSubscriptions={setSubscriptions} baseSalary={baseSalary} currencySymbol={currencySymbol} />}
-          {activeTab === 'subscriptionsTags' && <SubscriptionsView transactions={transactions} cards={cards} currencySymbol={currencySymbol} onBack={() => setActiveTab('menu')} onEdit={setEditingTransaction} />}
           {activeTab === 'cards' && <CardManager cards={cards} onChange={setCards} currencySymbol={currencySymbol} />}
         </div>
 

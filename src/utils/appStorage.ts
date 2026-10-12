@@ -1,5 +1,6 @@
 import { CreditCard, DateRange, InitialBalance, SalaryInfo, Subscription, Transaction, UserSettings } from '../types';
 import { normalizeTransaction, serializeTransaction } from './finance';
+import { normalizeSubscription } from './subscriptionTransactions';
 
 export const APP_STORAGE_VERSION = 2;
 export const APP_STORAGE_KEY = 'drachma_app_state';
@@ -30,7 +31,8 @@ const isObject = (value: unknown): value is Record<string, unknown> => Boolean(v
 export const createSnapshot = (state: Omit<AppStateSnapshot, 'version'>): AppStateSnapshot => ({
   version: APP_STORAGE_VERSION,
   ...state,
-  transactions: state.transactions.map(serializeTransaction).map(normalizeTransaction)
+  transactions: state.transactions.map(serializeTransaction).map(normalizeTransaction),
+  subscriptions: (state.subscriptions || []).map(normalizeSubscription)
 });
 
 export const getLatestDataEvent = (current: DataEvent | undefined, next: DataEvent): DataEvent => {
@@ -72,7 +74,8 @@ export const normalizeSnapshot = (value: unknown): Partial<AppStateSnapshot> => 
   return {
     ...data,
     ...(settings ? { settings } : {}),
-    transactions: (data.transactions || []).map(transaction => normalizeTransaction(transaction))
+    transactions: (data.transactions || []).map(transaction => normalizeTransaction(transaction)),
+    subscriptions: (data.subscriptions || []).map(sub => normalizeSubscription(sub))
   };
 };
 

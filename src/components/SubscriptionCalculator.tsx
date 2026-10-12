@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Subscription } from '../types';
 import { Plus, Trash2, PieChart, CreditCard, Edit2, CheckCircle2, XCircle } from 'lucide-react';
+import { normalizeSubscription } from '../utils/subscriptionTransactions';
 
 interface Props {
   subscriptions: Subscription[];
@@ -24,7 +25,7 @@ const SubscriptionCalculator: React.FC<Props> = ({ subscriptions, setSubscriptio
       setSubscriptions(prev => prev.map(s => s.id === editingId ? { ...s, name: newName, amount: parseFloat(newAmount) } : s));
       setEditingId(null);
     } else {
-      setSubscriptions(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), name: newName, amount: parseFloat(newAmount), isActive: true }]);
+      setSubscriptions(prev => [...prev, normalizeSubscription({ id: Math.random().toString(36).substring(2, 9), name: newName, amount: parseFloat(newAmount), isActive: true })]);
     }
     setNewName('');
     setNewAmount('');
