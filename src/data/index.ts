@@ -4,3 +4,5 @@
 export type { DataRepository, ReadResult } from './repository';
 export { LocalStorageRepository } from './localStorageRepository';
 export { DataProvider, useDataRepository } from './DataContext';
+export { syncEngine, SyncEngine } from './syncEngine';
+export type { SyncEngineStatus, SyncMutation, SyncTable, SyncAction } from './syncEngine';

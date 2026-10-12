@@ -1,35 +1,45 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
+import { syncEngine, SyncEngineStatus } from '../data';
 
-interface SyncContextType {
+export interface SyncContextType {
   isSyncing: boolean;
   lastSynced: Date | null;
   syncError: Error | null;
   syncNow: () => Promise<void>;
+  pendingMutationsCount: number;
+  isOnline: boolean;
 }
 
 const SyncContext = createContext<SyncContextType | undefined>(undefined);
 
 export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSynced, setLastSynced] = useState<Date | null>(null);
-  const [syncError, setSyncError] = useState<Error | null>(null);
+  const { user, isAuthenticated } = useAuth();
+  const [status, setStatus] = useState<SyncEngineStatus>(() => syncEngine.getStatus());
+
+  useEffect(() => {
+    syncEngine.setUserId(isAuthenticated && user ? user.id : null);
+  }, [isAuthenticated, user?.id]);
+
+  useEffect(() => {
+    return syncEngine.subscribeStatus(setStatus);
+  }, []);
 
   const syncNow = async () => {
-    setIsSyncing(true);
-    setSyncError(null);
-    try {
-      // Mock sync logic
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setLastSynced(new Date());
-    } catch (error) {
-      setSyncError(error as Error);
-    } finally {
-      setIsSyncing(false);
-    }
+    await syncEngine.sync();
   };
 
   return (
-    <SyncContext.Provider value={{ isSyncing, lastSynced, syncError, syncNow }}>
+    <SyncContext.Provider
+      value={{
+        isSyncing: status.isSyncing,
+        lastSynced: status.lastSynced,
+        syncError: status.syncError,
+        pendingMutationsCount: status.pendingMutationsCount,
+        isOnline: status.isOnline,
+        syncNow
+      }}
+    >
       {children}
     </SyncContext.Provider>
   );

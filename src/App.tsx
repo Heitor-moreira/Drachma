@@ -40,6 +40,8 @@ import {
   , Database
   , Target
   , GraduationCap
+  , Cloud
+  , RefreshCw
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
 import packageJson from '../package.json';
@@ -71,6 +73,7 @@ import { parseCSV, CSVColumnMapping } from './utils/parsers/csvParser';
 import ImportReviewView from './components/ImportReviewView';
 import LoginView from './components/LoginView';
 import { useAuth } from './contexts/AuthContext';
+import { useSync } from './contexts/SyncContext';
 
 const STORAGE_KEY_TRANSACTIONS = 'drachma_transactions';
 const STORAGE_KEY_SUBSCRIPTIONS = 'drachma_subscriptions';
@@ -129,6 +132,7 @@ const App: React.FC = () => {
   });
 
   const { isAuthenticated, isLoading: isAuthLoading, logout, user: authUser } = useAuth();
+  const { isSyncing, lastSynced, syncNow, pendingMutationsCount, isOnline } = useSync();
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -252,13 +256,15 @@ const App: React.FC = () => {
     return `${label} às ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaveState('saving');
     try {
-      saveNow();
+      await saveNow();
       setSaveState('saved');
+      setFeedbackMessage('Dados salvos com sucesso!');
     } catch {
       setSaveState('error');
+      setFeedbackMessage('Erro ao salvar os dados.');
     }
   };
 
@@ -601,9 +607,21 @@ const App: React.FC = () => {
                 <p className={`mt-2 text-sm ${saveState === 'error' || lastDataEvent?.type === 'DELETE' ? 'text-rose-600' : isRecentDataEvent && lastDataEvent ? 'text-theme' : 'text-app-text-secondary dark:text-dark-app-text-secondary'}`}>
                   {saveState === 'saving' ? 'Salvando...' : saveState === 'error' ? 'Falha ao salvar' : formatDataEvent(lastDataEvent)}
                 </p>
-                <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-5">
+                <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-6">
                   <div className="space-y-1">
                     <button onClick={handleSave} disabled={!isDirty || saveState === 'saving'} className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-theme px-2 text-xs font-bold text-white transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:bg-app-surface-secondary disabled:text-app-text-secondary dark:disabled:bg-dark-app-surface-secondary dark:disabled:text-dark-app-text-secondary"><Save size={15} /> Salvar</button>
+                  </div>
+                  <div className="space-y-1">
+                    <button 
+                      onClick={() => void syncNow()} 
+                      disabled={isSyncing || !isOnline} 
+                      className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-blue-600 px-2 text-xs font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Cloud size={15} className={isSyncing ? 'animate-pulse' : ''} /> {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+                    </button>
+                    <p className="text-center text-xs text-app-text-secondary dark:text-dark-app-text-secondary">
+                      {isSyncing ? 'Atualizando nuvem' : pendingMutationsCount > 0 ? `${pendingMutationsCount} pendente(s)` : lastSynced ? `Sync ${lastSynced.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : 'Nuvem Supabase'}
+                    </p>
                   </div>
                   <div className="space-y-1">
                     <button onClick={() => importBankFileRef.current?.click()} aria-label="Importar Extrato Bancário" className="flex min-h-10 w-full items-center justify-center gap-1 rounded-xl border border-theme bg-theme/10 px-2 text-xs font-bold text-theme transition-colors hover:bg-theme/20"><Landmark size={15} /> Extrato</button>
