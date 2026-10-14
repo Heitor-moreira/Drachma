@@ -120,14 +120,12 @@ const LoginView: React.FC<LoginViewProps> = ({
         
         {/* Header Logo */}
         <div className="mb-8 sm:mb-10 text-center flex flex-col items-center">
-          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#C8963E] via-[#D4A347] to-[#B8860B] shadow-2xl mb-5 hover:scale-105 transition-transform duration-300">
-            <div className="p-1 rounded-full bg-[#0A192F]">
-              <img 
-                src="/drachma-icon.png" 
-                alt="Drachma" 
-                className="w-24 h-24 rounded-full shadow-inner object-cover" 
-              />
-            </div>
+          <div className="w-24 h-24 rounded-full overflow-hidden mb-5 hover:scale-105 transition-transform duration-300">
+            <img 
+              src="/drachma-icon.png" 
+              alt="Drachma" 
+              className="w-full h-full object-cover scale-[1.42]" 
+            />
           </div>
           <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
             Drachma
