@@ -116,6 +116,20 @@ describe('LoginView — login com e-mail e senha', () => {
     await waitFor(() => expect(onLogin).toHaveBeenCalledWith('email', 'a@b.com', '123456'));
     expect(auth.login).not.toHaveBeenCalled();
   });
+
+  it('alterna a visibilidade da senha ao clicar no botão de olho', () => {
+    render(<LoginView />);
+    const toggleButton = screen.getByLabelText('Exibir senha');
+    expect(passwordInput().type).toBe('password');
+
+    fireEvent.click(toggleButton);
+    expect(passwordInput().type).toBe('text');
+    expect(screen.getByLabelText('Ocultar senha')).toBeTruthy();
+
+    fireEvent.click(screen.getByLabelText('Ocultar senha'));
+    expect(passwordInput().type).toBe('password');
+    expect(screen.getByLabelText('Exibir senha')).toBeTruthy();
+  });
 });
 
 describe('LoginView — Google', () => {
@@ -226,5 +240,13 @@ describe('LoginView — esqueci a senha', () => {
     } finally {
       window.history.pushState({}, '', '/');
     }
+  });
+
+  it('renderiza fundo sólido limpo sem padrão de moedas de papel de parede', () => {
+    const { container } = render(<LoginView />);
+    expect(container.querySelector('#drachma-coin-pattern')).toBeNull();
+    const root = container.firstElementChild;
+    expect(root?.className).toContain('bg-slate-50');
+    expect(root?.className).toContain('dark:bg-[#031630]');
   });
 });

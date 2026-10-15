@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, LogIn, KeyRound, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, LogIn, KeyRound, CheckCircle2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { translateAuthError } from '../utils/authErrors';
 
@@ -24,6 +24,7 @@ const LoginView: React.FC<LoginViewProps> = ({
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -114,20 +115,22 @@ const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 dark:bg-[#031630] transition-colors duration-300">
-      
-      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 dark:bg-[#031630] transition-colors duration-300 relative overflow-hidden">
+      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
         
         {/* Header Logo */}
         <div className="mb-8 sm:mb-10 text-center flex flex-col items-center">
           <div className="w-24 h-24 rounded-full overflow-hidden mb-5 hover:scale-105 transition-transform duration-300">
-            <img 
-              src="/drachma-icon.png" 
-              alt="Drachma" 
-              className="w-full h-full object-cover scale-[1.42]" 
+            <img
+              src="/drachma-icon.png"
+              alt="Drachma"
+              className="w-full h-full object-cover scale-[1.42]"
             />
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
+          <h1
+            className="text-5xl text-slate-900 dark:text-white mb-2 transition-all duration-200"
+            style={{ fontFamily: "'Cinzel', Georgia, serif", fontWeight: 600, letterSpacing: '0.04em' }}
+          >
             Drachma
           </h1>
           <p className="text-sm font-semibold text-[#B8860B] dark:text-[#D4A347] uppercase tracking-[0.2em]">
@@ -136,10 +139,7 @@ const LoginView: React.FC<LoginViewProps> = ({
         </div>
 
         {/* Card */}
-        <div className="bg-white dark:bg-[#0A192F] rounded-[2rem] shadow-2xl p-8 sm:p-10 border border-slate-100 dark:border-[#C8963E]/20 transition-colors duration-300 relative overflow-hidden">
-          
-          {/* Subtle gold decoration bar */}
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#B8860B]/40 via-[#D4A347] to-[#B8860B]/40" />
+        <div className="bg-white dark:bg-[#0A192F] rounded-[2rem] shadow-2xl p-8 sm:p-10 border border-slate-200 dark:border-slate-800 transition-colors duration-300 relative overflow-hidden">
 
           {error && (
             <div className="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-sm font-bold border border-rose-100 dark:border-rose-900/50 flex items-center gap-2">
@@ -244,14 +244,22 @@ const LoginView: React.FC<LoginViewProps> = ({
                       <Lock className="h-5 w-5 text-slate-400" />
                     </div>
                     <input 
-                      type="password" 
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
+                      className="w-full pl-11 pr-12 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
                       placeholder="••••••••"
                       disabled={isLoading}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Ocultar senha' : 'Exibir senha'}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                 </div>
 
@@ -273,7 +281,7 @@ const LoginView: React.FC<LoginViewProps> = ({
 
               <div className="mt-8 mb-6 flex items-center justify-center gap-4">
                 <div className="h-px bg-slate-200 dark:border-t dark:border-slate-700/60 flex-1" />
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">ou</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">ou</span>
                 <div className="h-px bg-slate-200 dark:border-t dark:border-slate-700/60 flex-1" />
               </div>
 

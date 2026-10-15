@@ -72,6 +72,7 @@ import { parseOFX, ParsedTransaction } from './utils/parsers/ofxParser';
 import { parseCSV, CSVColumnMapping } from './utils/parsers/csvParser';
 import ImportReviewView from './components/ImportReviewView';
 import LoginView from './components/LoginView';
+import GoogleWelcomePasswordModal from './components/GoogleWelcomePasswordModal';
 import { useAuth } from './contexts/AuthContext';
 import { useSync } from './contexts/SyncContext';
 
@@ -142,6 +143,20 @@ const App: React.FC = () => {
   const [monthlyInitialTag, setMonthlyInitialTag] = useState<string>('');
   const [monthlyInitialType, setMonthlyInitialType] = useState<EntryType | 'ALL'>('EXPENSE');
   const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false);
+  const [isWelcomePreview, setIsWelcomePreview] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.search.includes('preview=welcome') || window.location.search.includes('welcome=true');
+  });
+
+  useEffect(() => {
+    const handleTriggerWelcome = () => setIsWelcomePreview(true);
+    window.addEventListener('drachma:open-welcome-modal', handleTriggerWelcome);
+    window.addEventListener('drachma:trigger-welcome-preview', handleTriggerWelcome);
+    return () => {
+      window.removeEventListener('drachma:open-welcome-modal', handleTriggerWelcome);
+      window.removeEventListener('drachma:trigger-welcome-preview', handleTriggerWelcome);
+    };
+  }, []);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -471,11 +486,17 @@ const App: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return <LoginView />;
+    return (
+      <>
+        <LoginView />
+        <GoogleWelcomePasswordModal forceOpen={isWelcomePreview} onClose={() => setIsWelcomePreview(false)} />
+      </>
+    );
   }
 
   return (
     <div className="phone-shell min-h-screen flex flex-col md:flex-row text-slate-900 dark:text-dark-app-text-primary overflow-hidden h-screen bg-slate-50 dark:bg-dark-app-surface transition-colors duration-300 relative">
+      <GoogleWelcomePasswordModal forceOpen={isWelcomePreview} onClose={() => setIsWelcomePreview(false)} />
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex flex-col w-60 bg-white dark:bg-dark-app-surface border-r border-slate-200 dark:border-dark-app-border p-6 shrink-0 h-full transition-colors duration-300">
         <button 

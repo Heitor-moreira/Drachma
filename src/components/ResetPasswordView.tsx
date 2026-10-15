@@ -114,8 +114,7 @@ const ResetPasswordView: React.FC = () => {
         </div>
 
         {/* Card Principal */}
-        <div className="bg-white dark:bg-[#0A192F] rounded-[2rem] shadow-2xl p-8 sm:p-10 border border-slate-100 dark:border-[#C8963E]/20 transition-colors duration-300 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#B8860B]/40 via-[#D4A347] to-[#B8860B]/40" />
+        <div className="bg-white dark:bg-[#0A192F] rounded-[2rem] shadow-2xl p-8 sm:p-10 border border-slate-200 dark:border-slate-800 transition-colors duration-300 relative overflow-hidden">
 
           {/* Estado 1: Carregando autenticação inicial */}
           {isAuthLoading ? (
