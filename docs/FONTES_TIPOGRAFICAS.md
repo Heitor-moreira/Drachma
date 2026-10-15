@@ -1,25 +1,34 @@
 # Inventário tipográfico do Drachma
 
-Fonte de verdade para qualquer tela, componente, botão, modal, formulário ou mensagem que contenha texto.
+Fonte de verdade para qualquer tela, componente, botão, modal, formulário ou mensagem que contenha texto. A base é a tela de login.
 
 ## Regra principal
 
-Antes de criar ou alterar uma interface com texto, consultar este arquivo e usar somente os tokens abaixo. Não criar novos tamanhos, pesos ou famílias sem atualizar este inventário e justificar a exceção.
+Antes de criar ou alterar uma interface com texto, consultar este arquivo e usar somente os tokens abaixo. Não criar novos tamanhos, pesos, trackings ou famílias sem atualizar este inventário e justificar a exceção.
 
-## Família
+## Famílias
 
-- **Inter**, com fallback `sans-serif`.
-- Pesos permitidos: **400**, **500** e **700**.
-- Classes Tailwind correspondentes: `font-normal`, `font-medium` e `font-bold`.
-- Pesos 300 e 600 não devem ser usados em novos componentes.
+- **Interface:** `Nunito Sans`, com fallback `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`. Aplicada ao `body` em `index.html`.
+- **Marca:** `Cinzel`, com fallback `Georgia, serif`. Usada somente no título "Drachma" (peso 600, `letter-spacing: 0.04em`).
 
-## Escala mínima aprovada
+## Pesos
+
+- `font-normal` (400): corpo de texto e valores que não são destaque.
+- `font-medium` (500): textos de apoio, controles selecionados e ênfases leves.
+- `font-semibold` (600): **exclusivo da marca** (título "Drachma" e seu subtítulo). Não usar em outros componentes.
+- `font-bold` (700): labels, botões, links de ação, mensagens de estado e indicadores.
+- Peso 300 não deve ser usado.
+
+## Escala
 
 | Token | Classe Tailwind | Tamanho | Uso |
 |---|---|---:|---|
-| `ui-caption` | `text-xs` | 12 px | metadados, labels auxiliares, estados e navegação compacta |
-| `ui-secondary` | `text-sm` | 14 px | descrições, textos secundários, formulários e tabelas auxiliares |
-| `ui-body` | `text-base` | 16 px | texto padrão, valores financeiros e controles principais |
+| `brand-title` | `text-5xl` + Cinzel 600 | 48 px | título da marca na tela de login |
+| `brand-subtitle` | `text-sm font-semibold uppercase tracking-[0.2em]` | 14 px | subtítulo da marca |
+| `ui-caption` | `text-xs` | 12 px | links compactos, metadados e estados |
+| `ui-label` | `text-xs font-bold uppercase tracking-wider` | 12 px | labels de campos e separadores curtos (ex.: "OU") |
+| `ui-secondary` | `text-sm` | 14 px | mensagens, descrições, botões secundários e formulários |
+| `ui-body` | `text-base` | 16 px | texto padrão, campos, botões principais e valores financeiros |
 | `ui-title` | `text-2xl` | 24 px | títulos de tela, cabeçalhos mensais e títulos de seção |
 | `ui-display` | `text-3xl` | 30 px | indicador ou título de destaque excepcional |
 | `type-icon` | `type-icon-label` | 15 px | letras `E` e `C` dos ícones de tipo de lançamento |
@@ -27,17 +36,23 @@ Antes de criar ou alterar uma interface com texto, consultar este arquivo e usar
 | `modal-primary` | `25px` | 25 px | textos principais e títulos do modal de lançamento |
 | `modal-option` | `21px` | 21 px | opções dos menus do modal de lançamento |
 
-### Uso dos pesos
+## Tracking (espaçamento entre letras)
 
-- `font-normal` (400): corpo de texto e valores que não são destaque.
-- `font-medium` (500): controles selecionados e ênfases intermediárias.
-- `font-bold` (700): títulos, labels importantes, botões e indicadores.
+Somente três valores são permitidos:
 
-### Estilo
+| Valor | Espaçamento | Uso |
+|---|---:|---|
+| `tracking-wider` | 0,05em | labels de campos e separador "OU" |
+| `tracking-[0.2em]` | 0,2em | subtítulo da marca |
+| `letter-spacing: 0.04em` | 0,04em | título "Drachma" (Cinzel) |
+
+Não usar `tracking-widest` nem outros valores.
+
+## Estilo
 
 - Usar estilo normal por padrão.
 - Usar `italic` somente para observações, mensagens de estado vazio ou texto auxiliar realmente necessário.
-- Usar `uppercase` apenas em labels curtos e auxiliares; nunca em textos longos.
+- Usar `uppercase` apenas em labels, subtítulos e separadores curtos, sempre com tracking; nunca em textos longos.
 
 ## Regras de implementação
 
@@ -54,4 +69,4 @@ O código existente ainda contém alguns tamanhos legados (`text-[9px]`, `text-[
 
 ## Fonte global
 
-A família Inter é carregada e aplicada ao `body` em `index.html`. A tipografia é definida principalmente por classes utilitárias Tailwind nos componentes.
+As famílias Nunito Sans e Cinzel são carregadas em `index.html`; Nunito Sans é aplicada ao `body`. A tipografia é definida principalmente por classes utilitárias Tailwind nos componentes.
