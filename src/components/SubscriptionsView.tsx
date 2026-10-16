@@ -18,7 +18,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { CreditCard, SalaryInfo, Subscription, SubscriptionCycle, SubscriptionPaymentType, SubscriptionStatus, Transaction } from '../types';
-import { getSubscriptionMetrics, normalizeSubscription } from '../utils/subscriptionTransactions';
+import { getSubscriptionEvolution, getSubscriptionMetrics, normalizeSubscription } from '../utils/subscriptionTransactions';
 import { searchCatalog, SUBSCRIPTION_CATALOG, SubscriptionCatalogItem } from '../constants/subscriptionCatalog';
 import { formatLocalDate } from '../utils/finance';
 
@@ -66,6 +66,12 @@ const SubscriptionsView: React.FC<Props> = ({
   const metrics = useMemo(() => {
     return getSubscriptionMetrics(subscriptions, salaryInfo, baseSalary);
   }, [subscriptions, salaryInfo, baseSalary]);
+
+  // Evolution Range & Calculation
+  const [evolutionRange, setEvolutionRange] = useState<6 | 12>(6);
+  const evolution = useMemo(() => {
+    return getSubscriptionEvolution(subscriptions, transactions, evolutionRange);
+  }, [subscriptions, transactions, evolutionRange]);
 
   // Sorting: Active subscriptions sorted by dueDay ascending, then paused/canceled
   const sortedSubscriptions = useMemo(() => {
@@ -397,6 +403,155 @@ const SubscriptionsView: React.FC<Props> = ({
               )}
             </p>
           </div>
+        </div>
+
+        {/* Cost Evolution Section */}
+        <div className="rounded-3xl bg-white p-6 shadow-sm border border-slate-100 dark:border-dark-app-border dark:bg-dark-app-surface transition-all">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-dark-app-border">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-[#D9A83A]/10 text-[#D9A83A] shrink-0">
+                <TrendingUp size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2
+                    className="text-base sm:text-lg font-bold text-slate-900 dark:text-dark-app-text-primary"
+                    style={{ fontFamily: "'Cinzel', Georgia, serif", letterSpacing: '0.04em' }}
+                  >
+                    Evolução Mensal
+                  </h2>
+                  {evolution.percentageChange !== null && (
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
+                        evolution.percentageChange > 0
+                          ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
+                          : evolution.percentageChange < 0
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+                          : 'bg-slate-100 dark:bg-dark-app-surface-secondary text-slate-600 dark:text-dark-app-text-secondary'
+                      }`}
+                    >
+                      {evolution.percentageChange > 0
+                        ? `+${evolution.percentageChange.toFixed(1)}%`
+                        : `${evolution.percentageChange.toFixed(1)}%`}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-dark-app-text-secondary mt-0.5">
+                  {`Mês atual: ${currencySymbol} ${evolution.currentMonthTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  {evolution.percentageChange !== null && (
+                    <span> vs. mês anterior</span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Range Controls */}
+            <div className="flex items-center self-start sm:self-auto gap-1 bg-slate-100 dark:bg-dark-app-surface-secondary p-1 rounded-2xl shrink-0">
+              <button
+                type="button"
+                onClick={() => setEvolutionRange(6)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  evolutionRange === 6
+                    ? 'bg-white dark:bg-dark-app-surface text-slate-900 dark:text-dark-app-text-primary shadow-sm'
+                    : 'text-slate-500 dark:text-dark-app-text-secondary hover:text-slate-800 dark:hover:text-dark-app-text-primary'
+                }`}
+              >
+                6 meses
+              </button>
+              <button
+                type="button"
+                onClick={() => setEvolutionRange(12)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  evolutionRange === 12
+                    ? 'bg-white dark:bg-dark-app-surface text-slate-900 dark:text-dark-app-text-primary shadow-sm'
+                    : 'text-slate-500 dark:text-dark-app-text-secondary hover:text-slate-800 dark:hover:text-dark-app-text-primary'
+                }`}
+              >
+                12 meses
+              </button>
+            </div>
+          </div>
+
+          {/* Bar Chart or Empty State */}
+          {subscriptions.filter(s => !s.deletedAt).length === 0 && transactions.length === 0 ? (
+            <div className="py-12 text-center">
+              <p className="text-sm font-medium text-slate-500 dark:text-dark-app-text-secondary">
+                Nenhuma assinatura cadastrada para exibir o histórico.
+              </p>
+              <button
+                type="button"
+                onClick={openCreateModal}
+                className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-theme hover:underline"
+              >
+                <Plus size={14} /> Cadastrar primeira assinatura
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6">
+              <div className="overflow-x-auto pb-2 -mb-2 custom-scrollbar">
+                <div
+                  className={`flex items-end justify-between gap-2 sm:gap-3 h-52 pt-8 pb-1 ${
+                    evolutionRange === 12 ? 'min-w-[480px] sm:min-w-0' : 'min-w-full'
+                  } w-full`}
+                >
+                  {evolution.months.map(m => {
+                    const heightPercent =
+                      evolution.maxAmount > 0
+                        ? Math.max(Math.round((m.totalAmount / evolution.maxAmount) * 100), m.totalAmount > 0 ? 12 : 4)
+                        : 4;
+
+                    return (
+                      <div
+                        key={`${m.year}-${m.month}`}
+                        data-testid="evolution-bar"
+                        className="flex-1 flex flex-col items-center h-full justify-end group min-w-0"
+                        title={`${m.monthLabel}/${m.yearLabel}: ${currencySymbol} ${m.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${m.activeCount} assinatura${m.activeCount === 1 ? '' : 's'})`}
+                      >
+                        {/* Top Amount Label */}
+                        <div className="mb-2 text-center shrink-0">
+                          <span
+                            className={`text-xs font-bold block truncate ${
+                              m.isCurrentMonth
+                                ? 'text-[#D9A83A]'
+                                : 'text-slate-600 dark:text-dark-app-text-secondary'
+                            }`}
+                          >
+                            {m.totalAmount > 0 ? `${currencySymbol} ${Math.round(m.totalAmount)}` : '—'}
+                          </span>
+                        </div>
+
+                        {/* Bar Track & Fill */}
+                        <div className="w-full flex-1 flex items-end justify-center px-1">
+                          <div
+                            className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${
+                              m.isCurrentMonth
+                                ? 'bg-[#D9A83A] shadow-sm'
+                                : 'bg-[#2A4A8C] dark:bg-[#1F3868] opacity-85 group-hover:opacity-100'
+                            }`}
+                            style={{ height: `${heightPercent}%` }}
+                          />
+                        </div>
+
+                        {/* Bottom Month Label */}
+                        <div className="mt-3 text-center shrink-0">
+                          <span
+                            className={`text-xs font-bold block uppercase tracking-wider ${
+                              m.isCurrentMonth
+                                ? 'text-[#D9A83A]'
+                                : 'text-slate-500 dark:text-dark-app-text-secondary'
+                            }`}
+                          >
+                            {m.monthLabel}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Subscriptions List */}

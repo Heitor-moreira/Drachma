@@ -18,6 +18,26 @@ export interface SubscriptionMetrics {
   totalCount: number;
 }
 
+export interface SubscriptionEvolutionMonth {
+  year: number;
+  month: number; // 0-indexed (0 = Jan, 11 = Dez)
+  monthLabel: string; // Ex: 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out'
+  yearLabel: string; // Ex: '2026'
+  totalAmount: number;
+  activeCount: number;
+  isCurrentMonth: boolean;
+}
+
+export interface SubscriptionEvolution {
+  months: SubscriptionEvolutionMonth[];
+  maxAmount: number;
+  minAmount: number;
+  averageAmount: number;
+  currentMonthTotal: number;
+  previousMonthTotal: number;
+  percentageChange: number | null; // Variação vs mês anterior
+}
+
 export const normalizeSubscription = (sub: Partial<Subscription>): Subscription => {
   const id = sub.id || Math.random().toString(36).substring(2, 9);
   const name = sub.name?.trim() || 'Assinatura';
@@ -192,5 +212,98 @@ export const getSubscriptionSummaryForMonth = (
     activeCount: uniqueServices.size,
     transactions: subscriptionTransactions.sort((a, b) => b.amount - a.amount),
     byCategory
+  };
+};
+
+const MONTH_LABELS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+export const getSubscriptionEvolution = (
+  subscriptions: Subscription[],
+  transactions: Transaction[] = [],
+  monthsCount: number = 6,
+  referenceDate: Date = new Date()
+): SubscriptionEvolution => {
+  const refYear = referenceDate.getFullYear();
+  const refMonth = referenceDate.getMonth();
+  const months: SubscriptionEvolutionMonth[] = [];
+
+  const activeSubs = subscriptions
+    .map(normalizeSubscription)
+    .filter(s => s.status === 'ACTIVE' && !s.deletedAt);
+
+  for (let i = monthsCount - 1; i >= 0; i--) {
+    const targetDate = new Date(refYear, refMonth - i, 1);
+    const year = targetDate.getFullYear();
+    const month = targetDate.getMonth();
+    const isCurrentMonth = i === 0;
+
+    // Filter subscription-linked transactions in this month
+    const matchingTransactions = transactions.filter(t => {
+      if (t.deletedAt) return false;
+      const isLinked = Boolean(t.subscriptionId) || Boolean(t.tags && t.tags.some(tag => normalizeTag(tag) === 'assinatura'));
+      if (!isLinked) return false;
+
+      const dateStr = t.date || '';
+      const parts = dateStr.slice(0, 10).split('-');
+      if (parts.length < 2) return false;
+      const tYear = parseInt(parts[0], 10);
+      const tMonth = parseInt(parts[1], 10) - 1;
+      return tYear === year && tMonth === month;
+    });
+
+    let totalAmount = 0;
+    let activeCount = 0;
+
+    if (matchingTransactions.length > 0) {
+      totalAmount = matchingTransactions.reduce((acc, t) => acc + Math.abs(t.amount || 0), 0);
+      const uniqueEntities = new Set(
+        matchingTransactions.map(t => t.subscriptionId || t.description.trim().toLowerCase())
+      );
+      activeCount = uniqueEntities.size;
+    } else {
+      for (const sub of activeSubs) {
+        const isCharged =
+          sub.cycle === 'MONTHLY' ||
+          (sub.cycle === 'YEARLY' && (sub.billingMonth ?? 1) === month + 1);
+
+        if (isCharged) {
+          totalAmount += sub.amount;
+          activeCount += 1;
+        }
+      }
+    }
+
+    months.push({
+      year,
+      month,
+      monthLabel: MONTH_LABELS[month],
+      yearLabel: String(year),
+      totalAmount: Math.round(totalAmount * 100) / 100,
+      activeCount,
+      isCurrentMonth
+    });
+  }
+
+  const amounts = months.map(m => m.totalAmount);
+  const maxAmount = amounts.length > 0 ? Math.max(...amounts) : 0;
+  const minAmount = amounts.length > 0 ? Math.min(...amounts) : 0;
+  const totalSum = amounts.reduce((acc, val) => acc + val, 0);
+  const averageAmount = amounts.length > 0 ? Math.round((totalSum / amounts.length) * 100) / 100 : 0;
+
+  const currentMonthTotal = months[months.length - 1]?.totalAmount ?? 0;
+  const previousMonthTotal = months.length >= 2 ? months[months.length - 2].totalAmount : 0;
+  const percentageChange =
+    previousMonthTotal > 0
+      ? ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100
+      : null;
+
+  return {
+    months,
+    maxAmount,
+    minAmount,
+    averageAmount,
+    currentMonthTotal,
+    previousMonthTotal,
+    percentageChange
   };
 };

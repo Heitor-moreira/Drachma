@@ -3,7 +3,8 @@ import {
   normalizeSubscription,
   generateSubscriptionTransactions,
   getSubscriptionMetrics,
-  getSubscriptionSummaryForMonth
+  getSubscriptionSummaryForMonth,
+  getSubscriptionEvolution
 } from './subscriptionTransactions';
 import { getNextDueDate, sortByNextDue } from './subscriptions';
 import { Subscription, Transaction, SalaryInfo, CreditCard } from '../types';
@@ -358,6 +359,218 @@ describe('Subscription domain and transactions', () => {
       const sorted = sortByNextDue([sub1, sub2], fromDate);
       expect(sorted[0].id).toBe('2'); // Oct 20 comes before Nov 5
       expect(sorted[1].id).toBe('1');
+    });
+  });
+
+  describe('getSubscriptionEvolution', () => {
+    const referenceDate = new Date(2026, 9, 15); // October 2026
+
+    it('calculates monthly evolution with projected active subscriptions when no transactions exist', () => {
+      const subs: Subscription[] = [
+        {
+          id: 'sub-netflix',
+          name: 'Netflix',
+          amount: 50,
+          dueDay: 10,
+          cycle: 'MONTHLY',
+          paymentType: 'DIRECT_DEBIT',
+          status: 'ACTIVE',
+          isActive: true
+        },
+        {
+          id: 'sub-amazon-yearly',
+          name: 'Amazon Prime Anual',
+          amount: 120,
+          dueDay: 15,
+          cycle: 'YEARLY',
+          billingMonth: 10, // October (month index 9)
+          paymentType: 'DIRECT_DEBIT',
+          status: 'ACTIVE',
+          isActive: true
+        },
+        {
+          id: 'sub-paused',
+          name: 'Disney+',
+          amount: 30,
+          dueDay: 5,
+          cycle: 'MONTHLY',
+          paymentType: 'DIRECT_DEBIT',
+          status: 'PAUSED',
+          isActive: false
+        }
+      ];
+
+      const evolution = getSubscriptionEvolution(subs, [], 6, referenceDate);
+
+      expect(evolution.months).toHaveLength(6);
+      expect(evolution.months.map(m => m.monthLabel)).toEqual(['Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out']);
+      expect(evolution.months.map(m => m.yearLabel)).toEqual(['2026', '2026', '2026', '2026', '2026', '2026']);
+
+      // May to Sep only has Netflix (50)
+      for (let i = 0; i < 5; i++) {
+        expect(evolution.months[i].totalAmount).toBe(50);
+        expect(evolution.months[i].activeCount).toBe(1);
+        expect(evolution.months[i].isCurrentMonth).toBe(false);
+      }
+
+      // October has Netflix (50) + Amazon (120) = 170
+      const currentMonth = evolution.months[5];
+      expect(currentMonth.totalAmount).toBe(170);
+      expect(currentMonth.activeCount).toBe(2);
+      expect(currentMonth.isCurrentMonth).toBe(true);
+
+      expect(evolution.currentMonthTotal).toBe(170);
+      expect(evolution.previousMonthTotal).toBe(50);
+      // ((170 - 50) / 50) * 100 = 240%
+      expect(evolution.percentageChange).toBe(240);
+      expect(evolution.maxAmount).toBe(170);
+      expect(evolution.minAmount).toBe(50);
+      // (50 * 5 + 170) / 6 = 420 / 6 = 70
+      expect(evolution.averageAmount).toBe(70);
+    });
+
+    it('calculates monthly evolution using explicit subscription transactions when available', () => {
+      const subs: Subscription[] = [
+        {
+          id: 'sub-netflix',
+          name: 'Netflix',
+          amount: 50,
+          dueDay: 10,
+          cycle: 'MONTHLY',
+          paymentType: 'DIRECT_DEBIT',
+          status: 'ACTIVE',
+          isActive: true
+        }
+      ];
+
+      const transactions: Transaction[] = [
+        // August 2026 transactions
+        {
+          id: 'tx-1',
+          date: '2026-08-10',
+          description: 'Netflix',
+          amount: 55.9,
+          subscriptionId: 'sub-netflix',
+          entryType: 'EXPENSE',
+          comment: ''
+        },
+        {
+          id: 'tx-2',
+          date: '2026-08-20',
+          description: 'Spotify',
+          amount: 21.9,
+          tags: ['assinatura'],
+          entryType: 'CARD',
+          comment: ''
+        },
+        // September 2026 transactions
+        {
+          id: 'tx-3',
+          date: '2026-09-10',
+          description: 'Netflix',
+          amount: 55.9,
+          subscriptionId: 'sub-netflix',
+          entryType: 'EXPENSE',
+          comment: ''
+        }
+      ];
+
+      const evolution = getSubscriptionEvolution(subs, transactions, 6, referenceDate);
+
+      // Month index 3 is August ('Ago')
+      const ago = evolution.months.find(m => m.monthLabel === 'Ago');
+      expect(ago).toBeDefined();
+      expect(ago?.totalAmount).toBeCloseTo(77.8);
+      expect(ago?.activeCount).toBe(2);
+
+      // Month index 4 is September ('Set')
+      const set = evolution.months.find(m => m.monthLabel === 'Set');
+      expect(set).toBeDefined();
+      expect(set?.totalAmount).toBe(55.9);
+      expect(set?.activeCount).toBe(1);
+
+      // Month index 5 is October ('Out') - no transactions, falls back to active subscriptions (50)
+      const out = evolution.months.find(m => m.monthLabel === 'Out');
+      expect(out?.totalAmount).toBe(50);
+      expect(out?.activeCount).toBe(1);
+
+      expect(evolution.currentMonthTotal).toBe(50);
+      expect(evolution.previousMonthTotal).toBe(55.9);
+      // ((50 - 55.9) / 55.9) * 100 ~= -10.55%
+      expect(evolution.percentageChange).toBeCloseTo(((50 - 55.9) / 55.9) * 100);
+    });
+
+    it('handles 12 months range spanning year boundary', () => {
+      const subs: Subscription[] = [
+        {
+          id: 'sub-1',
+          name: 'Spotify',
+          amount: 20,
+          dueDay: 5,
+          cycle: 'MONTHLY',
+          paymentType: 'DIRECT_DEBIT',
+          status: 'ACTIVE',
+          isActive: true
+        }
+      ];
+
+      const evolution = getSubscriptionEvolution(subs, [], 12, referenceDate);
+      expect(evolution.months).toHaveLength(12);
+
+      // Starts in Nov 2025 and ends in Oct 2026
+      expect(evolution.months[0].monthLabel).toBe('Nov');
+      expect(evolution.months[0].yearLabel).toBe('2025');
+      expect(evolution.months[1].monthLabel).toBe('Dez');
+      expect(evolution.months[1].yearLabel).toBe('2025');
+      expect(evolution.months[2].monthLabel).toBe('Jan');
+      expect(evolution.months[2].yearLabel).toBe('2026');
+      expect(evolution.months[11].monthLabel).toBe('Out');
+      expect(evolution.months[11].yearLabel).toBe('2026');
+      expect(evolution.months[11].isCurrentMonth).toBe(true);
+    });
+
+    it('returns 0s and null percentageChange when there are no subscriptions or transactions', () => {
+      const evolution = getSubscriptionEvolution([], [], 6, referenceDate);
+      expect(evolution.months).toHaveLength(6);
+      expect(evolution.maxAmount).toBe(0);
+      expect(evolution.minAmount).toBe(0);
+      expect(evolution.averageAmount).toBe(0);
+      expect(evolution.currentMonthTotal).toBe(0);
+      expect(evolution.previousMonthTotal).toBe(0);
+      expect(evolution.percentageChange).toBeNull();
+    });
+
+    it('ignores deleted transactions and deleted subscriptions', () => {
+      const subs: Subscription[] = [
+        {
+          id: 'sub-deleted',
+          name: 'Canceled Service',
+          amount: 100,
+          dueDay: 10,
+          cycle: 'MONTHLY',
+          paymentType: 'DIRECT_DEBIT',
+          status: 'ACTIVE',
+          isActive: true,
+          deletedAt: '2026-09-01T00:00:00.000Z'
+        }
+      ];
+
+      const transactions: Transaction[] = [
+        {
+          id: 'tx-deleted',
+          date: '2026-10-10',
+          description: 'Deleted Sub',
+          amount: 100,
+          subscriptionId: 'sub-deleted',
+          entryType: 'EXPENSE',
+          comment: '',
+          deletedAt: '2026-10-11T00:00:00.000Z'
+        }
+      ];
+
+      const evolution = getSubscriptionEvolution(subs, transactions, 6, referenceDate);
+      expect(evolution.currentMonthTotal).toBe(0);
+      expect(evolution.maxAmount).toBe(0);
     });
   });
 });

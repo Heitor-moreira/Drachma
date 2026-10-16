@@ -215,4 +215,64 @@ describe('SubscriptionsView Component', () => {
     // Netflix should no longer be rendered
     expect(screen.queryByText('Netflix')).toBeNull();
   });
+
+  describe('Cost Evolution Chart', () => {
+    it('renders monthly evolution section with title and default 6-month bars', () => {
+      render(
+        <SubscriptionsView
+          subscriptions={initialSubs}
+          setSubscriptions={vi.fn()}
+          cards={mockCards}
+          currencySymbol="R$"
+        />
+      );
+
+      // Section title
+      expect(screen.getByRole('heading', { name: 'Evolução Mensal' })).toBeDefined();
+
+      // Range pills
+      expect(screen.getByRole('button', { name: '6 meses' })).toBeDefined();
+      expect(screen.getByRole('button', { name: '12 meses' })).toBeDefined();
+
+      // Month bars rendered by test ID
+      const barElements = screen.getAllByTestId('evolution-bar');
+      expect(barElements).toHaveLength(6);
+    });
+
+    it('switches range from 6 to 12 months when clicked', () => {
+      render(
+        <SubscriptionsView
+          subscriptions={initialSubs}
+          setSubscriptions={vi.fn()}
+          cards={mockCards}
+          currencySymbol="R$"
+        />
+      );
+
+      const btn12 = screen.getByRole('button', { name: '12 meses' });
+      fireEvent.click(btn12);
+
+      let barElements = screen.getAllByTestId('evolution-bar');
+      expect(barElements).toHaveLength(12);
+
+      const btn6 = screen.getByRole('button', { name: '6 meses' });
+      fireEvent.click(btn6);
+
+      barElements = screen.getAllByTestId('evolution-bar');
+      expect(barElements).toHaveLength(6);
+    });
+
+    it('renders friendly empty state when no subscriptions or transactions exist', () => {
+      render(
+        <SubscriptionsView
+          subscriptions={[]}
+          setSubscriptions={vi.fn()}
+          cards={mockCards}
+          currencySymbol="R$"
+        />
+      );
+
+      expect(screen.getByText('Nenhuma assinatura cadastrada para exibir o histórico.')).toBeDefined();
+    });
+  });
 });
