@@ -42,6 +42,7 @@ import {
   , GraduationCap
   , Cloud
   , RefreshCw
+  , UserPlus
 } from 'lucide-react';
 import { Transaction, Subscription, InitialBalance, SalaryInfo, DateRange, UserSettings, CurrencyCode, CreditCard as CreditCardModel, FinancialGroup, EntryType } from './types';
 import packageJson from '../package.json';
@@ -73,6 +74,7 @@ import { parseCSV, CSVColumnMapping } from './utils/parsers/csvParser';
 import ImportReviewView from './components/ImportReviewView';
 import LoginView from './components/LoginView';
 import GoogleWelcomePasswordModal from './components/GoogleWelcomePasswordModal';
+import InviteTesterModal from './components/InviteTesterModal';
 import { useAuth } from './contexts/AuthContext';
 import { useSync } from './contexts/SyncContext';
 
@@ -116,11 +118,43 @@ const App: React.FC = () => {
   const [parsedTransactionsForReview, setParsedTransactionsForReview] = useState<ParsedTransaction[]>([]);
   
   const [settings, setSettings] = useState<UserSettings>(() => {
+    try {
+      const savedState = localStorage.getItem('drachma_app_state');
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        if (parsedState && parsedState.settings) {
+          return {
+            currency: 'BRL',
+            userName: 'Usuário Drachma',
+            userPhoto: 'https://ui-avatars.com/api/?name=User&background=2687c5&color=ffffff',
+            savingsTarget: 20,
+            ...parsedState.settings,
+            theme: parsedState.settings.theme || 'dark'
+          };
+        }
+      }
+      const legacySettings = localStorage.getItem('drachma_user_settings');
+      if (legacySettings) {
+        const parsedLegacy = JSON.parse(legacySettings);
+        if (parsedLegacy && typeof parsedLegacy === 'object') {
+          return {
+            currency: 'BRL',
+            userName: 'Usuário Drachma',
+            userPhoto: 'https://ui-avatars.com/api/?name=User&background=2687c5&color=ffffff',
+            savingsTarget: 20,
+            ...parsedLegacy,
+            theme: parsedLegacy.theme || 'dark'
+          };
+        }
+      }
+    } catch {
+      // Fallback para os padrões caso ocorra erro no parse
+    }
     return {
       currency: 'BRL',
       userName: 'Usuário Drachma',
       userPhoto: 'https://ui-avatars.com/api/?name=User&background=2687c5&color=ffffff',
-      theme: 'light',
+      theme: 'dark',
       savingsTarget: 20
     };
   });
@@ -158,6 +192,7 @@ const App: React.FC = () => {
     };
   }, []);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
@@ -610,7 +645,18 @@ const App: React.FC = () => {
               <div className="overflow-hidden bg-app-surface dark:bg-dark-app-surface">
                 <button onClick={() => setIsProfileOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><User size={24} strokeWidth={1.8} /> Editar perfil <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setActiveTab('recentTransactions')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><History size={24} strokeWidth={1.8} /> Lançamentos recentes <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
+                <button onClick={() => setActiveTab('subscriptionsTags')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><CreditCard size={24} strokeWidth={1.8} /> Assinaturas <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <button onClick={() => setIsSettingsOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Settings size={24} strokeWidth={1.8} /> Configurações <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
+                <button onClick={() => setIsInviteModalOpen(true)} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary">
+                  <UserPlus size={24} strokeWidth={1.8} />
+                  <span className="flex items-center gap-2">
+                    Convidar testador
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D9A83A]/15 text-[#8F6A1B] dark:bg-[#D9A83A]/20 dark:text-[#F0D48A] border border-[#D9A83A]/30">
+                      Admin
+                    </span>
+                  </span>
+                  <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} />
+                </button>
                 <button onClick={() => setActiveTab('data')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><Database size={24} strokeWidth={1.8} /> Dados <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
                 <a href={feedbackMailto} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><MessageSquare size={24} strokeWidth={1.8} /> Mandar sugestões <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></a>
                 <button onClick={() => setFeedbackMessage('Consulte as configurações ou o suporte do Drachma.')} className="flex min-h-20 w-full items-center gap-4 border-b border-app-border px-6 text-left text-base font-normal text-app-text-primary transition-colors hover:bg-app-surface-secondary dark:border-dark-app-border dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><HelpCircle size={24} strokeWidth={1.8} /> Ajuda <ChevronRight className="ml-auto text-app-border dark:text-dark-app-border" size={24} /></button>
@@ -889,7 +935,20 @@ const App: React.FC = () => {
 
                 <button onClick={() => setIsSettingsOpen(false)} className="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-[#1E293B] font-bold py-3 rounded-xl hover:bg-slate-800 dark:hover:bg-white transition-colors">Salvar Alterações</button>
 
-                <div className="pt-2 border-t border-slate-100 dark:border-dark-app-border">
+                <div className="pt-2 border-t border-slate-100 dark:border-dark-app-border space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsInviteModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#D9A83A]/40 bg-[#D9A83A]/10 text-[#8F6A1B] dark:text-[#F0D48A] font-bold hover:bg-[#D9A83A]/20 transition-colors"
+                  >
+                    <UserPlus size={18} />
+                    <span>Convidar testador</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D9A83A]/20 text-[#8F6A1B] dark:text-[#F0D48A] border border-[#D9A83A]/30">
+                      Admin
+                    </span>
+                  </button>
                   <button 
                     type="button"
                     onClick={() => {
@@ -1062,6 +1121,11 @@ const App: React.FC = () => {
             </div>
           </div>
         )}
+
+        <InviteTesterModal
+          isOpen={isInviteModalOpen}
+          onClose={() => setIsInviteModalOpen(false)}
+        />
       </main>
     </div>
   );
