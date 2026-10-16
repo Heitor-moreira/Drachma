@@ -6,9 +6,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider } from './contexts/SyncContext';
 import { DevModeWrapper } from './components/DevModeWrapper';
 import ResetPasswordView from './components/ResetPasswordView';
+import OnboardingPasswordView from './components/OnboardingPasswordView';
 
-const AuthGate: React.FC = () => {
-  const { isPasswordRecovery } = useAuth();
+export const AuthGate: React.FC = () => {
+  const { isPasswordRecovery, mustChangePassword } = useAuth();
   const [pathname, setPathname] = useState(
     typeof window !== 'undefined' ? window.location.pathname : '/'
   );
@@ -27,6 +28,10 @@ const AuthGate: React.FC = () => {
     return <ResetPasswordView />;
   }
 
+  if (mustChangePassword) {
+    return <OnboardingPasswordView />;
+  }
+
   return (
     <SyncProvider>
       <DataProvider>
@@ -39,15 +44,13 @@ const AuthGate: React.FC = () => {
 };
 
 const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <AuthProvider>
+        <AuthGate />
+      </AuthProvider>
+    </React.StrictMode>
+  );
 }
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <AuthProvider>
-      <AuthGate />
-    </AuthProvider>
-  </React.StrictMode>
-);

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { MIN_PASSWORD_LENGTH } from '../utils/authValidation';
+import { MIN_PASSWORD_LENGTH, PROVISIONAL_DEFAULT_PASSWORD, validateNewPassword } from '../utils/authValidation';
 
 export type User = {
   id: string;
@@ -17,6 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   isPasswordRecovery: boolean;
+  mustChangePassword: boolean;
   authCallbackError: string | null;
   clearAuthCallbackError: () => void;
   error: string | null;
@@ -25,7 +26,14 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
+  completeFirstAccessPassword: (newPassword: string) => Promise<void>;
 }
+
+export const checkMustChangePassword = (sbUser: SupabaseUser | null): boolean => {
+  if (!sbUser?.user_metadata) return false;
+  const flag = sbUser.user_metadata.must_change_password;
+  return flag === true || flag === 'true';
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -46,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
   const [authCallbackError, setAuthCallbackError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = initialSession?.user ?? null;
       setSupabaseUser(currentUser);
       setUser(mapSupabaseUser(currentUser));
+      setMustChangePassword(checkMustChangePassword(currentUser));
       setIsLoading(false);
     }).catch((err) => {
       if (!isMounted) return;
@@ -108,10 +118,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'PASSWORD_RECOVERY') {
         setIsPasswordRecovery(true);
       }
+      if (event === 'SIGNED_OUT') {
+        setMustChangePassword(false);
+      }
       setSession(currentSession);
       const currentUser = currentSession?.user ?? null;
       setSupabaseUser(currentUser);
       setUser(mapSupabaseUser(currentUser));
+      if (currentUser) {
+        if (checkMustChangePassword(currentUser)) {
+          setMustChangePassword(true);
+        } else if (
+          currentUser.user_metadata?.must_change_password === false ||
+          currentUser.user_metadata?.must_change_password === 'false'
+        ) {
+          setMustChangePassword(false);
+        }
+      } else {
+        setMustChangePassword(false);
+      }
       setIsLoading(false);
     });
 
@@ -140,6 +165,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (signInError) {
         throw signInError;
       }
+
+      const isDefault = password === PROVISIONAL_DEFAULT_PASSWORD;
+      const requiresChange = isDefault || checkMustChangePassword(data.user);
+      setMustChangePassword(requiresChange);
 
       setSession(data.session);
       setSupabaseUser(data.user);
@@ -212,6 +241,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSupabaseUser(null);
       setUser(null);
       setIsPasswordRecovery(false);
+      setMustChangePassword(false);
     } catch (err: any) {
       const message = err?.message || 'Erro ao sair da conta.';
       setError(message);
@@ -282,6 +312,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const completeFirstAccessPassword = async (newPassword: string) => {
+    setError(null);
+    try {
+      if (!isSupabaseConfigured) {
+        throw new Error('Supabase não configurado. Verifique as variáveis de ambiente.');
+      }
+
+      const validation = validateNewPassword(newPassword, undefined, {
+        disallowDefaultPassword: true,
+      });
+      if (!validation.isValid) {
+        throw new Error(validation.error || 'Senha inválida.');
+      }
+
+      const { data, error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+        data: { must_change_password: false },
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Encerrar outras sessões ativas por segurança
+      try {
+        await supabase.auth.signOut({ scope: 'others' });
+      } catch {
+        // Falha tolerada se a API não suportar o escopo 'others' no ambiente
+      }
+
+      setMustChangePassword(false);
+
+      if (data?.user) {
+        setSupabaseUser(data.user);
+        setUser(mapSupabaseUser(data.user));
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session) {
+          setSession(sessionData.session);
+        }
+      }
+    } catch (err: any) {
+      const message = err?.message || 'Erro ao definir nova senha.';
+      setError(message);
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -291,6 +368,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!session || !!user,
         isLoading,
         isPasswordRecovery,
+        mustChangePassword,
         authCallbackError,
         clearAuthCallbackError,
         error,
@@ -299,6 +377,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         resetPassword,
         updatePassword,
+        completeFirstAccessPassword,
       }}
     >
       {children}

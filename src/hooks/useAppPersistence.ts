@@ -63,7 +63,13 @@ export const useAppPersistence = (repo: DataRepository, state: AppPersistenceSta
     const settings = snapshot?.settings || repo.readLegacyKey(LEGACY_KEYS.settings);
     const cards = snapshot?.cards || repo.readLegacyKey(LEGACY_KEYS.cards);
     if (dateRange && typeof dateRange === 'object') setters.setDateRange(dateRange as DateRange);
-    if (settings && typeof settings === 'object') setters.setSettings(settings as UserSettings);
+    if (settings && typeof settings === 'object') {
+      const typedSettings = settings as UserSettings;
+      setters.setSettings({
+        ...typedSettings,
+        theme: typedSettings.theme || 'dark'
+      });
+    }
     if (Array.isArray(cards)) setters.setCards(cards as CreditCard[]);
     setLoaded(true);
     previousStateRef.current = state;

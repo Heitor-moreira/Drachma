@@ -245,7 +245,7 @@ export const userSettingsToRow = (settings: UserSettings, userId: string) => {
     currency: settings.currency || 'BRL',
     user_name: settings.userName || 'Usuário Drachma',
     user_photo: settings.userPhoto || '',
-    theme: settings.theme || 'light',
+    theme: settings.theme || 'dark',
     savings_target: settings.savingsTarget ?? null,
     base_salary: settings.baseSalary ?? null,
   };
@@ -256,7 +256,7 @@ export const rowToUserSettings = (row: any): UserSettings => {
     currency: row.currency || 'BRL',
     userName: row.user_name || 'Usuário Drachma',
     userPhoto: row.user_photo || '',
-    theme: row.theme || 'light',
+    theme: row.theme || 'dark',
     savingsTarget: row.savings_target !== null ? Number(row.savings_target) : undefined,
     baseSalary: row.base_salary !== null ? Number(row.base_salary) : undefined,
     userId: row.user_id,
@@ -1024,7 +1024,7 @@ export class SyncEngine {
           currency: 'BRL',
           userName: 'Usuário Drachma',
           userPhoto: '',
-          theme: 'light',
+          theme: 'dark',
           savingsTarget: 20
         }),
         salaryInfo: (mappedRemote.salaryInfo && !mappedRemote.salaryInfo.deletedAt) ? mappedRemote.salaryInfo : { gross: 0, discounts: [] },
@@ -1427,7 +1427,7 @@ export class SyncEngine {
             currency: 'BRL',
             userName: 'Usuário Drachma',
             userPhoto: '',
-            theme: 'light',
+            theme: 'dark',
             savingsTarget: 20
           };
           const defaultSalary: SalaryInfo = { gross: 0, discounts: [] };

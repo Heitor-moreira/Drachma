@@ -7,6 +7,9 @@ import { AuthProvider, useAuth } from './AuthContext';
 const mockSignInWithOAuth = vi.fn();
 const mockGetSession = vi.fn();
 const mockOnAuthStateChange = vi.fn();
+const mockSignInWithPassword = vi.fn();
+const mockSignOut = vi.fn();
+const mockUpdateUser = vi.fn();
 
 vi.mock('../lib/supabase', () => ({
   isSupabaseConfigured: true,
@@ -15,6 +18,9 @@ vi.mock('../lib/supabase', () => ({
       getSession: () => mockGetSession(),
       onAuthStateChange: (cb: any) => mockOnAuthStateChange(cb),
       signInWithOAuth: (opts: any) => mockSignInWithOAuth(opts),
+      signInWithPassword: (opts: any) => mockSignInWithPassword(opts),
+      signOut: (opts?: any) => mockSignOut(opts),
+      updateUser: (opts: any) => mockUpdateUser(opts),
     },
   },
 }));
@@ -28,6 +34,7 @@ const TestConsumer: React.FC<{ onAuth?: (auth: ReturnType<typeof useAuth>) => vo
     <div>
       <span data-testid="loading">{String(auth.isLoading)}</span>
       <span data-testid="recovery">{String(auth.isPasswordRecovery)}</span>
+      <span data-testid="must-change">{String(auth.mustChangePassword)}</span>
       <span data-testid="callback-error">{auth.authCallbackError || 'none'}</span>
     </div>
   );
@@ -249,5 +256,227 @@ describe('AuthContext — Google OAuth e Callbacks', () => {
       expect(screen.getByTestId('recovery').textContent).toBe('true');
       expect(screen.getByTestId('callback-error').textContent).toBe('none');
     });
+  });
+});
+
+describe('AuthContext — Primeiro Acesso e mustChangePassword', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+    mockOnAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } },
+    });
+    mockSignOut.mockResolvedValue({ error: null });
+  });
+
+  it('ativa mustChangePassword se o usuário na sessão inicial possuir must_change_password: true', async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'user-1',
+            email: 'novo@drachma.app',
+            user_metadata: { must_change_password: true },
+          },
+        },
+      },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('must-change').textContent).toBe('true');
+    });
+  });
+
+  it('mantém mustChangePassword false se o usuário não possuir a flag na sessão', async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'user-1',
+            email: 'antigo@drachma.app',
+            user_metadata: { must_change_password: false },
+          },
+        },
+      },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('must-change').textContent).toBe('false');
+    });
+  });
+
+  it('define mustChangePassword como true ao logar com a senha padrão provisória', async () => {
+    let authInstance!: ReturnType<typeof useAuth>;
+    mockSignInWithPassword.mockResolvedValue({
+      data: {
+        session: { access_token: 'tok' },
+        user: { id: 'u1', email: 'test@drachma.app', user_metadata: {} },
+      },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer onAuth={(a) => { authInstance = a; }} />
+      </AuthProvider>
+    );
+
+    await act(async () => {
+      await authInstance.login('test@drachma.app', 'senhapadrao123');
+    });
+
+    expect(screen.getByTestId('must-change').textContent).toBe('true');
+  });
+
+  it('não define mustChangePassword true ao logar com outra senha se metadados não exigirem', async () => {
+    let authInstance!: ReturnType<typeof useAuth>;
+    mockSignInWithPassword.mockResolvedValue({
+      data: {
+        session: { access_token: 'tok' },
+        user: { id: 'u1', email: 'test@drachma.app', user_metadata: { must_change_password: false } },
+      },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer onAuth={(a) => { authInstance = a; }} />
+      </AuthProvider>
+    );
+
+    await act(async () => {
+      await authInstance.login('test@drachma.app', 'minhasenhadificil123');
+    });
+
+    expect(screen.getByTestId('must-change').textContent).toBe('false');
+  });
+
+  it('reseta mustChangePassword para false ao efetuar logout', async () => {
+    let authInstance!: ReturnType<typeof useAuth>;
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'user-1',
+            email: 'novo@drachma.app',
+            user_metadata: { must_change_password: true },
+          },
+        },
+      },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer onAuth={(a) => { authInstance = a; }} />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('must-change').textContent).toBe('true');
+    });
+
+    await act(async () => {
+      await authInstance.logout();
+    });
+
+    expect(screen.getByTestId('must-change').textContent).toBe('false');
+  });
+
+  it('completeFirstAccessPassword rejeita caso tente reutilizar a senha padrão provisória', async () => {
+    let authInstance!: ReturnType<typeof useAuth>;
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'user-1',
+            email: 'novo@drachma.app',
+            user_metadata: { must_change_password: true },
+          },
+        },
+      },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer onAuth={(a) => { authInstance = a; }} />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('must-change').textContent).toBe('true');
+    });
+
+    await act(async () => {
+      await expect(
+        authInstance.completeFirstAccessPassword('senhapadrao123')
+      ).rejects.toThrow('A nova senha não pode ser a senha padrão provisória.');
+    });
+
+    expect(mockUpdateUser).not.toHaveBeenCalled();
+    expect(screen.getByTestId('must-change').textContent).toBe('true');
+  });
+
+  it('completeFirstAccessPassword atualiza a senha, limpa a flag e encerra outras sessões', async () => {
+    let authInstance!: ReturnType<typeof useAuth>;
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: 'user-1',
+            email: 'novo@drachma.app',
+            user_metadata: { must_change_password: true },
+          },
+        },
+      },
+      error: null,
+    });
+
+    mockUpdateUser.mockResolvedValue({
+      data: {
+        user: {
+          id: 'user-1',
+          email: 'novo@drachma.app',
+          user_metadata: { must_change_password: false },
+        },
+      },
+      error: null,
+    });
+
+    render(
+      <AuthProvider>
+        <TestConsumer onAuth={(a) => { authInstance = a; }} />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('must-change').textContent).toBe('true');
+    });
+
+    await act(async () => {
+      await authInstance.completeFirstAccessPassword('NovaSenhaDefinitiva2026!');
+    });
+
+    expect(mockUpdateUser).toHaveBeenCalledWith({
+      password: 'NovaSenhaDefinitiva2026!',
+      data: { must_change_password: false },
+    });
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: 'others' });
+    expect(screen.getByTestId('must-change').textContent).toBe('false');
   });
 });

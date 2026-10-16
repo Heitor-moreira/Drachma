@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { validateNewPassword, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from './authValidation';
+import {
+  validateNewPassword,
+  MIN_PASSWORD_LENGTH,
+  MAX_PASSWORD_LENGTH,
+  PROVISIONAL_DEFAULT_PASSWORD,
+} from './authValidation';
 
 describe('authValidation — validateNewPassword', () => {
   it('rejeita senha vazia', () => {
@@ -29,6 +34,20 @@ describe('authValidation — validateNewPassword', () => {
 
   it('aprova senha válida e que confere', () => {
     const res = validateNewPassword('senhaForte123', 'senhaForte123');
+    expect(res.isValid).toBe(true);
+    expect(res.error).toBeNull();
+  });
+
+  it('rejeita a senha padrão provisória quando disallowDefaultPassword for true', () => {
+    const res = validateNewPassword(PROVISIONAL_DEFAULT_PASSWORD, PROVISIONAL_DEFAULT_PASSWORD, {
+      disallowDefaultPassword: true,
+    });
+    expect(res.isValid).toBe(false);
+    expect(res.error).toBe('A nova senha não pode ser a senha padrão provisória.');
+  });
+
+  it('permite a senha padrão provisória quando disallowDefaultPassword não estiver habilitado', () => {
+    const res = validateNewPassword(PROVISIONAL_DEFAULT_PASSWORD, PROVISIONAL_DEFAULT_PASSWORD);
     expect(res.isValid).toBe(true);
     expect(res.error).toBeNull();
   });
