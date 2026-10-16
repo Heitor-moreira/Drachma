@@ -16,6 +16,82 @@ const types: Array<{ key: EntryType; label: string; color: string; icon: React.R
 ];
 const displayDate = (value: string) => value.split('-').reverse().join('/');
 
+interface TotalFilteredCardProps {
+  type: EntryType | 'ALL';
+  currencySymbol: string;
+  totals: {
+    income: number;
+    expense: number;
+    card: number;
+    savings: number;
+    totalExpenses: number;
+  };
+}
+
+export const TotalFilteredCard: React.FC<TotalFilteredCardProps> = ({ type, currencySymbol, totals }) => {
+  const formatVal = (val: number) => val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return (
+    <div
+      data-testid="total-filtered-card"
+      className="mx-3 sm:mx-6 my-2 px-4 py-3 rounded-2xl border border-slate-100 dark:border-dark-app-border bg-slate-50/80 dark:bg-dark-app-surface-secondary/60"
+    >
+      {type === 'ALL' ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs sm:text-sm font-medium text-slate-500 dark:text-dark-app-text-secondary">Entradas:</span>
+              <span className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                + {currencySymbol} {formatVal(totals.income)}
+              </span>
+            </div>
+            <div className="h-4 w-px bg-slate-200 dark:bg-dark-app-border" aria-hidden="true" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs sm:text-sm font-medium text-slate-500 dark:text-dark-app-text-secondary">Saídas:</span>
+              <span className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">
+                - {currencySymbol} {formatVal(totals.totalExpenses)}
+              </span>
+            </div>
+          </div>
+          {totals.savings > 0 && (
+            <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-dark-app-text-secondary">
+              <span>Economias:</span>
+              <span className="font-semibold text-lime-600 dark:text-lime-400">
+                {currencySymbol} {formatVal(totals.savings)}
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-dark-app-text-secondary">
+            {type === 'INCOME' && 'Total de Entradas'}
+            {type === 'EXPENSE' && 'Total de Saídas'}
+            {type === 'CARD' && 'Total em Cartão'}
+            {type === 'SAVINGS' && 'Total em Economias'}
+          </span>
+          <span
+            className={`text-xs sm:text-sm font-bold ${
+              type === 'INCOME'
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : type === 'EXPENSE'
+                ? 'text-rose-600 dark:text-rose-400'
+                : type === 'CARD'
+                ? 'text-violet-600 dark:text-violet-400'
+                : 'text-lime-600 dark:text-lime-400'
+            }`}
+          >
+            {type === 'INCOME' && `+ ${currencySymbol} ${formatVal(totals.income)}`}
+            {type === 'EXPENSE' && `- ${currencySymbol} ${formatVal(totals.expense)}`}
+            {type === 'CARD' && `- ${currencySymbol} ${formatVal(totals.card)}`}
+            {type === 'SAVINGS' && `+ ${currencySymbol} ${formatVal(totals.savings)}`}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const TagsView: React.FC<Props> = ({ transactions, cards, currencySymbol, onBack, onEdit }) => {
   const now = new Date(); const [year, setYear] = useState(now.getFullYear()); const [month, setMonth] = useState(now.getMonth());
   const [type, setType] = useState<EntryType | 'ALL'>('ALL'); const [tagSearch, setTagSearch] = useState('');
@@ -25,11 +101,40 @@ const TagsView: React.FC<Props> = ({ transactions, cards, currencySymbol, onBack
   const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => { const touch = event.touches[0]; swipeStartX.current = touch?.clientX ?? null; swipeStartY.current = touch?.clientY ?? null; };
   const handleTouchEnd = (event: React.TouchEvent<HTMLElement>) => { if (swipeStartX.current === null) return; const touch = event.changedTouches[0]; const dx = (touch?.clientX ?? swipeStartX.current) - swipeStartX.current; const dy = (touch?.clientY ?? swipeStartY.current ?? 0) - (swipeStartY.current ?? 0); swipeStartX.current = null; swipeStartY.current = null; if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) moveMonth(dx < 0 ? 1 : -1); };
   const filtered = useMemo(() => filterTaggedTransactions(transactions, cards, year, month, type, tagSearch), [transactions, cards, year, month, type, tagSearch]);
+  const totals = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    let card = 0;
+    let savings = 0;
+
+    for (const transaction of filtered) {
+      const entry = getTransactionEntryType(transaction);
+      if (entry === 'INCOME') {
+        income += transaction.amount;
+      } else if (entry === 'EXPENSE') {
+        expense += transaction.amount;
+      } else if (entry === 'CARD') {
+        card += transaction.amount;
+      } else if (entry === 'SAVINGS') {
+        savings += transaction.amount;
+      }
+    }
+
+    return {
+      income,
+      expense,
+      card,
+      savings,
+      totalExpenses: expense + card,
+    };
+  }, [filtered]);
+
   return <section className="touch-pan-y flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
     <header className="border-b border-slate-100 dark:border-dark-app-border"><div className="relative flex h-[76px] shrink-0 flex-nowrap items-center gap-1 overflow-visible bg-white px-4 py-4 dark:bg-dark-app-surface"><div className="flex shrink-0 items-center"><button type="button" onClick={onBack} aria-label="Voltar para o menu" className="rounded-lg p-1 text-slate-700 dark:text-dark-app-text-primary"><ArrowLeft size={24} /></button></div><div className="mx-auto flex items-center justify-center gap-0.5"><button type="button" aria-label="Mês anterior" onClick={() => moveMonth(-1)} className="shrink-0 p-1"><ChevronLeft className="h-6 w-6" /></button><span className="shrink-0 whitespace-nowrap text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary">{MONTHS[month]}/{String(year).slice(-2)}</span><button type="button" aria-label="Próximo mês" onClick={() => moveMonth(1)} className="shrink-0 p-1"><ChevronRight className="h-6 w-6" /></button></div><span className="w-8 shrink-0" /></div>
       <div className="grid min-w-0 grid-cols-2 gap-1 border-t border-slate-100 px-3 py-3 sm:gap-2 sm:px-6 dark:border-dark-app-border">
       <FilterPill typeFilter aria-label="Filtrar por tipo" value={type} onChange={e => setType(e.target.value as EntryType | 'ALL')}><option value="ALL">Todos</option>{types.map(item => <option key={item.key} value={item.key}>{item.label}</option>)}</FilterPill>
       <label className="flex h-11 min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 shadow-sm dark:border-dark-app-border dark:bg-dark-app-surface"><Search className="h-5 w-5 shrink-0 text-slate-500 dark:text-dark-app-text-secondary" /><input aria-label="Buscar tag" value={tagSearch} onChange={event => setTagSearch(event.target.value)} placeholder="Buscar tag" className="min-w-0 w-full bg-transparent text-base font-medium text-slate-700 outline-none placeholder:text-slate-400 dark:text-dark-app-text-primary dark:placeholder:text-dark-app-text-secondary" /></label></div>
+      <TotalFilteredCard type={type} currencySymbol={currencySymbol} totals={totals} />
     </header><div className="min-h-0 flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-app-border">{filtered.map(transaction => { const entry = getTransactionEntryType(transaction); const item = types.find(t => t.key === entry) || types[1]; const income = entry === 'INCOME'; const metadata = [transaction.recurrenceFrequency && transaction.recurrenceFrequency !== 'NONE' ? 'Recorrente' : '', transaction.isInstallment && transaction.installmentInfo ? `Parcela ${transaction.installmentInfo.current}/${transaction.installmentInfo.total}` : ''].filter(Boolean); return <button type="button" key={transaction.id} onClick={() => onEdit(transaction)} className="flex w-full items-start gap-3 px-5 py-5 text-left hover:bg-slate-50 dark:hover:bg-dark-app-surface-secondary"><span className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${item.color} text-white`}>{item.icon}</span><span className="min-w-0 flex-1"><strong className="block truncate text-base font-bold text-slate-800 dark:text-dark-app-text-primary">{transaction.description || item.label}</strong><span className="mt-1 block text-sm text-slate-500 dark:text-dark-app-text-secondary">{displayDate(transaction.date)} · {item.label} {metadata.map(m => <span key={m} className="ml-2 inline-flex items-center gap-1"><Repeat size={12} />{m}</span>)}</span><span className="mt-2 flex flex-wrap gap-1">{transaction.tags?.map(t => <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-dark-app-surface-secondary dark:text-dark-app-text-secondary">#{normalizeTag(t)}</span>)}</span></span><span className={`flex shrink-0 flex-col items-end text-base font-bold ${income ? 'text-emerald-600' : 'text-rose-600'}`}><span>{income ? '+' : '-'} {currencySymbol} {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span><ChevronRight className="mt-2 h-4 w-4 text-slate-300 dark:text-dark-app-text-secondary" /></span></button>})}{!filtered.length && <p className="p-10 text-center text-sm italic text-slate-500 dark:text-dark-app-text-secondary">Nenhum lançamento com tag encontrado para os filtros selecionados.</p>}<div className="h-28 shrink-0 md:hidden" aria-hidden="true" /></div>
   </section>;
 };
