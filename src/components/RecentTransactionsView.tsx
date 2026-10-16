@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDown, ArrowDownLeft, ArrowLeft, ArrowUp, ArrowUpRight, ChevronRight, Search, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowDownLeft, ArrowLeft, ArrowUp, ArrowUpRight, Calendar, ChevronRight, Search, Trash2 } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
 import { CreditCard, EntryType, Transaction } from '../types';
-import { filterRecentTransactions, getOccurrenceLabel, RecentSortDirection } from '../utils/recentTransactions';
+import { filterRecentTransactions, getOccurrenceLabel, RecentDateCriteria, RecentSortDirection } from '../utils/recentTransactions';
 import FilterPill from './FilterPill';
 
 interface Props {
@@ -78,8 +78,12 @@ export const RecentTransactionRow = React.memo(({ transaction, currencySymbol, o
 const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currencySymbol, onBack, onEdit, onDelete }) => {
   const [typeFilter, setTypeFilter] = useState<EntryType | 'ALL'>('ALL');
   const [sortDirection, setSortDirection] = useState<RecentSortDirection>('DESC');
+  const [dateCriteria, setDateCriteria] = useState<RecentDateCriteria>('CREATION_DATE');
   const [descriptionSearch, setDescriptionSearch] = useState('');
-  const filteredTransactions = useMemo(() => filterRecentTransactions(transactions, cards, typeFilter, sortDirection, descriptionSearch), [transactions, cards, typeFilter, sortDirection, descriptionSearch]);
+  const filteredTransactions = useMemo(
+    () => filterRecentTransactions(transactions, cards, typeFilter, sortDirection, descriptionSearch, dateCriteria),
+    [transactions, cards, typeFilter, sortDirection, descriptionSearch, dateCriteria]
+  );
 
   return <section className="flex h-full min-h-0 flex-col bg-white dark:bg-dark-app-surface">
     <header className="shrink-0 border-b border-slate-100 dark:border-dark-app-border">
@@ -90,9 +94,10 @@ const RecentTransactionsView: React.FC<Props> = ({ transactions, cards, currency
       </div>
       <div className="-mx-4 mt-0 border-t border-slate-100 px-4 py-3 dark:border-dark-app-border">
       <label className="flex h-11 min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 shadow-sm dark:border-dark-app-border dark:bg-dark-app-surface"><Search className="h-5 w-5 shrink-0 text-slate-500 dark:text-dark-app-text-secondary" /><input aria-label="Pesquisar por descrição" value={descriptionSearch} onChange={event => setDescriptionSearch(event.target.value)} placeholder="Pesquisar descrição" className="min-w-0 w-full bg-transparent text-base font-medium text-slate-700 outline-none placeholder:text-slate-400 dark:text-dark-app-text-primary dark:placeholder:text-dark-app-text-secondary" /></label>
-      <div className="mt-2 grid min-w-0 grid-cols-2 gap-1 sm:gap-2">
+      <div className="mt-2 grid min-w-0 grid-cols-1 gap-1.5 sm:grid-cols-3 sm:gap-2">
       <FilterPill typeFilter aria-label="Filtrar por tipo" value={typeFilter} onChange={event => setTypeFilter(event.target.value as EntryType | 'ALL')}><option value="ALL">Todos</option>{types.map(type => <option key={type.key} value={type.key}>{type.label}</option>)}</FilterPill>
-      <button type="button" onClick={() => setSortDirection(value => value === 'DESC' ? 'ASC' : 'DESC')} aria-label={sortDirection === 'DESC' ? 'Ordenação: mais recentes primeiro' : 'Ordenação: mais antigos primeiro'} className="flex h-11 min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-base font-medium text-slate-700 shadow-sm dark:border-dark-app-border dark:bg-dark-app-surface dark:text-dark-app-text-primary"><span className="flex h-5 w-5 shrink-0 items-center justify-center">{sortDirection === 'DESC' ? <ArrowDown size={19} /> : <ArrowUp size={19} />}</span><span className="min-w-0 whitespace-nowrap">{sortDirection === 'DESC' ? 'Mais recentes' : 'Mais antigos'}</span></button>
+      <FilterPill aria-label="Critério de data" icon={<Calendar size={18} />} value={dateCriteria} onChange={event => setDateCriteria(event.target.value as RecentDateCriteria)}><option value="CREATION_DATE">Data de criação</option><option value="TRANSACTION_DATE">Data do lançamento</option></FilterPill>
+      <button type="button" onClick={() => setSortDirection(value => value === 'DESC' ? 'ASC' : 'DESC')} aria-label={sortDirection === 'DESC' ? 'Ordenação: mais recentes primeiro' : 'Ordenação: mais antigos primeiro'} className="flex h-11 min-w-0 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-base font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-dark-app-border dark:bg-dark-app-surface dark:text-dark-app-text-primary dark:hover:bg-dark-app-surface-secondary"><span className="flex h-5 w-5 shrink-0 items-center justify-center">{sortDirection === 'DESC' ? <ArrowDown size={19} /> : <ArrowUp size={19} />}</span><span className="min-w-0 truncate whitespace-nowrap">{sortDirection === 'DESC' ? 'Mais recentes' : 'Mais antigos'}</span></button>
       </div>
       </div>
     </header>
