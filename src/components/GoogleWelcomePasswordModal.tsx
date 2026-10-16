@@ -262,6 +262,18 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              {/* Input oculto para associação de credencial com o Keychain / Touch ID */}
+              <input
+                type="email"
+                name="username"
+                autoComplete="username"
+                value={user?.email || ''}
+                readOnly
+                hidden
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+
               {/* Campo Nova Senha */}
               <div className="space-y-1">
                 <label
@@ -277,6 +289,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
                   </div>
                   <input
                     id="google-welcome-new-password"
+                    name="new-password"
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -315,6 +328,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
                   </div>
                   <input
                     id="google-welcome-confirm-password"
+                    name="confirm-password"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}

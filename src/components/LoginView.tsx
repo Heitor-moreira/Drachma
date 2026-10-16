@@ -159,13 +159,20 @@ const LoginView: React.FC<LoginViewProps> = ({
             /* Formulário de recuperação de senha */
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1">E-mail para recuperação</label>
+                <label htmlFor="recovery-email" className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1">E-mail para recuperação</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-slate-400" />
                   </div>
                   <input 
+                    id="recovery-email"
+                    name="email"
                     type="email" 
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
@@ -210,13 +217,20 @@ const LoginView: React.FC<LoginViewProps> = ({
             <>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1">E-mail</label>
+                  <label htmlFor="login-email" className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1">E-mail</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                       <Mail className="h-5 w-5 text-slate-400" />
                     </div>
                     <input 
+                      id="login-email"
+                      name="email"
                       type="email" 
+                      inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      autoComplete="username webauthn"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
@@ -229,7 +243,7 @@ const LoginView: React.FC<LoginViewProps> = ({
 
                 <div className="space-y-1">
                   <div className="flex justify-between items-center ml-1">
-                    <label className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Senha</label>
+                    <label htmlFor="login-password" className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Senha</label>
                     <button 
                       type="button" 
                       onClick={openForgotPassword}
@@ -244,7 +258,10 @@ const LoginView: React.FC<LoginViewProps> = ({
                       <Lock className="h-5 w-5 text-slate-400" />
                     </div>
                     <input 
+                      id="login-password"
+                      name="password"
                       type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password webauthn"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-11 pr-12 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"

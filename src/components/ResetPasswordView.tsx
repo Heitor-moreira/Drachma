@@ -182,6 +182,18 @@ const ResetPasswordView: React.FC = () => {
                 </div>
               )}
 
+              {/* Input oculto para associação de credencial com o Keychain / Touch ID */}
+              <input
+                type="email"
+                name="username"
+                autoComplete="username"
+                value={session?.user?.email || ''}
+                readOnly
+                hidden
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+
               {/* Campo Nova Senha */}
               <div className="space-y-1">
                 <label
@@ -196,6 +208,7 @@ const ResetPasswordView: React.FC = () => {
                   </div>
                   <input
                     id="new-password-input"
+                    name="new-password"
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -232,6 +245,7 @@ const ResetPasswordView: React.FC = () => {
                   </div>
                   <input
                     id="confirm-password-input"
+                    name="confirm-password"
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}

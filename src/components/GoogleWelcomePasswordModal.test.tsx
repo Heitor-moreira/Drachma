@@ -259,4 +259,39 @@ describe('GoogleWelcomePasswordModal — Exibição e comportamento', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
     expect(screen.getByText('Defina sua senha')).toBeTruthy();
   });
+
+  it('contém atributos de autofill, acessibilidade e campo oculto de username para Keychain', () => {
+    auth.user = { id: 'test-user-id', email: 'test.google@domain.com' };
+    auth.supabaseUser = {
+      id: 'test-user-id',
+      app_metadata: { providers: ['google'] },
+      identities: [{ provider: 'google' }],
+    };
+
+    const { container } = render(<GoogleWelcomePasswordModal />);
+
+    const hiddenUsername = container.querySelector('input[name="username"]') as HTMLInputElement;
+    expect(hiddenUsername).toBeTruthy();
+    expect(hiddenUsername.type).toBe('email');
+    expect(hiddenUsername.autocomplete).toBe('username');
+    expect(hiddenUsername.value).toBe('test.google@domain.com');
+    expect(hiddenUsername.readOnly).toBe(true);
+    expect(hiddenUsername.hidden).toBe(true);
+    expect(hiddenUsername.getAttribute('aria-hidden')).toBe('true');
+
+    const newPass = newPasswordInput();
+    const confirmPass = confirmPasswordInput();
+    const newPassLabel = screen.getByText('Nova senha');
+    const confirmPassLabel = screen.getByText('Confirmar nova senha');
+
+    expect(newPass.id).toBe('google-welcome-new-password');
+    expect(newPass.name).toBe('new-password');
+    expect(newPass.autocomplete).toBe('new-password');
+    expect(newPassLabel.getAttribute('for')).toBe('google-welcome-new-password');
+
+    expect(confirmPass.id).toBe('google-welcome-confirm-password');
+    expect(confirmPass.name).toBe('confirm-password');
+    expect(confirmPass.autocomplete).toBe('new-password');
+    expect(confirmPassLabel.getAttribute('for')).toBe('google-welcome-confirm-password');
+  });
 });

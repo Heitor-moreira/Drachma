@@ -250,3 +250,45 @@ describe('LoginView — esqueci a senha', () => {
     expect(root?.className).toContain('dark:bg-[#031630]');
   });
 });
+
+describe('LoginView — atributos de acessibilidade e Touch ID / Face ID', () => {
+  it('contém atributos de autofill e acessibilidade no formulário de login', () => {
+    render(<LoginView />);
+    const email = emailInput();
+    const password = passwordInput();
+    const emailLabel = screen.getByText('E-mail');
+    const passwordLabel = screen.getByText('Senha');
+
+    expect(email.id).toBe('login-email');
+    expect(email.name).toBe('email');
+    expect(email.type).toBe('email');
+    expect(email.inputMode).toBe('email');
+    expect(email.getAttribute('autocapitalize')).toBe('none');
+    expect(email.getAttribute('autocorrect')).toBe('off');
+    expect(email.getAttribute('spellcheck')).toBe('false');
+    expect(email.autocomplete).toBe('username webauthn');
+    expect(emailLabel.getAttribute('for')).toBe('login-email');
+
+    expect(password.id).toBe('login-password');
+    expect(password.name).toBe('password');
+    expect(password.autocomplete).toBe('current-password webauthn');
+    expect(passwordLabel.getAttribute('for')).toBe('login-password');
+  });
+
+  it('contém atributos de autofill e acessibilidade no formulário de recuperação de senha', () => {
+    render(<LoginView />);
+    openForgot();
+    const recoveryEmail = emailInput();
+    const recoveryLabel = screen.getByText('E-mail para recuperação');
+
+    expect(recoveryEmail.id).toBe('recovery-email');
+    expect(recoveryEmail.name).toBe('email');
+    expect(recoveryEmail.type).toBe('email');
+    expect(recoveryEmail.inputMode).toBe('email');
+    expect(recoveryEmail.getAttribute('autocapitalize')).toBe('none');
+    expect(recoveryEmail.getAttribute('autocorrect')).toBe('off');
+    expect(recoveryEmail.getAttribute('spellcheck')).toBe('false');
+    expect(recoveryEmail.autocomplete).toBe('email');
+    expect(recoveryLabel.getAttribute('for')).toBe('recovery-email');
+  });
+});

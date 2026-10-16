@@ -112,4 +112,33 @@ describe('ResetPasswordView — Fluxo e validações', () => {
       expect(screen.getByText('A senha deve ter no mínimo 6 caracteres.')).toBeTruthy();
     });
   });
+
+  it('contém atributos de autofill, acessibilidade e campo oculto de username para Keychain', () => {
+    auth.session = { user: { id: 'test-user-id', email: 'user@example.com' } };
+    const { container } = render(<ResetPasswordView />);
+
+    const hiddenUsername = container.querySelector('input[name="username"]') as HTMLInputElement;
+    expect(hiddenUsername).toBeTruthy();
+    expect(hiddenUsername.type).toBe('email');
+    expect(hiddenUsername.autocomplete).toBe('username');
+    expect(hiddenUsername.value).toBe('user@example.com');
+    expect(hiddenUsername.readOnly).toBe(true);
+    expect(hiddenUsername.hidden).toBe(true);
+    expect(hiddenUsername.getAttribute('aria-hidden')).toBe('true');
+
+    const newPass = newPasswordInput();
+    const confirmPass = confirmPasswordInput();
+    const newPassLabel = screen.getByText('Nova senha');
+    const confirmPassLabel = screen.getByText('Confirmar nova senha');
+
+    expect(newPass.id).toBe('new-password-input');
+    expect(newPass.name).toBe('new-password');
+    expect(newPass.autocomplete).toBe('new-password');
+    expect(newPassLabel.getAttribute('for')).toBe('new-password-input');
+
+    expect(confirmPass.id).toBe('confirm-password-input');
+    expect(confirmPass.name).toBe('confirm-password');
+    expect(confirmPass.autocomplete).toBe('new-password');
+    expect(confirmPassLabel.getAttribute('for')).toBe('confirm-password-input');
+  });
 });
