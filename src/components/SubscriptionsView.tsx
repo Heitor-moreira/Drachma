@@ -410,15 +410,12 @@ const SubscriptionsView: React.FC<Props> = ({
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-dark-app-border">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-[#D9A83A]/10 text-[#D9A83A] shrink-0">
+              <div className="p-2.5 rounded-2xl bg-theme/10 text-theme shrink-0">
                 <TrendingUp size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2
-                    className="text-base sm:text-lg font-bold text-slate-900 dark:text-dark-app-text-primary"
-                    style={{ fontFamily: "'Cinzel', Georgia, serif", letterSpacing: '0.04em' }}
-                  >
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-dark-app-text-primary">
                     Evolução Mensal
                   </h2>
                   {evolution.percentageChange !== null && (
@@ -513,7 +510,7 @@ const SubscriptionsView: React.FC<Props> = ({
                           <span
                             className={`text-xs font-bold block truncate ${
                               m.isCurrentMonth
-                                ? 'text-[#D9A83A]'
+                                ? 'text-theme'
                                 : 'text-slate-600 dark:text-dark-app-text-secondary'
                             }`}
                           >
@@ -526,8 +523,8 @@ const SubscriptionsView: React.FC<Props> = ({
                           <div
                             className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${
                               m.isCurrentMonth
-                                ? 'bg-[#D9A83A] shadow-sm'
-                                : 'bg-[#2A4A8C] dark:bg-[#1F3868] opacity-85 group-hover:opacity-100'
+                                ? 'bg-theme shadow-sm'
+                                : 'bg-slate-300 dark:bg-slate-700 opacity-85 group-hover:opacity-100'
                             }`}
                             style={{ height: `${heightPercent}%` }}
                           />
@@ -538,7 +535,7 @@ const SubscriptionsView: React.FC<Props> = ({
                           <span
                             className={`text-xs font-bold block uppercase tracking-wider ${
                               m.isCurrentMonth
-                                ? 'text-[#D9A83A]'
+                                ? 'text-theme'
                                 : 'text-slate-500 dark:text-dark-app-text-secondary'
                             }`}
                           >

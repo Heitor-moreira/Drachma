@@ -171,14 +171,14 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#0F1F3D]/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="invite-tester-title"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg rounded-3xl bg-[#0F1F3D] border border-[#1F3868] p-6 sm:p-8 text-[#F5EFE0] shadow-2xl overflow-y-auto max-h-[92vh] animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-lg rounded-3xl sm:rounded-[2rem] bg-white dark:bg-dark-app-surface border border-slate-100 dark:border-dark-app-border p-6 sm:p-8 text-slate-900 dark:text-dark-app-text-primary shadow-2xl overflow-y-auto max-h-[92vh] animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botão de Fechar */}
@@ -186,30 +186,29 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute top-5 right-5 text-[#9AA5BA] hover:text-[#F5EFE0] p-1.5 rounded-xl hover:bg-[#162A4F] transition-colors"
+          className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-dark-app-surface-secondary transition-colors"
         >
           <X size={20} />
         </button>
 
         {/* Cabeçalho do Modal */}
         <div className="flex items-start gap-4 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#D9A83A]/15 text-[#D9A83A] border border-[#D9A83A]/30 flex items-center justify-center shrink-0 shadow-lg shadow-[#D9A83A]/5">
+          <div className="w-12 h-12 rounded-2xl bg-theme/10 text-theme flex items-center justify-center shrink-0">
             <UserPlus size={24} />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h2
                 id="invite-tester-title"
-                className="text-2xl text-[#F5EFE0]"
-                style={{ fontFamily: "'Cinzel', Georgia, serif", fontWeight: 600, letterSpacing: '0.04em' }}
+                className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary"
               >
                 Convidar Testador
               </h2>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D9A83A]/20 text-[#D9A83A] border border-[#D9A83A]/30">
+              <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-theme/15 text-theme">
                 Admin
               </span>
             </div>
-            <p className="text-xs text-[#9AA5BA]">
+            <p className="text-xs text-slate-500 dark:text-dark-app-text-secondary">
               Gere e envie o convite com as credenciais provisórias de acesso ao Drachma.
             </p>
           </div>
@@ -219,12 +218,12 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
         {isLocalHost && (
           <div
             role="status"
-            className="mb-5 flex items-start gap-2.5 rounded-2xl bg-[#D9A83A]/10 border border-[#D9A83A]/30 p-3.5 text-xs text-[#F0D48A]"
+            className="mb-5 flex items-start gap-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 p-3.5 text-xs text-amber-800 dark:text-amber-300"
           >
-            <Info size={18} className="shrink-0 text-[#D9A83A] mt-0.5" />
+            <Info size={18} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
             <div>
               <p className="font-bold mb-0.5">Ambiente local detectado: usando URL de produção da Vercel para o convite</p>
-              <p className="text-[#F5EFE0]/80">
+              <p className="text-amber-700/90 dark:text-amber-300/80">
                 O link enviado para o convidado apontará para a versão online hospedada na Vercel.
               </p>
             </div>
@@ -236,12 +235,12 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
           <div>
             <label
               htmlFor="invite-app-url"
-              className="block text-xs font-bold uppercase tracking-wider text-[#D9A83A] mb-1.5"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-app-text-secondary mb-1.5"
             >
               Link de Acesso (URL)
             </label>
             <div className="relative flex items-center">
-              <span className="absolute left-3.5 text-[#9AA5BA] pointer-events-none">
+              <span className="absolute left-3.5 text-slate-400 dark:text-dark-app-text-secondary pointer-events-none">
                 <Globe size={18} />
               </span>
               <input
@@ -251,7 +250,7 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
                 onChange={(e) => setAppUrl(e.target.value)}
                 aria-label="URL do sistema"
                 placeholder="https://drachma.vercel.app"
-                className="w-full rounded-2xl bg-[#162A4F] border border-[#1F3868] py-3 pl-10 pr-4 text-sm text-[#F5EFE0] placeholder-[#9AA5BA]/50 outline-none focus:border-[#D9A83A] focus:ring-1 focus:ring-[#D9A83A] transition-all"
+                className="w-full rounded-2xl bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border py-3 pl-10 pr-4 text-base sm:text-sm text-slate-800 dark:text-dark-app-text-primary placeholder-slate-400 dark:placeholder-dark-app-text-secondary/50 outline-none focus:border-theme focus:ring-1 focus:ring-theme transition-all"
               />
             </div>
           </div>
@@ -260,7 +259,7 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
           <div>
             <label
               htmlFor="invite-guest-name"
-              className="block text-xs font-bold uppercase tracking-wider text-[#D9A83A] mb-1.5"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-app-text-secondary mb-1.5"
             >
               Nome do Convidado (Opcional)
             </label>
@@ -271,7 +270,7 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
               onChange={(e) => setGuestName(e.target.value)}
               placeholder="Ex: Colega"
               aria-label="Nome do convidado"
-              className="w-full rounded-2xl bg-[#162A4F] border border-[#1F3868] px-4 py-3 text-sm text-[#F5EFE0] placeholder-[#9AA5BA]/50 outline-none focus:border-[#D9A83A] focus:ring-1 focus:ring-[#D9A83A] transition-all"
+              className="w-full rounded-2xl bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border px-4 py-3 text-base sm:text-sm text-slate-800 dark:text-dark-app-text-primary placeholder-slate-400 dark:placeholder-dark-app-text-secondary/50 outline-none focus:border-theme focus:ring-1 focus:ring-theme transition-all"
             />
           </div>
 
@@ -279,12 +278,12 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
           <div>
             <label
               htmlFor="invite-guest-email"
-              className="block text-xs font-bold uppercase tracking-wider text-[#D9A83A] mb-1.5"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-app-text-secondary mb-1.5"
             >
               E-mail do Convidado (Opcional)
             </label>
             <div className="relative flex items-center">
-              <span className="absolute left-3.5 text-[#9AA5BA] pointer-events-none">
+              <span className="absolute left-3.5 text-slate-400 dark:text-dark-app-text-secondary pointer-events-none">
                 <Mail size={18} />
               </span>
               <input
@@ -294,17 +293,17 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
                 onChange={(e) => setGuestEmail(e.target.value)}
                 placeholder="email@exemplo.com"
                 aria-label="E-mail do convidado"
-                className="w-full rounded-2xl bg-[#162A4F] border border-[#1F3868] py-3 pl-10 pr-4 text-sm text-[#F5EFE0] placeholder-[#9AA5BA]/50 outline-none focus:border-[#D9A83A] focus:ring-1 focus:ring-[#D9A83A] transition-all"
+                className="w-full rounded-2xl bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border py-3 pl-10 pr-4 text-base sm:text-sm text-slate-800 dark:text-dark-app-text-primary placeholder-slate-400 dark:placeholder-dark-app-text-secondary/50 outline-none focus:border-theme focus:ring-1 focus:ring-theme transition-all"
               />
             </div>
           </div>
 
           {/* Senha Provisória Destacada */}
-          <div className="rounded-2xl bg-[#162A4F] border border-[#1F3868] p-4">
+          <div className="rounded-2xl bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <KeyRound size={16} className="text-[#D9A83A]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-[#D9A83A]">
+                <KeyRound size={16} className="text-theme" />
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-app-text-secondary">
                   Senha Provisória
                 </span>
               </div>
@@ -312,12 +311,12 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
                 type="button"
                 onClick={handleCopyPassword}
                 aria-label="Copiar senha"
-                className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-[#0F1F3D] text-[#D9A83A] border border-[#1F3868] hover:bg-[#1F3868] transition-colors"
+                className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-white dark:bg-dark-app-surface text-slate-700 dark:text-dark-app-text-primary border border-slate-200 dark:border-dark-app-border hover:bg-slate-100 dark:hover:bg-dark-app-border transition-colors"
               >
                 {isPasswordCopied ? (
                   <>
-                    <Check size={14} className="text-emerald-400" />
-                    <span className="text-emerald-400">Copiada!</span>
+                    <Check size={14} className="text-theme" />
+                    <span className="text-theme">Copiada!</span>
                   </>
                 ) : (
                   <>
@@ -328,28 +327,28 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
               </button>
             </div>
 
-            <div className="flex items-center justify-between bg-[#0F1F3D]/80 rounded-xl px-4 py-2.5 border border-[#1F3868]/60">
+            <div className="flex items-center justify-between bg-white dark:bg-dark-app-surface rounded-xl px-4 py-2.5 border border-slate-200 dark:border-dark-app-border">
               <span
                 data-testid="provisional-password-value"
-                className="font-mono text-base font-bold text-[#F5EFE0] tracking-wide"
+                className="text-base font-bold text-slate-900 dark:text-dark-app-text-primary tracking-wider"
               >
                 {DEFAULT_PROVISIONAL_PASSWORD}
               </span>
             </div>
 
-            <p className="mt-2 text-xs text-[#9AA5BA] leading-relaxed">
+            <p className="mt-2 text-xs text-slate-500 dark:text-dark-app-text-secondary leading-relaxed">
               No primeiro acesso, o sistema exigirá a troca para uma senha definitiva.
             </p>
           </div>
 
           {/* Prévia do Convite */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#D9A83A] mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-dark-app-text-secondary mb-1.5">
               Prévia do Convite
             </label>
             <div
               data-testid="invite-preview"
-              className="rounded-2xl bg-[#162A4F]/60 border border-[#1F3868] p-3.5 text-xs text-[#F5EFE0]/90 whitespace-pre-line font-mono max-h-36 overflow-y-auto leading-relaxed select-text"
+              className="rounded-2xl bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border p-3.5 text-xs text-slate-700 dark:text-dark-app-text-secondary whitespace-pre-line max-h-36 overflow-y-auto leading-relaxed select-text"
             >
               {inviteMessage}
             </div>
@@ -362,7 +361,7 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
           <button
             type="button"
             onClick={handleCopyInvite}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-[#D9A83A] hover:bg-[#E4BC5A] active:bg-[#B88A26] text-[#0F1F3D] font-bold text-sm shadow-lg shadow-[#D9A83A]/10 transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-theme hover:brightness-95 text-white font-bold text-sm shadow-sm transition-all cursor-pointer"
           >
             {isInviteCopied ? (
               <>
@@ -383,7 +382,7 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
               href={whatsAppUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 text-[#25D366] text-xs font-bold transition-all text-center"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 text-xs font-bold transition-all text-center"
             >
               <MessageCircle size={16} />
               <span>Enviar pelo WhatsApp</span>
@@ -391,7 +390,7 @@ export const InviteTesterModal: React.FC<InviteTesterModalProps> = ({
 
             <a
               href={mailtoUrl}
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-[#1F3868] hover:bg-[#2C4A85] border border-[#1F3868] text-[#F5EFE0] text-xs font-bold transition-all text-center"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-slate-100 dark:bg-dark-app-surface-secondary hover:bg-slate-200 dark:hover:bg-dark-app-border border border-slate-200 dark:border-dark-app-border text-slate-700 dark:text-dark-app-text-primary text-xs font-bold transition-all text-center"
             >
               <Mail size={16} />
               <span>Enviar por E-mail</span>

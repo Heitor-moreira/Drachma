@@ -176,13 +176,13 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+      className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
       role="dialog"
       aria-modal="true"
       aria-labelledby="google-welcome-title"
     >
       <div
-        className="bg-white dark:bg-[#0A192F] rounded-[2rem] shadow-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 transition-colors duration-300 relative overflow-hidden w-full max-w-md animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-dark-app-surface rounded-3xl sm:rounded-[2rem] shadow-2xl p-6 sm:p-8 border border-slate-200 dark:border-dark-app-border transition-colors duration-300 relative overflow-hidden w-full max-w-md animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botão de fechar / dispensar */}
@@ -191,7 +191,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
           onClick={handleDismiss}
           disabled={isLoading}
           aria-label="Fechar"
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl transition-colors disabled:opacity-50"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-dark-app-surface-secondary transition-colors disabled:opacity-50"
         >
           <X size={20} />
         </button>
@@ -205,23 +205,18 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
             <div className="space-y-2">
               <h2
                 id="google-welcome-title"
-                className="text-2xl text-slate-900 dark:text-white"
-                style={{ fontFamily: "'Cinzel', Georgia, serif", fontWeight: 600, letterSpacing: '0.04em' }}
+                className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary"
               >
                 Senha cadastrada com sucesso!
               </h2>
-              <p
-                className="text-sm text-slate-600 dark:text-slate-300"
-                style={{ fontFamily: "'Nunito Sans', sans-serif" }}
-              >
+              <p className="text-sm text-slate-600 dark:text-dark-app-text-secondary">
                 Agora você pode acessar sua conta utilizando seu e-mail e sua nova senha ou continuar entrando via Google.
               </p>
             </div>
             <button
               type="button"
               onClick={handleDismiss}
-              className="w-full bg-[#0A192F] hover:bg-[#031630] dark:bg-gradient-to-r dark:from-[#C8963E] dark:to-[#B8860B] text-white dark:text-[#031630] font-bold py-4 rounded-2xl hover:brightness-110 transition-all shadow-lg border border-[#C8963E]/40"
-              style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+              className="w-full bg-theme hover:brightness-95 text-white font-bold py-3.5 rounded-2xl transition-all shadow-sm"
             >
               Continuar para o Drachma
             </button>
@@ -229,23 +224,19 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
         ) : (
           /* Formulário de definição de senha */
           <div>
-            {/* Ícone de chave/segurança em círculo com destaque ouro */}
-            <div className="mx-auto w-16 h-16 rounded-full bg-[#C8963E]/20 text-[#D4A347] border border-[#C8963E]/30 flex items-center justify-center mb-4 shadow-lg shadow-[#C8963E]/10">
+            {/* Ícone de chave/segurança em caixa com destaque verde oficial */}
+            <div className="mx-auto w-14 h-14 rounded-2xl bg-theme/10 text-theme flex items-center justify-center mb-4">
               <KeyRound size={28} />
             </div>
 
             <div className="text-center mb-6">
               <h2
                 id="google-welcome-title"
-                className="text-2xl text-slate-900 dark:text-white mb-2"
-                style={{ fontFamily: "'Cinzel', Georgia, serif", fontWeight: 600, letterSpacing: '0.04em' }}
+                className="text-2xl font-bold text-slate-900 dark:text-dark-app-text-primary mb-2"
               >
                 Defina sua senha
               </h2>
-              <p
-                className="text-sm text-slate-600 dark:text-slate-300"
-                style={{ fontFamily: "'Nunito Sans', sans-serif" }}
-              >
+              <p className="text-sm text-slate-600 dark:text-dark-app-text-secondary">
                 Você entrou com sua conta Google. Para acessar também usando seu e-mail e senha diretamente, defina uma senha de acesso.
               </p>
             </div>
@@ -254,7 +245,6 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
               <div
                 role="alert"
                 className="mb-5 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-sm font-bold border border-rose-100 dark:border-rose-900/50 flex items-center gap-2"
-                style={{ fontFamily: "'Nunito Sans', sans-serif" }}
               >
                 <KeyRound size={16} className="shrink-0" />
                 <span>{error}</span>
@@ -278,8 +268,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
               <div className="space-y-1">
                 <label
                   htmlFor="google-welcome-new-password"
-                  className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1"
-                  style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                  className="text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase tracking-wider ml-1"
                 >
                   Nova senha
                 </label>
@@ -293,8 +282,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
-                    style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                    className="w-full pl-11 pr-12 py-3.5 text-base bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-2xl focus:ring-2 focus:ring-theme focus:border-transparent outline-none text-slate-800 dark:text-dark-app-text-primary font-medium transition-all"
                     placeholder="Mínimo de 6 caracteres"
                     disabled={isLoading}
                     autoComplete="new-password"
@@ -317,8 +305,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
               <div className="space-y-1">
                 <label
                   htmlFor="google-welcome-confirm-password"
-                  className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1"
-                  style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                  className="text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase tracking-wider ml-1"
                 >
                   Confirmar nova senha
                 </label>
@@ -332,8 +319,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
-                    style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                    className="w-full pl-11 pr-12 py-3.5 text-base bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-2xl focus:ring-2 focus:ring-theme focus:border-transparent outline-none text-slate-800 dark:text-dark-app-text-primary font-medium transition-all"
                     placeholder="Repita a nova senha"
                     disabled={isLoading}
                     autoComplete="new-password"
@@ -352,13 +338,13 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
               </div>
 
               {/* Indicadores dinâmicos de requisitos */}
-              <div className="space-y-1 pt-1 px-1 text-xs" style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+              <div className="space-y-1 pt-1 px-1 text-xs">
                 <div
                   className={`flex items-center gap-1.5 transition-colors ${
                     newPassword.length === 0
                       ? 'text-slate-400 dark:text-slate-500'
                       : isPasswordValid
-                      ? 'text-emerald-600 dark:text-emerald-400 font-semibold'
+                      ? 'text-emerald-600 dark:text-emerald-400 font-bold'
                       : 'text-amber-600 dark:text-amber-400'
                   }`}
                 >
@@ -369,7 +355,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
                   <div
                     className={`flex items-center gap-1.5 transition-colors ${
                       doPasswordsMatch
-                        ? 'text-emerald-600 dark:text-emerald-400 font-semibold'
+                        ? 'text-emerald-600 dark:text-emerald-400 font-bold'
                         : 'text-rose-600 dark:text-rose-400'
                     }`}
                   >
@@ -384,11 +370,10 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-[#0A192F] hover:bg-[#031630] dark:bg-gradient-to-r dark:from-[#C8963E] dark:to-[#B8860B] text-white dark:text-[#031630] font-bold py-4 rounded-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed border border-[#C8963E]/40"
-                  style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                  className="w-full bg-theme hover:brightness-95 text-white font-bold py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
-                    <div className="h-5 w-5 border-2 border-white/30 dark:border-[#031630]/30 border-t-white dark:border-t-[#031630] rounded-full animate-spin" />
+                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
                       <KeyRound size={20} />
@@ -401,8 +386,7 @@ const GoogleWelcomePasswordModal: React.FC<GoogleWelcomePasswordModalProps> = ({
                   type="button"
                   onClick={handleDismiss}
                   disabled={isLoading}
-                  className="w-full text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors py-2 text-center"
-                  style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                  className="w-full text-xs sm:text-sm font-bold text-slate-500 dark:text-dark-app-text-secondary hover:text-slate-800 dark:hover:text-dark-app-text-primary transition-colors py-2 text-center"
                 >
                   Agora não, continuar
                 </button>

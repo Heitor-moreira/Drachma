@@ -70,42 +70,33 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
   const userEmail = session?.user?.email || user?.email || '';
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 dark:bg-[#031630] transition-colors duration-300">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 dark:bg-dark-app-background transition-colors duration-300">
       <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
 
         {/* Header Logo */}
         <div className="mb-8 sm:mb-10 text-center flex flex-col items-center">
-          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#C8963E] via-[#D4A347] to-[#B8860B] shadow-2xl mb-5 hover:scale-105 transition-transform duration-300">
-            <div className="p-1 rounded-full bg-[#0A192F]">
-              <img
-                src="/drachma-icon.png"
-                alt="Drachma"
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-inner object-cover"
-              />
-            </div>
+          <div className="relative p-1.5 rounded-full bg-white dark:bg-dark-app-surface border border-slate-200 dark:border-dark-app-border shadow-lg mb-5 hover:scale-105 transition-transform duration-300">
+            <img
+              src="/drachma-icon.png"
+              alt="Drachma"
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover"
+            />
           </div>
-          <h1
-            className="text-3xl sm:text-4xl text-slate-900 dark:text-white mb-2 tracking-tight"
-            style={{ fontFamily: "'Cinzel', Georgia, serif", fontWeight: 600, letterSpacing: '0.04em' }}
-          >
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-dark-app-text-primary mb-2">
             Bem-vindo ao Drachma! 👋
           </h1>
-          <p
-            className="text-sm text-slate-600 dark:text-slate-300 max-w-sm leading-relaxed"
-            style={{ fontFamily: "'Nunito Sans', sans-serif" }}
-          >
+          <p className="text-sm text-slate-600 dark:text-dark-app-text-secondary max-w-sm leading-relaxed">
             Como este é seu primeiro acesso com a senha padrão, configure sua senha pessoal para proteger seus dados financeiros.
           </p>
         </div>
 
         {/* Card Principal */}
-        <div className="bg-white dark:bg-[#0A192F] rounded-[2rem] shadow-2xl p-8 sm:p-10 border border-slate-200 dark:border-slate-800 transition-colors duration-300 relative overflow-hidden">
+        <div className="bg-white dark:bg-dark-app-surface rounded-3xl sm:rounded-[2rem] shadow-2xl p-6 sm:p-8 border border-slate-200 dark:border-dark-app-border transition-colors duration-300 relative overflow-hidden">
 
           {error && (
             <div
               role="alert"
               className="mb-5 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-sm font-bold border border-rose-100 dark:border-rose-900/50 flex items-center gap-2"
-              style={{ fontFamily: "'Nunito Sans', sans-serif" }}
             >
               <KeyRound size={16} className="shrink-0" />
               <span>{error}</span>
@@ -129,8 +120,7 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
             <div className="space-y-1">
               <label
                 htmlFor="onboarding-new-password"
-                className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1"
-                style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                className="text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase tracking-wider ml-1"
               >
                 Nova senha
               </label>
@@ -144,8 +134,7 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
                   type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full pl-11 pr-12 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
-                  style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                  className="w-full pl-11 pr-12 py-3.5 text-base bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-2xl focus:ring-2 focus:ring-theme focus:border-transparent outline-none text-slate-800 dark:text-dark-app-text-primary font-medium transition-all"
                   placeholder={`Mínimo de ${MIN_PASSWORD_LENGTH} caracteres`}
                   disabled={isLoading || isLoggingOut}
                   autoComplete="new-password"
@@ -168,8 +157,7 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
             <div className="space-y-1">
               <label
                 htmlFor="onboarding-confirm-password"
-                className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider ml-1"
-                style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                className="text-xs font-bold text-slate-500 dark:text-dark-app-text-secondary uppercase tracking-wider ml-1"
               >
                 Confirmar nova senha
               </label>
@@ -183,8 +171,7 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-11 pr-12 py-3.5 bg-slate-50 dark:bg-[#031630] border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#C8963E] focus:border-transparent outline-none text-slate-800 dark:text-white font-medium transition-all"
-                  style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+                  className="w-full pl-11 pr-12 py-3.5 text-base bg-slate-50 dark:bg-dark-app-surface-secondary border border-slate-200 dark:border-dark-app-border rounded-2xl focus:ring-2 focus:ring-theme focus:border-transparent outline-none text-slate-800 dark:text-dark-app-text-primary font-medium transition-all"
                   placeholder="Repita a nova senha"
                   disabled={isLoading || isLoggingOut}
                   autoComplete="new-password"
@@ -203,13 +190,13 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
             </div>
 
             {/* Indicadores dinâmicos de requisitos */}
-            <div className="space-y-1 pt-1 px-1 text-xs" style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+            <div className="space-y-1 pt-1 px-1 text-xs">
               <div
                 className={`flex items-center gap-1.5 transition-colors ${
                   newPassword.length === 0
                     ? 'text-slate-400 dark:text-slate-500'
                     : isPasswordValidLength
-                    ? 'text-emerald-600 dark:text-emerald-400 font-semibold'
+                    ? 'text-emerald-600 dark:text-emerald-400 font-bold'
                     : 'text-amber-600 dark:text-amber-400'
                 }`}
               >
@@ -218,7 +205,7 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
               </div>
 
               {isDefaultPassword && (
-                <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-semibold transition-colors">
+                <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-bold transition-colors">
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
                   A nova senha não pode ser a senha padrão provisória
                 </div>
@@ -228,7 +215,7 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
                 <div
                   className={`flex items-center gap-1.5 transition-colors ${
                     doPasswordsMatch
-                      ? 'text-emerald-600 dark:text-emerald-400 font-semibold'
+                      ? 'text-emerald-600 dark:text-emerald-400 font-bold'
                       : 'text-rose-600 dark:text-rose-400'
                   }`}
                 >
@@ -242,11 +229,10 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
             <button
               type="submit"
               disabled={isLoading || isLoggingOut}
-              className="w-full bg-[#0A192F] hover:bg-[#031630] dark:bg-gradient-to-r dark:from-[#C8963E] dark:to-[#B8860B] text-white dark:text-[#031630] font-bold py-4 rounded-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed mt-2 border border-[#C8963E]/40"
-              style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+              className="w-full bg-theme hover:brightness-95 text-white font-bold py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed mt-2"
             >
               {isLoading ? (
-                <div className="h-5 w-5 border-2 border-white/30 dark:border-[#031630]/30 border-t-white dark:border-t-[#031630] rounded-full animate-spin" />
+                <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
                   <KeyRound size={20} />
@@ -260,8 +246,7 @@ const OnboardingPasswordView: React.FC<OnboardingPasswordViewProps> = ({ onSucce
               type="button"
               onClick={handleLogout}
               disabled={isLoading || isLoggingOut}
-              className="w-full text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors flex items-center justify-center gap-1.5 pt-2 disabled:opacity-50"
-              style={{ fontFamily: "'Nunito Sans', sans-serif" }}
+              className="w-full text-xs sm:text-sm font-bold text-slate-500 dark:text-dark-app-text-secondary hover:text-slate-800 dark:hover:text-dark-app-text-primary transition-colors flex items-center justify-center gap-1.5 pt-2 disabled:opacity-50"
             >
               <LogOut size={16} />
               {isLoggingOut ? 'Saindo da conta...' : 'Sair da conta'}

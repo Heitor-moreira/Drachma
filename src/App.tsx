@@ -651,7 +651,7 @@ const App: React.FC = () => {
                   <UserPlus size={24} strokeWidth={1.8} />
                   <span className="flex items-center gap-2">
                     Convidar testador
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D9A83A]/15 text-[#8F6A1B] dark:bg-[#D9A83A]/20 dark:text-[#F0D48A] border border-[#D9A83A]/30">
+                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-theme/15 text-theme">
                       Admin
                     </span>
                   </span>
@@ -941,11 +941,11 @@ const App: React.FC = () => {
                     onClick={() => {
                       setIsInviteModalOpen(true);
                     }}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#D9A83A]/40 bg-[#D9A83A]/10 text-[#8F6A1B] dark:text-[#F0D48A] font-bold hover:bg-[#D9A83A]/20 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-theme/30 bg-theme/10 text-theme font-bold hover:bg-theme/20 transition-colors"
                   >
                     <UserPlus size={18} />
                     <span>Convidar testador</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D9A83A]/20 text-[#8F6A1B] dark:text-[#F0D48A] border border-[#D9A83A]/30">
+                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-theme/20 text-theme">
                       Admin
                     </span>
                   </button>
